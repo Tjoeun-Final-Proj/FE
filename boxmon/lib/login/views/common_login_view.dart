@@ -1,3 +1,5 @@
+import 'package:boxmon/core/app_design.dart';
+import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,123 +7,115 @@ import 'package:get/get.dart';
 class LoginView extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  //final AuthController authController = Get.find<AuthController>();
+  final AuthController authController = Get.find<AuthController>();
 
   LoginView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // ever(authController.isLoading, (bool loading) {
-    //   if (!loading && Get.isDialogOpen!) {
-    //     Get.back(); // 다이얼로그 닫기
-    //   }
-    // });
     return Scaffold(
       backgroundColor: Colors.white,
+
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
         title: Text(""),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Weave Us',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900, // 폰트 Black
-                  color: Colors.orange,
-                  fontFamily: 'Pretendard',
-                )),
-            SizedBox(height: 20),
-            TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "이메일")),
-            TextField(
-                controller: passwordController,
-                decoration: const InputDecoration(labelText: "비밀번호"),
-                obscureText: true),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // authController.login(
-                //     emailController.text, passwordController.text);
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size.fromHeight(55), // 높이만 설정
-                backgroundColor: Color(0xFFFF8000),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              child: const Text(
-                "로그인하기",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontFamily: 'Pretendard',
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: () => Get.toNamed(AppRoutes.register),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF434343),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: const Text(
-                        "유저 회원가입",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Pretendard',
-                        ),
-                      ),
+                Image.asset('img/logo.png', height: 97, width: 330), 
+                SizedBox(height: 20),
+                Padding(
+                  padding: AppSpacing.paddingHorizontalHuge,
+                  child: TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(labelText: "아이디")),
+                ),
+                SizedBox(height: 20),
+                Padding(
+                  padding: AppSpacing.paddingHorizontalHuge,
+                  child: TextField(
+                      controller: passwordController,
+                      decoration: const InputDecoration(labelText: "비밀번호"),
+                      obscureText: true),
+                ),
+                SizedBox(height: 20),
+
+                // 로그인 버튼
+                Padding(
+                  padding: AppSpacing.paddingHorizontalHuge,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // authController.login(
+                      //     emailController.text, passwordController.text);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size.fromHeight(55), // 높이만 설정
+                      
+                    backgroundColor: AppColors.primaryLight,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppBorderRadius.radiusLG,
+                    ),
+                    ),
+                    child: Text(
+                      "로그인하기",
+                      style: AppTextStyles.buttonText,
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: SizedBox(
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: () => Get.toNamed(AppRoutes.ownerRegister),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF434343),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+
+                SizedBox(height: 20),
+                Padding(
+                  padding: AppSpacing.paddingHorizontalHuge,
+                  child: IntrinsicHeight( // 자식들(텍스트와 선)의 높이를 통일시킵니다.
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // 중앙 정렬
+                      children: [
+                        // 회원가입 하기 버튼
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              Get.toNamed(AppRoutes.register);
+                            },
+                            child: Text(
+                              "회원가입 하기",
+                              style: AppTextStyles.bodyMediumBold.copyWith(color: Colors.black),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        "오너 회원가입",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Pretendard',
+                        
+                        // 중간 수직 구분선
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0), // 선의 위아래 여백
+                          child: Container(
+                            width: 1, // 선 두께
+                            color: Colors.black, // 선 색상
+                          ),
                         ),
-                      ),
+
+                        // 비밀번호 찾기 버튼
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              "비밀번호 찾기",
+                              style: AppTextStyles.bodyMediumBold.copyWith(color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ],
             ),
-
-          ],
-        ),
+          ),
+      
       ),
-    );
+      );
   }
 }
