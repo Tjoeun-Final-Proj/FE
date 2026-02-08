@@ -1,6 +1,9 @@
 import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:boxmon/core/design/app_design.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class OwnerRegistrationView extends GetView<AuthController> {
   OwnerRegistrationView({super.key});
@@ -16,76 +19,280 @@ class OwnerRegistrationView extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(""),
-        backgroundColor: Colors.white,
-      ),
-      body: Center(
+      appBar: AppBar(title: const Text(""), backgroundColor: Colors.white),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(), // 스크롤 시 튕기는 효과 (iOS 스타일)
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 50),
+          padding: EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('오너 회원가입',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900, // 폰트 Black
-                    color: Color(0xFF434343),
-                    fontFamily: 'Pretendard',
-                  )),
+              Image.asset('img/logo.png', height: 97, width: 330),
               SizedBox(height: 20),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "이메일"),
-              ),
-              TextField(
-                  controller: passwordController,
-                  decoration: const InputDecoration(labelText: "비밀번호"),
-                  obscureText: true),
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "이름"),
-              ),
-              TextField(
-                controller: nicknameController,
-                decoration: const InputDecoration(labelText: "닉네임"),
-              ),
-              TextField(
-                controller: numberController,
-                decoration: const InputDecoration(labelText: "전화번호"),
-              ),
-              TextField(
-                controller: genderController,
-                decoration: const InputDecoration(labelText: "성별"),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // controller.ownerRegistration(
-                  //     emailController.text,
-                  //     passwordController.text,
-                  //     nameController.text,
-                  //     nicknameController.text,
-                  //     numberController.text,
-                  //     genderController.text);
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size.fromHeight(55), // 높이만 설정
-                  backgroundColor: Color(0xFF434343),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("차주용 회원가입", style: AppTextStyles.ownertag),
                 ),
-                child: Text(
-                  "오너 회원가입 하기",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontFamily: 'Pretendard',
+              ),
+              SizedBox(height: 10),
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "아이디",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedUserCircle02,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    // 기본 테두리 (둥글게)
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    // 선택되지 않았을 때 테두리
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
                   ),
                 ),
               ),
+
+              SizedBox(height: 12),
+
+              // 3. 비밀번호 입력창
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  obscureText: true, // 비밀번호 가리기
+                  decoration: InputDecoration(
+                    hintText: "비밀번호",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedCircleLock01,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // 3. 비밀번호 입력창
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  obscureText: true, // 비밀번호 가리기
+                  decoration: InputDecoration(
+                    hintText: "비밀번호 확인하기",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedCircleLockCheck02,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // 3. 비밀번호 입력창
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "이름",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedUser,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // 3. 비밀번호 입력창
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "생년월일 8자리",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedUserIdVerification,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // 3. 비밀번호 입력창
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "휴대전화 번호",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedSmartPhone02,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // 3. 비밀번호 입력창
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "사업자 번호",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedUserList,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // 3. 비밀번호 입력창
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "차량 등록하기",
+                    hintStyle: AppTextStyles.hintbuttonText,
+                    // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 70, // 아이콘 영역을 넓게 잡아서 자연스러운 패딩 효과
+                    ),
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedTaxi,
+                      color: Colors.grey[600],
+                      size: 33.0,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFFD1D1D1)),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // 로그인 버튼
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed(AppRoutes.ownerHome);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size.fromHeight(55), // 높이만 설정
+
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppBorderRadius.radiusLG,
+                    ),
+                  ),
+                  child: Text("회원가입 하기", style: AppTextStyles.buttonText),
+                ),
+              ),
+              SizedBox(height: 20),
             ],
           ),
         ),
