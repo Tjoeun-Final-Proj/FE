@@ -1,4 +1,4 @@
-import 'package:boxmon/core/app_design.dart';
+import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,9 +26,9 @@ class SplashView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-             Image.asset('img/boxmon.png', height: 303, width: 338), 
+              Image.asset('img/boxmon.png', height: 303, width: 338),
               SizedBox(height: 50),
-             
+
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: ElevatedButton(
@@ -49,9 +49,9 @@ class SplashView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-             Padding(
-               padding: AppSpacing.paddingHorizontalHuge,
-               child: ElevatedButton(
+              Padding(
+                padding: AppSpacing.paddingHorizontalHuge,
+                child: ElevatedButton(
                   onPressed: () {
                     Get.toNamed(AppRoutes.login);
                   },
@@ -65,13 +65,13 @@ class SplashView extends StatelessWidget {
                   child: const Text(
                     "화주로 계속하기",
                     style: AppTextStyles.buttonText,
-                    ),
                   ),
-             ),
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
-      ), 
-      );
+        ),
+      ),
+    );
   }
 }

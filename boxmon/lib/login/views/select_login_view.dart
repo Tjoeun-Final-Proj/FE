@@ -1,4 +1,4 @@
-import 'package:boxmon/core/app_design.dart';
+import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,10 +23,10 @@ class AuthMainView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               HugeIcon(
-                    icon: HugeIcons.strokeRoundedUser,
-                    color: Colors.grey[600],
-                  ),
-              Image.asset('img/boxmon.png', height: 313, width: 338), 
+                icon: HugeIcons.strokeRoundedUser,
+                color: Colors.grey[600],
+              ),
+              Image.asset('img/boxmon.png', height: 313, width: 338),
               SizedBox(height: 50),
 
               // 위브 버튼
@@ -39,10 +39,7 @@ class AuthMainView extends StatelessWidget {
                     borderRadius: AppBorderRadius.radiusLG,
                   ),
                 ),
-                child: const Text(
-                  "시작하기",
-                  style: AppTextStyles.buttonText,
-                ),
+                child: const Text("시작하기", style: AppTextStyles.buttonText),
               ),
 
               SizedBox(height: 20),

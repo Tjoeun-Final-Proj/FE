@@ -70,11 +70,18 @@ class AppTextStyles {
     color: Colors.black,
   );
   // owner login text
-  static const TextStyle loginSmallText = TextStyle(
+  static const TextStyle ownertag = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.bold,
     fontFamily: 'Pretendard',
-    color: Color(0xFF434343)
+    color: Color(0xFF434343),
+  );
+  // user login text
+  static const TextStyle usertag = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    fontFamily: 'Pretendard',
+    color: Color(0xFF02449B),
   );
 
   // AppBar Title
