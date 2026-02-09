@@ -1,12 +1,12 @@
+import 'package:boxmon/common/views/common_home.dart';
+import 'package:boxmon/common/views/common_order.dart';
+import 'package:boxmon/common/views/common_setting.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/views/common_login_view.dart';
 import 'package:boxmon/login/views/common_registration_view.dart';
 import 'package:boxmon/login/views/owner_login_view.dart';
 import 'package:boxmon/login/views/owner_registration_view.dart';
 import 'package:boxmon/login/views/splash_view.dart';
-import 'package:boxmon/common/views/common_home.dart';
-import 'package:boxmon/common/views/common_order.dart';
-import 'package:boxmon/common/views/common_setting.dart';
 import 'package:boxmon/owner/views/owner_home.dart';
 import 'package:boxmon/owner/views/owner_order.dart';
 import 'package:boxmon/owner/views/owner_setting.dart';

@@ -1,50 +1,104 @@
-import '../models/token_model.dart';
+import 'package:boxmon/login/models/common_model.dart';
+import 'package:boxmon/login/services/token_service.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-class AuthService {
-  String? accessToken;
-  String? refreshToken;
-  late Token token;
+class AuthService extends GetxService {
   // final TokenService tokenController = TokenService();
+  final dio.Dio _dio = 
+      Get.find<dio.Dio>(); // Base URL이 http://10.0.2.2:8080/api 로 설정된채로 가져와짐
+  final GetStorage _storage = Get.find<GetStorage>();
+  final TokenService _tokenService = Get.find<TokenService>();
+  /// =================================================
+  /// 이메일 기반 회원가입 처리
+  /// - 성공 시 accessToken 포함 CommonModel 반환
+  /// =================================================
+  Future<CommonModel?> signupEmail(Map<String, dynamic> userData) async {
+  try {
+    print("🚀 최종 요청 주소: ${_dio.options.baseUrl}user/signup");
+    print("=== [POST] /user/signup 요청 시작 ===");
 
-  // 함수 나중에 넣어둘게요~~
-  // Future<bool> login(String email, String password) async {
-  //   final lambdaResponse = await http.post(
-  //   );
-  //   var responseData = jsonDecode(lambdaResponse.body);
-  //   try {
-  //     if (response.statusCode == 200) {
-  //       final data = response.body;
-  //       if (data.containsKey('accessToken') &&
-  //           data.containsKey('refreshToken') &&
-  //           data.containsKey('user_id') &&
-  //           data.containsKey('is_owner')) {
+    final response = await _dio.post(
+      'user/signup',
+      data: userData,
+    );
 
-  //         token = Token(
-  //           accessToken: data['accessToken'],
-  //           refreshToken: data['refreshToken'],
-  //           userId: data['user_id'].toString(),
-  //           isOwner: data['is_owner'], // 서버에서 int로 내려오므로 그대로
-  //         );
+    print("--- 서버 응답 성공 ---");
+    print("상태 코드: ${response.statusCode}");
+    print("응답 바디: ${response.data}");
 
-  //         await tokenController.saveToken(
-  //           token.accessToken,
-  //           token.refreshToken,
-  //           token.userId,
-  //           token.isOwner.toString(), // ✅ 반드시 toString()
-  //         );
+    if (response.statusCode == 200 || response.statusCode == 204) {
+        // Backend returns CommonModel, which contains accessToken
+        return CommonModel.fromJson(response.data);
+      }
+      // Handle non-2xx errors
+    } on dio.DioException catch (e) {
+      String? errorMessage;
+      if (e.response != null && e.response?.data is Map) {
+        // Check if the backend sent a structured error response
+        errorMessage = e.response?.data['error']?.toString();
+      }
 
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     } else {
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     print("JSON Parsing Error: $e");
-  //     return false;
-  //   }
-  // }
+      if (e.response?.statusCode == 409) {
+        errorMessage = errorMessage ?? '이미 가입된 이메일 주소입니다.';
+      } else {
+        errorMessage = errorMessage ?? '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      }
+
+      print('DioError in registerWithEmail: ${e.message ?? errorMessage}');
+    } catch (e) {
+      print('Unexpected error in registerWithEmail: $e');
+    }
+    return null;
+  }
+}
+  // 로그인하는 함수
+  Future<bool> login(String email, String password) async {
+    final response = await _dio.post(
+      'user/login',
+      data: userData,
+    );
+
+    print("--- 서버 응답 성공 ---");
+    print("상태 코드: ${response.statusCode}");
+    print("응답 바디: ${response.data}");
+
+    var responseData = jsonDecode(lambdaResponse.body);
+    try {
+      if (response.statusCode == 200) {
+        final data = response.body;
+        if (data.containsKey('accessToken') &&
+            data.containsKey('refreshToken') &&
+            data.containsKey('user_id') &&
+            data.containsKey('is_owner')) {
+
+          token = Token(
+            accessToken: data['accessToken'],
+            refreshToken: data['refreshToken'],
+            userId: data['user_id'].toString(),
+            isOwner: data['is_owner'], // 서버에서 int로 내려오므로 그대로
+          );
+
+          await tokenController.saveToken(
+            token.accessToken,
+            token.refreshToken,
+            token.userId,
+            token.isOwner.toString(), // ✅ 반드시 toString()
+          );
+
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("JSON Parsing Error: $e");
+      return false;
+    }
+  }
 
   // void logout() {
   //   tokenController.clearToken();
@@ -111,4 +165,3 @@ class AuthService {
   //     return false;
   //   }
   // }
-}

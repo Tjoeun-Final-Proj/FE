@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   get:
   hugeicons:
+  dio:
+  get_storage:
+
   shared_preferences:
   shared_preferences_web:
   flutter_secure_storage:
