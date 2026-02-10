@@ -41,6 +41,7 @@ class LoginView extends StatelessWidget {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: authController.emailController,
                   decoration: InputDecoration(
                     hintText: "아이디",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -74,6 +75,7 @@ class LoginView extends StatelessWidget {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: authController.passwordController,  
                   obscureText: true, // 비밀번호 가리기
                   decoration: InputDecoration(
                     hintText: "비밀번호",
@@ -104,23 +106,32 @@ class LoginView extends StatelessWidget {
               // 로그인 버튼
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // authController.login(
-                    //     emailController.text, passwordController.text);
-                  },
+                child: Obx(() => ElevatedButton( // Obx로 감싸서 상태 변화 감지
+                  onPressed: authController.isLoading.value 
+                    ? null // 로딩 중일 때는 버튼 비활성화
+                    : () {
+                        authController.login(
+                          authController.emailController.text.trim(), 
+                          authController.passwordController.text.trim()
+                        );
+                      },
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size.fromHeight(55), // 높이만 설정
-
+                    minimumSize: Size.fromHeight(55),
                     backgroundColor: AppColors.primaryLight,
                     shape: RoundedRectangleBorder(
                       borderRadius: AppBorderRadius.radiusLG,
                     ),
                   ),
-                  child: Text("로그인하기", style: AppTextStyles.buttonText),
-                ),
+                  child: authController.isLoading.value
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text("로그인하기", style: AppTextStyles.buttonText),
+                )),
               ),
-
+              
               SizedBox(height: 20),
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,

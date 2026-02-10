@@ -225,7 +225,9 @@ class RegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: ElevatedButton(
-                  onPressed: () => controller.commonSignup(),
+                  onPressed: () {
+                    controller.commonSignup();
+                  },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size.fromHeight(55), // 높이만 설정
 

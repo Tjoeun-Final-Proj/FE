@@ -22,7 +22,7 @@ class AuthBinding extends Bindings {
     // 2. HTTP 통신 클라이언트(Dio): 백엔드 서버(API)와 통신하기 위한 객체
     // 서버 주소(baseUrl)를 설정하여 모든 API 호출의 기본 경로를 지정합니다.
     Get.put(
-      Dio(BaseOptions(baseUrl: 'http://localhost:8080/api/')),
+      Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/api/')),
       permanent: true,
     );
 

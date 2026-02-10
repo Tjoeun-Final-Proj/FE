@@ -52,52 +52,37 @@ class AuthService extends GetxService {
     }
     return null;
   }
-}
-  // 로그인하는 함수
-  Future<bool> login(String email, String password) async {
-    final response = await _dio.post(
-      'user/login',
-      data: userData,
-    );
 
-    print("--- 서버 응답 성공 ---");
-    print("상태 코드: ${response.statusCode}");
-    print("응답 바디: ${response.data}");
-
-    var responseData = jsonDecode(lambdaResponse.body);
+  // 화주 로그인하는 함수
+  Future<bool> userlogin(String email, String password) async {
     try {
+      final response = await _dio.post(
+        'user/login',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
+      print('✅ [Login Success]: ${response.statusCode}'); // 응답 바디 확인
       if (response.statusCode == 200) {
-        final data = response.body;
-        if (data.containsKey('accessToken') &&
-            data.containsKey('refreshToken') &&
-            data.containsKey('user_id') &&
-            data.containsKey('is_owner')) {
-
-          token = Token(
-            accessToken: data['accessToken'],
-            refreshToken: data['refreshToken'],
-            userId: data['user_id'].toString(),
-            isOwner: data['is_owner'], // 서버에서 int로 내려오므로 그대로
-          );
-
-          await tokenController.saveToken(
-            token.accessToken,
-            token.refreshToken,
-            token.userId,
-            token.isOwner.toString(), // ✅ 반드시 toString()
-          );
-
-          return true;
-        } else {
-          return false;
-        }
+        print('✅ [Login Success]: ${response.data}'); // 응답 바디 확인
+        
+        return true;
       } else {
+        print('⚠️ [Login Failed]: Status Code ${response.statusCode}');
         return false;
       }
-    } catch (e) {
-      print("JSON Parsing Error: $e");
-      return false;
-    }
+
+      // Catch문 상세화
+      } catch (e) {
+        if (e is dio.DioException) {
+          print('❌ [Network Error]: ${e.message}');
+        } else {
+          print('❌ [Unknown Error]: $e');
+        }
+        return false;
+      }
+      
   }
 
   // void logout() {
@@ -165,3 +150,4 @@ class AuthService extends GetxService {
   //     return false;
   //   }
   // }
+  }
