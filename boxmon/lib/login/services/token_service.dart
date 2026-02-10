@@ -9,7 +9,6 @@ import '../models/token_model.dart';
 // flutter_secure_storage 쓰는 이유 보안상의 이유
 class TokenService extends GetxService {
   final _storage = const FlutterSecureStorage();
-  final bool _isChecking = false; // 🚩 중복 실행 방지용 플래그
   
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';

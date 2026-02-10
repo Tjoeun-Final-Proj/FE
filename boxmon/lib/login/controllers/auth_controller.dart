@@ -21,7 +21,6 @@ class AuthController extends GetxController {
   var isAuthenticated = false.obs;
   var isLoading = false.obs;
   var isLoginSuccess = false.obs;
-  final bool _isAlreadyChecked = false; // 🚩 [핵심] 한 번 체크했는지 저장하는 변수
   
    // ✅ 앞에 _ 를 지웠습니다. 이제 외부에서 호출 가능합니다.
   Future<void> checkAuthStatus() async { 
