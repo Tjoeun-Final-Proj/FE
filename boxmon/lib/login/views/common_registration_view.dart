@@ -1,20 +1,12 @@
+import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
-import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:boxmon/core/design/app_design.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class RegistrationView extends GetView<AuthController> {
-  RegistrationView({super.key});
-
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController nicknameController = TextEditingController();
-  final TextEditingController numberController = TextEditingController();
-  final TextEditingController genderController = TextEditingController();
-
+  const RegistrationView({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +25,7 @@ class RegistrationView extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
 
             children: [
-              Image.asset('img/logo.png', height: 97, width: 330),
+              Image.asset('assets/img/logo.png', height: 97, width: 330),
               SizedBox(height: 20),
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
@@ -46,6 +38,7 @@ class RegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.emailController,
                   decoration: InputDecoration(
                     hintText: "아이디",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -79,6 +72,7 @@ class RegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.passwordController,
                   obscureText: true, // 비밀번호 가리기
                   decoration: InputDecoration(
                     hintText: "비밀번호",
@@ -109,6 +103,7 @@ class RegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller : controller.confirmPasswordController,
                   obscureText: true, // 비밀번호 가리기
                   decoration: InputDecoration(
                     hintText: "비밀번호 확인하기",
@@ -135,10 +130,11 @@ class RegistrationView extends GetView<AuthController> {
                 ),
               ),
               SizedBox(height: 20),
-              // 3. 비밀번호 입력창
+              // 3. 이름 입력창
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.nameController,
                   decoration: InputDecoration(
                     hintText: "이름",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -164,10 +160,11 @@ class RegistrationView extends GetView<AuthController> {
                 ),
               ),
               SizedBox(height: 20),
-              // 3. 비밀번호 입력창
+              // 3. 생년월일 입력창
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.birthController,
                   decoration: InputDecoration(
                     hintText: "생년월일 8자리",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -193,10 +190,11 @@ class RegistrationView extends GetView<AuthController> {
                 ),
               ),
               SizedBox(height: 20),
-              // 3. 비밀번호 입력창
+              // 3. 휴대폰 입력 창
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.phoneController,
                   decoration: InputDecoration(
                     hintText: "휴대전화 번호",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -228,7 +226,7 @@ class RegistrationView extends GetView<AuthController> {
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.toNamed(AppRoutes.commonHome);
+                    controller.commonSignup();
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size.fromHeight(55), // 높이만 설정
@@ -247,9 +245,5 @@ class RegistrationView extends GetView<AuthController> {
         ),
       ),
     );
-  }
-
-  void clickLogin() {
-    Get.offNamed(AppRoutes.login);
   }
 }

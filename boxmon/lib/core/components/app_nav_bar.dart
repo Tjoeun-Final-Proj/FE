@@ -18,7 +18,7 @@ class AppNavBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: false, // 로고를 왼쪽에 붙이기 위해 false
       // 1. 왼쪽 로고 설정
       title: Image.asset(
-        'img/logo.png', // 로고 이미지 경로
+        'assets/img/logo.png', // 로고 이미지 경로
         height: 30, // 적절한 높이로 조절하세요
         fit: BoxFit.contain,
       ),

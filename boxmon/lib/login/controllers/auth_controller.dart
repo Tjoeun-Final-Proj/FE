@@ -1,22 +1,91 @@
+import 'package:boxmon/login/models/common_model.dart';
+import 'package:boxmon/login/models/token_model.dart';
+import 'package:boxmon/login/services/auth_service.dart';
+import 'package:boxmon/login/services/token_service.dart';
+import 'package:boxmon/routes/app_routes.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  //final TokenService _tokenService = TokenService();
-  // final AuthService _authService = AuthService();
+  final TokenService _tokenService = TokenService();
+  final AuthService _authService = AuthService();
 
-  // var isAuthenticated = false.obs;
-  // var isOwner = false.obs;
-  // var isLoading = false.obs;
-  // var isLoginSuccess = false.obs;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final nameController = TextEditingController();
+  final birthController = TextEditingController();
+  final phoneController = TextEditingController();
 
+  var isAuthenticated = false.obs;
+  var isLoading = false.obs;
+  var isLoginSuccess = false.obs;
+  
+   // ✅ 앞에 _ 를 지웠습니다. 이제 외부에서 호출 가능합니다.
+  Future<void> checkAuthStatus() async { 
+    print('🚀 [AuthCheck] 인증 체크 시작');
+    
+    Token? token = await _tokenService.loadToken();
+    
+    if (token != null && token.accessToken.isNotEmpty) {
+      Get.offAllNamed(AppRoutes.commonHome);
+    } else {
+      Get.offAllNamed(AppRoutes.selectLogin);
+    }
+  }
+  Future<void> commonSignup() async {
+         isLoading.value = true; // 로딩 시작
+      try {
+          debugPrint("📌 [Signup] 회원가입 시작: ${emailController.text}");
+   
+          // 1. 데이터 준비 (여기서는 Map을 사용하지만, UserSignupRequest 모델을 사용하는 것이 더 좋습니다.)
+          final userData = {
+            "email": emailController.text,
+            "password": passwordController.text,
+            "name": nameController.text,
+            "phone": phoneController.text,
+            "birth": birthController.text, // 실제로는 DateTime 객체를 문자열로 변환해야 할 수 있습니다.
+          };
+        debugPrint("🚀 [Signup] SignUpUseCase (또는 AuthService) 호출 시작. 데이터: $userData");
+        // 2. 유스케이스 (또는 서비스) 호출
+        // CommonModel? result = await _signUpUseCase.execute(userData); // 유스케이스 사용 시
+        CommonModel? result = await _authService.signupEmail(userData); // 현재 _authService 사용 시
+        debugPrint("📥 [Signup] API 응답 수신 완료. result: $result");
+        // 3. 결과 처리
+        if (result != null) {
+          debugPrint("✅ [Signup] 회원가입 성공. 응답 메시지: ${result.message}");
+          Get.snackbar("회원가입 성공", result.message ?? "회원가입이 완료되었습니다.");
+          Get.offAllNamed(AppRoutes.login);
+          isLoginSuccess.value = true;
+        } else {
+          debugPrint("⚠️ [Signup] 회원가입 실패: result가 null입니다.");
+          Get.snackbar("회원가입 실패", "알 수 없는 오류로 회원가입에 실패했습니다. 다시 시도해주세요.");
+          isLoginSuccess.value = false;
+        }
+      } on DioException catch (e) {
+        debugPrint("❌ [Signup] DioException 발생: ${e.response?.statusCode}");
+        debugPrint("❌ [Signup] DioException 응답 데이터: ${e.response?.data}");
+        debugPrint("❌ [Signup] DioException 메시지: ${e.message}");
 
-  // ✅ 앱 실행 시 토큰 검증 및 자동 로그인 처리
-  // Future<bool> checkAuthStatus() async {
-  //   bool isValid = await _tokenService.refreshToken();
-  //   isAuthenticated.value = isValid;
-  //   Get.offAllNamed(AppRoutes.LOGIN);
-  //   return isValid;
-  // }
+        String errorMessage = "회원가입 중 네트워크 오류가 발생했습니다.";
+        if (e.response != null && e.response?.data != null && e.response?.data is Map) {
+          errorMessage = e.response?.data['message'] ?? errorMessage;
+        }
+        Get.snackbar("회원가입 오류", errorMessage);
+        isLoginSuccess.value = false;
+      } catch (e, stackTrace) {
+        debugPrint("❌ [Signup] 예상치 못한 예외 발생");
+        debugPrint("❌ error: $e");
+        debugPrint("❌ stackTrace:\n$stackTrace");
+
+        Get.snackbar("회원가입 오류", "예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        isLoginSuccess.value = false;
+      } finally {
+        isLoading.value = false; // 로딩 종료
+        debugPrint("🏁 [Signup] 회원가입 프로세스 종료");
+      }
+    }
 
   // Future<bool> checkIsOwner() async {
   //   Token token = await _tokenService.loadToken() ??
@@ -25,58 +94,71 @@ class AuthController extends GetxController {
   //   return isOwner.value;
   // }
 
-  // Future<void> _checkAuthStatus() async {
-  //   Token token = await _tokenService.loadToken() ??
-  //       Token(accessToken: '', refreshToken: '', userId: '', isOwner: 0);
-  //   bool isValid = token.accessToken != '';
-  //   isAuthenticated.value = isValid;
-  //   isOwner.value = token.isOwner == 1;
-  //   if (isValid) {
-  //     Get.offAllNamed(AppRoutes.HOME);
-  //   }
-  // }
 
-  // Future<void> login(String email, String password) async {
-  //   isLoading.value = true;
-
-  //   if (!Get.isDialogOpen!) {
-  //     Get.dialog(
-  //       const PopScope(
-  //         canPop: false,
-  //         child: Dialog(
-  //           child: Padding(
-  //             padding: EdgeInsets.all(20),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 CircularProgressIndicator(),
-  //                 SizedBox(height: 16),
-  //                 Text("로그인 중입니다..."),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //       barrierDismissible: false,
-  //     );
-  //   }
-
-    // 실제 로그인 요청
-    //final success = await _authService.login(email, password);
-
-   // print(BCrypt.hashpw(password, BCrypt .gensalt Function() Function ));
-
-    // if (success) {
-    //   final token = await _tokenService.loadToken();
-    //   isAuthenticated.value = true;
-    //   isLoading.value = false;
-    //   isOwner.value = token!.isOwner == 1;
-    //   Get.offAllNamed(AppRoutes.HOME);
-    // } else {
-    //   isLoading.value = false;
-    //   Get.snackbar("로그인 실패", "아이디나 비밀번호를 확인하세요");
-    // }
+  Future<void> login(String email, String password) async {
+    print("---------- 로그인 시도 ----------");
+  print("Email: $email");
+  print("Password: $password");
+  isLoading.value = true;
+  if (email.isEmpty || password.isEmpty) {
+    Get.snackbar("알림", "이메일과 비밀번호를 모두 입력해주세요.");
+    return; // 값이 없으면 여기서 중단
   }
+  // 1. 로딩 다이얼로그 표시
+  if (!Get.isDialogOpen!) {
+    Get.dialog(
+      const PopScope(
+        canPop: false,
+        child: Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text("로그인 중입니다..."),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  try {
+    // 2. 실제 로그인 요청
+    final success = await _authService.userlogin(email, password);
+    print("로그인 서비스 응답 결과: $success");
+
+    // 3. 다이얼로그 닫기
+    if (Get.isDialogOpen!) Get.back();
+
+    // 4. 결과에 따른 분기 처리 (이 부분이 누락되어 있었습니다)
+    if (success == true) {
+      print("로그인 성공: 홈 화면으로 이동합니다.");
+      isLoading.value = false;
+      Get.offAllNamed(AppRoutes.commonHome);
+    } else {
+      print("로그인 실패: 아이디 또는 비밀번호 불일치.");
+      isLoading.value = false;
+      Get.snackbar("로그인 실패", "아이디 또는 비밀번호를 확인해주세요.");
+    }
+
+  } catch (e, stackTrace) {
+    // 5. 에러 발생 시 상세 로그 출력
+    print("!!! 로그인 과정 중 예외 발생 !!!");
+    print("에러 내용: $e");
+    print("스택 트레이스: $stackTrace");
+
+    if (Get.isDialogOpen!) Get.back();
+    isLoading.value = false;
+    Get.snackbar("에러", "네트워크 문제나 서버 오류가 발생했습니다.");
+  } finally {
+    print("---------- 로그인 프로세스 종료 ----------");
+  }
+}
 
   // // ✅ 로그아웃 처리
   // Future<void> logout() async {
@@ -206,3 +288,4 @@ class AuthController extends GetxController {
   //   }
   //   return success;
   // }
+}
