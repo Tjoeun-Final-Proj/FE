@@ -6,6 +6,7 @@ import 'package:boxmon/login/views/common_login_view.dart';
 import 'package:boxmon/login/views/common_registration_view.dart';
 import 'package:boxmon/login/views/owner_login_view.dart';
 import 'package:boxmon/login/views/owner_registration_view.dart';
+import 'package:boxmon/login/views/select_login_view.dart';
 import 'package:boxmon/login/views/splash_view.dart';
 import 'package:boxmon/owner/views/owner_home.dart';
 import 'package:boxmon/owner/views/owner_order.dart';
@@ -14,8 +15,9 @@ import 'package:get/get.dart';
 
 class AppRoutes {
   static const splash = '/';
-  static const login = '/login';
-  static const register = '/register';
+  static const selectLogin = '/select/login';
+  static const login = '/user/login';
+  static const register = '/user/register';
   static const ownerLogin = '/owner/login';
   static const ownerRegister = '/owner/register';
   static const ownerHome = '/owner/home';
@@ -28,6 +30,8 @@ class AppRoutes {
   static final routes = <GetPage>[
     GetPage(name: splash, page: () => SplashView()),
 
+    GetPage(name: selectLogin, page: () => SelectLoginView()),
+    
     GetPage(name: login, page: () => LoginView(), binding: AuthBinding()),
 
     GetPage(

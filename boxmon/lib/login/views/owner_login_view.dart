@@ -29,7 +29,7 @@ class OwnerLoginView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('img/logo.png', height: 97, width: 330),
+              Image.asset('assets/img/logo.png', height: 97, width: 330),
               SizedBox(height: 20),
               // 1. 차주 계정 타이틀
               Padding(

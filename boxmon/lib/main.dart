@@ -1,3 +1,6 @@
+import 'package:boxmon/login/bindings/auth_binding.dart';
+import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,8 +25,11 @@ import 'package:get/get.dart';
 //   }
 // }
 
-void main() {
+void main() async {
   runApp(const MyApp());
+
+  Get.put(AuthController(), permanent: true);
+  Get.put(TokenService(), permanent: true);
 }
 
 class MyApp extends StatelessWidget {
@@ -35,6 +41,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.splash,
       getPages: AppRoutes.routes,
+      initialBinding: AuthBinding(),
+      theme: ThemeData(
+        fontFamily: 'Pretendard', // Pretendard 폰트를 기본 폰트로 설정
+      )
     );
   }
 }

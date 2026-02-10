@@ -1,15 +1,15 @@
 import 'package:boxmon/login/models/common_model.dart';
+import 'package:boxmon/login/models/token_model.dart';
 import 'package:boxmon/login/services/auth_service.dart';
+import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  //final TokenService _tokenService = TokenService();
-  // final AuthService _authService = AuthService();
-
-  final _authService = Get.find<AuthService>();
+  final TokenService _tokenService = TokenService();
+  final AuthService _authService = AuthService();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -17,24 +17,24 @@ class AuthController extends GetxController {
   final nameController = TextEditingController();
   final birthController = TextEditingController();
   final phoneController = TextEditingController();
-  // var isAuthenticated = false.obs;
-  // var isOwner = false.obs;
+
+  var isAuthenticated = false.obs;
   var isLoading = false.obs;
   var isLoginSuccess = false.obs;
-
-
-  @override
-  void onClose() {
-    // 메모리 누수 방지를 위해 닫아주는 설정 (선택사항이지만 권장)
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    nameController.dispose();
-    birthController.dispose();
-    phoneController.dispose();
-    super.onClose();
+  final bool _isAlreadyChecked = false; // 🚩 [핵심] 한 번 체크했는지 저장하는 변수
+  
+   // ✅ 앞에 _ 를 지웠습니다. 이제 외부에서 호출 가능합니다.
+  Future<void> checkAuthStatus() async { 
+    print('🚀 [AuthCheck] 인증 체크 시작');
+    
+    Token? token = await _tokenService.loadToken();
+    
+    if (token != null && token.accessToken.isNotEmpty) {
+      Get.offAllNamed(AppRoutes.commonHome);
+    } else {
+      Get.offAllNamed(AppRoutes.selectLogin);
+    }
   }
-
   Future<void> commonSignup() async {
          isLoading.value = true; // 로딩 시작
       try {
@@ -87,13 +87,6 @@ class AuthController extends GetxController {
         debugPrint("🏁 [Signup] 회원가입 프로세스 종료");
       }
     }
-  // ✅ 앱 실행 시 토큰 검증 및 자동 로그인 처리
-  // Future<bool> checkAuthStatus() async {
-  //   bool isValid = await _tokenService.refreshToken();
-  //   isAuthenticated.value = isValid;
-  //   Get.offAllNamed(AppRoutes.LOGIN);
-  //   return isValid;
-  // }
 
   // Future<bool> checkIsOwner() async {
   //   Token token = await _tokenService.loadToken() ??
@@ -102,16 +95,6 @@ class AuthController extends GetxController {
   //   return isOwner.value;
   // }
 
-  // Future<void> _checkAuthStatus() async {
-  //   Token token = await _tokenService.loadToken() ??
-  //       Token(accessToken: '', refreshToken: '', userId: '', isOwner: 0);
-  //   bool isValid = token.accessToken != '';
-  //   isAuthenticated.value = isValid;
-  //   isOwner.value = token.isOwner == 1;
-  //   if (isValid) {
-  //     Get.offAllNamed(AppRoutes.HOME);
-  //   }
-  // }
 
   Future<void> login(String email, String password) async {
     print("---------- 로그인 시도 ----------");

@@ -25,7 +25,7 @@ class RegistrationView extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
 
             children: [
-              Image.asset('img/logo.png', height: 97, width: 330),
+              Image.asset('assets/img/logo.png', height: 97, width: 330),
               SizedBox(height: 20),
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,

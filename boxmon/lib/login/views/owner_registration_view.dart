@@ -1,8 +1,8 @@
+import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:boxmon/core/design/app_design.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class OwnerRegistrationView extends GetView<AuthController> {
@@ -27,7 +27,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('img/logo.png', height: 97, width: 330),
+              Image.asset('assets/img/logo.png', height: 97, width: 330),
               SizedBox(height: 20),
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,

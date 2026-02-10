@@ -5,12 +5,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/token_model.dart';
 
+// kisweb 쓰는 이유, 인증 토큰을 웹에서는 flutter_secure_storage가 지원되지 않기 때문에
+// flutter_secure_storage 쓰는 이유 보안상의 이유
 class TokenService extends GetxService {
   final _storage = const FlutterSecureStorage();
-
+  final bool _isChecking = false; // 🚩 중복 실행 방지용 플래그
+  
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
 
+  // 토큰 저장 하는 컨트롤러입니다.
   Future<void> saveToken(String accessToken, String refreshToken) async {
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
@@ -22,6 +26,7 @@ class TokenService extends GetxService {
     }
   }
 
+  // 토큰 불러오는 함수에요
   Future<Token?> loadToken() async {
     String? accessToken;
     String? refreshToken;
@@ -35,12 +40,20 @@ class TokenService extends GetxService {
       refreshToken = await _storage.read(key: _refreshTokenKey);
     }
 
-    if (accessToken != null && refreshToken != null) {
-      
+    // 💡 여기서 값을 확인하고 Token 객체를 반환해야 함!
+    if (accessToken != null && accessToken.isNotEmpty) {
+      print("✅ [TokenService] 토큰 로드 성공!");
+      return Token(
+        accessToken: accessToken,
+        refreshToken: refreshToken ?? '',
+      );
     }
-    return null;
+
+    print("⚠️ [TokenService] 저장된 토큰이 없습니다.");
+    return null; // 값이 없을 때만 null 반환
   }
 
+  // 토큰 삭제 (로그아웃 시 사용할꺼에요)
   Future<void> clearToken() async {
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
@@ -51,4 +64,11 @@ class TokenService extends GetxService {
       await _storage.delete(key: _refreshTokenKey);
     }
   }
-}
+
+  // ✅ 401 발생 시 토큰 갱신
+  Future<bool> refreshToken() async {
+    Token? token = await loadToken();
+    if (token == null) return false;
+      return false;
+    }
+  }
