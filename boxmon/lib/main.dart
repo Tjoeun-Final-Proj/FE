@@ -1,31 +1,14 @@
+import 'package:boxmon/firebase_options.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/routes/app_routes.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
-
-// void main() {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GetMaterialApp(
-//       debugShowCheckedModeBanner: false, // 앱 실행 시 디버그 리본 제거
-//       initialRoute: AppRoutes.SPLASH, // 앱이 켜졌을 때 스플래쉬 화면을 가장 먼저 보여줌
-//       getPages: AppRoutes.routes, // 앱에서 사용할 모든 화면(Route)의 지도를 등록
-//       initialBinding:
-//           AuthBinding(), // 앱이 시작될 때 가장 먼저 메모리에 올려둘 컨트롤러를 AuthBinding으로 설정
-//     );
-//   }
-// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +20,21 @@ void main() async {
     print("❌ .env 파일을 찾을 수 없습니다: $e");
   }
   await _initializeNaverMap();
+
+  // 2. 🔥 Firebase 초기화 (이게 없으면 [core/no-app] 에러 발생!)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // 3. 🌐 Dio 전역 설정 (이게 없으면 "Dio not found" 에러 발생!)
+  Get.put(Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/api/')), permanent: true);
+
+  // 4. 지도 초기화 등 기타 설정
+  await _initializeNaverMap();
+
+  // 5. 서비스 및 컨트롤러 등록 (순서 중요: TokenService가 먼저!)
+  await Get.putAsync(() => TokenService().init());
+  Get.put(AuthController(), permanent: true);
 
   runApp(const MyApp());
 

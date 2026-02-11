@@ -1,11 +1,13 @@
-// import 'package:get/get.dart';
-// import 'package:flutter/material.dart';
-// import '../routes/app_routes.dart';
+import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-// class AuthMiddleware extends GetMiddleware {
-//   @override
-//   RouteSettings? redirect(String? route) {
-//     final authController = Get.find<AuthController>();
-//     return authController.isAuthenticated.value ? null : const RouteSettings(name: AppRoutes.SPLASH);
-//   }
-// }
+import '../routes/app_routes.dart';
+
+class AuthMiddleware extends GetMiddleware {
+  @override
+  RouteSettings? redirect(String? route) {
+    final authController = Get.find<AuthController>();
+    return authController.isAuthenticated.value ? null : const RouteSettings(name: AppRoutes.splash);
+  }
+}
