@@ -1,6 +1,5 @@
 import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
-import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -40,6 +39,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.emailController,
                   decoration: InputDecoration(
                     hintText: "아이디",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -73,6 +73,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.passwordController,
                   obscureText: true, // 비밀번호 가리기
                   decoration: InputDecoration(
                     hintText: "비밀번호",
@@ -133,6 +134,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.nameController,
                   decoration: InputDecoration(
                     hintText: "이름",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -162,6 +164,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.birthController,
                   decoration: InputDecoration(
                     hintText: "생년월일 8자리",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -191,6 +194,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.phoneController,
                   decoration: InputDecoration(
                     hintText: "휴대전화 번호",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -220,6 +224,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.businessNumberController,
                   decoration: InputDecoration(
                     hintText: "사업자 번호",
                     hintStyle: AppTextStyles.hintbuttonText,
@@ -249,8 +254,9 @@ class OwnerRegistrationView extends GetView<AuthController> {
               Padding(
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
+                  controller: controller.certNumberController,
                   decoration: InputDecoration(
-                    hintText: "차량 등록하기",
+                    hintText: "운수종사자 자격증 번호",
                     hintStyle: AppTextStyles.hintbuttonText,
                     // 1. 아이콘 제약 조건 설정 (아이콘이 박스 안에서 차지하는 전체 너비)
                     prefixIconConstraints: const BoxConstraints(
@@ -279,7 +285,7 @@ class OwnerRegistrationView extends GetView<AuthController> {
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.toNamed(AppRoutes.ownerHome);
+                    controller.driverSignup();
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size.fromHeight(55), // 높이만 설정

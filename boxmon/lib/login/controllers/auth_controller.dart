@@ -1,9 +1,9 @@
-import 'package:boxmon/login/models/common_model.dart';
+import 'package:boxmon/login/models/driver_signup_request.dart';
+import 'package:boxmon/login/models/signup_request.dart';
 import 'package:boxmon/login/models/token_model.dart';
 import 'package:boxmon/login/services/auth_service.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/routes/app_routes.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,12 +17,15 @@ class AuthController extends GetxController {
   final nameController = TextEditingController();
   final birthController = TextEditingController();
   final phoneController = TextEditingController();
+  final businessNumberController = TextEditingController();
+  final certNumberController = TextEditingController();
 
   var isAuthenticated = false.obs;
   var isLoading = false.obs;
   var isLoginSuccess = false.obs;
+  var isDriver = false.obs;
   
-   // ✅ 앞에 _ 를 지웠습니다. 이제 외부에서 호출 가능합니다.
+   // 이제 외부에서 호출 가능합니다.
   Future<void> checkAuthStatus() async { 
     print('🚀 [AuthCheck] 인증 체크 시작');
     
@@ -34,59 +37,136 @@ class AuthController extends GetxController {
       Get.offAllNamed(AppRoutes.selectLogin);
     }
   }
+
   Future<void> commonSignup() async {
-         isLoading.value = true; // 로딩 시작
-      try {
-          debugPrint("📌 [Signup] 회원가입 시작: ${emailController.text}");
-   
-          // 1. 데이터 준비 (여기서는 Map을 사용하지만, UserSignupRequest 모델을 사용하는 것이 더 좋습니다.)
-          final userData = {
-            "email": emailController.text,
-            "password": passwordController.text,
-            "name": nameController.text,
-            "phone": phoneController.text,
-            "birth": birthController.text, // 실제로는 DateTime 객체를 문자열로 변환해야 할 수 있습니다.
-          };
-        debugPrint("🚀 [Signup] SignUpUseCase (또는 AuthService) 호출 시작. 데이터: $userData");
-        // 2. 유스케이스 (또는 서비스) 호출
-        // CommonModel? result = await _signUpUseCase.execute(userData); // 유스케이스 사용 시
-        CommonModel? result = await _authService.signupEmail(userData); // 현재 _authService 사용 시
-        debugPrint("📥 [Signup] API 응답 수신 완료. result: $result");
-        // 3. 결과 처리
-        if (result != null) {
-          debugPrint("✅ [Signup] 회원가입 성공. 응답 메시지: ${result.message}");
-          Get.snackbar("회원가입 성공", result.message ?? "회원가입이 완료되었습니다.");
-          Get.offAllNamed(AppRoutes.login);
-          isLoginSuccess.value = true;
-        } else {
-          debugPrint("⚠️ [Signup] 회원가입 실패: result가 null입니다.");
-          Get.snackbar("회원가입 실패", "알 수 없는 오류로 회원가입에 실패했습니다. 다시 시도해주세요.");
-          isLoginSuccess.value = false;
-        }
-      } on DioException catch (e) {
-        debugPrint("❌ [Signup] DioException 발생: ${e.response?.statusCode}");
-        debugPrint("❌ [Signup] DioException 응답 데이터: ${e.response?.data}");
-        debugPrint("❌ [Signup] DioException 메시지: ${e.message}");
+  isLoading.value = true;
+  debugPrint("\n--- 📝 [Signup Process Start] ---");
 
-        String errorMessage = "회원가입 중 네트워크 오류가 발생했습니다.";
-        if (e.response != null && e.response?.data != null && e.response?.data is Map) {
-          errorMessage = e.response?.data['message'] ?? errorMessage;
-        }
-        Get.snackbar("회원가입 오류", errorMessage);
-        isLoginSuccess.value = false;
-      } catch (e, stackTrace) {
-        debugPrint("❌ [Signup] 예상치 못한 예외 발생");
-        debugPrint("❌ error: $e");
-        debugPrint("❌ stackTrace:\n$stackTrace");
+  try {
+    // 1. 디바이스 토큰 확보
+    final tokenService = Get.find<TokenService>();
+    final String dToken = tokenService.deviceToken ?? "NO_TOKEN_FOUND";
+    
+    debugPrint("📍 STEP 1: 디바이스 토큰 확인 -> $dToken");
 
-        Get.snackbar("회원가입 오류", "예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-        isLoginSuccess.value = false;
-      } finally {
-        isLoading.value = false; // 로딩 종료
-        debugPrint("🏁 [Signup] 회원가입 프로세스 종료");
-      }
+    // 2. 요청 모델 생성 (데이터 캡슐화)
+    final signupRequest = SignupRequest(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+      name: nameController.text.trim(),
+      phone: phoneController.text.trim(),
+      birth: birthController.text.trim(),
+      deviceToken: dToken,
+    );
+
+    debugPrint("📍 STEP 2: 전송 데이터 모델 구성 완료");
+    debugPrint("📦 Payload: ${signupRequest.toJson()}");
+
+    // 3. 서비스 호출 (이제 bool 값을 반환함)
+    debugPrint("📡 STEP 3: 서버 API 호출 시도...");
+    bool isSuccess = await _authService.signupEmail(signupRequest);
+
+    // 4. 결과 처리
+    if (isSuccess) {
+      debugPrint("✅ STEP 4: 회원가입 최종 성공!");
+      
+      Get.snackbar(
+        "회원가입 완료", 
+        "가입을 축하합니다! 로그인 페이지로 이동합니다.",
+        backgroundColor: Colors.blue,
+        colorText: Colors.white,
+      );
+
+      // 약간의 여유를 주고 이동 (스낵바 보여주기용)
+      await Future.delayed(const Duration(milliseconds: 1500));
+      
+      // 로그인 창으로 쫓아내기 (이전 스택 모두 삭제)
+      Get.offAllNamed(AppRoutes.login);
+      
+    } else {
+      debugPrint("⚠️ STEP 4: 회원가입 실패 (서버 에러)");
+      Get.snackbar("알림", "회원가입에 실패했습니다. 데이터를 다시 확인해주세요.");
     }
 
+  } catch (e, stack) {
+    debugPrint("🚨 [Unknown Error] 치명적 오류 발생!");
+    debugPrint("▶️ Error: $e");
+    debugPrint("▶️ StackTrace: $stack");
+    
+    Get.snackbar("오류", "시스템 오류가 발생했습니다.", backgroundColor: Colors.orange);
+    isLoginSuccess.value = false;
+
+  } finally {
+    isLoading.value = false;
+    debugPrint("--- 🏁 [Signup Process End] ---\n");
+  }
+}
+
+// 차주용 회원가입 로직입니다.
+Future<void> driverSignup() async {
+  isLoading.value = true;
+  debugPrint("\n--- 📝 [Signup Process Start] ---");
+
+  try {
+    // 1. 디바이스 토큰 확보
+    final tokenService = Get.find<TokenService>();
+    final String dToken = tokenService.deviceToken ?? "NO_TOKEN_FOUND";
+    
+    debugPrint("📍 STEP 1: 디바이스 토큰 확인 -> $dToken");
+
+    // 2. 요청 모델 생성 (데이터 캡슐화)
+    final driversignup = DriverSignupRequest(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+      name: nameController.text.trim(),
+      phone: phoneController.text.trim(),
+      birth: birthController.text.trim(),
+      businessNumber: businessNumberController.text.trim(),
+      certNumber: certNumberController.text.trim(),
+    );
+
+    debugPrint("📍 STEP 2: 전송 데이터 모델 구성 완료");
+    debugPrint("📦 Payload: ${driversignup.toJson()}");
+
+    // 3. 서비스 호출 (이제 bool 값을 반환함)
+    debugPrint("📡 STEP 3: 서버 API 호출 시도...");
+    bool isSuccess = await _authService.driverSignupEmail(driversignup);
+
+    // 4. 결과 처리
+    if (isSuccess) {
+      debugPrint("✅ STEP 4: 회원가입 최종 성공!");
+      
+      Get.snackbar(
+        "회원가입 완료", 
+        "가입을 축하합니다! 로그인 페이지로 이동합니다.",
+        backgroundColor: Colors.blue,
+        colorText: Colors.white,
+      );
+
+      // 약간의 여유를 주고 이동 (스낵바 보여주기용)
+      await Future.delayed(const Duration(milliseconds: 1500));
+      
+      // 로그인 창으로 쫓아내기 (이전 스택 모두 삭제)
+      Get.offAllNamed(AppRoutes.ownerLogin);
+      
+    } else {
+      debugPrint("⚠️ STEP 4: 회원가입 실패 (서버 에러)");
+      Get.snackbar("알림", "회원가입에 실패했습니다. 데이터를 다시 확인해주세요.");
+    }
+
+  } catch (e, stack) {
+    debugPrint("🚨 [Unknown Error] 치명적 오류 발생!");
+    debugPrint("▶️ Error: $e");
+    debugPrint("▶️ StackTrace: $stack");
+    
+    Get.snackbar("오류", "시스템 오류가 발생했습니다.", backgroundColor: Colors.orange);
+    isLoginSuccess.value = false;
+
+  } finally {
+    isLoading.value = false;
+    debugPrint("--- 🏁 [Signup Process End] ---\n");
+  }
+}
   // Future<bool> checkIsOwner() async {
   //   Token token = await _tokenService.loadToken() ??
   //       Token(accessToken: '', refreshToken: '', userId: '', isOwner: 0);
@@ -160,13 +240,20 @@ class AuthController extends GetxController {
   }
 }
 
-  // // ✅ 로그아웃 처리
-  // Future<void> logout() async {
-  //   //await _tokenService.clearToken();
-  //  // _authService.logout();
-  //   isAuthenticated.value = false;
-  //   //Get.offAllNamed(AppRoutes.AUTH);
-  // }
+// 차주 구분하는 로직입니다.
+  Future<bool> checkIsDriver() async {
+    Token token = await _tokenService.loadToken() ??
+        Token(accessToken: '', refreshToken: '', userType: '');
+    isDriver.value = token.userType == 'DRIVER';
+    return isDriver.value;
+  }
+
+  // ✅ 로그아웃 처리
+  Future<void> userlogout() async {
+    _tokenService.clearToken();
+    // isAuthenticated.value = false;
+    Get.offAllNamed(AppRoutes.selectLogin);
+  }
 
   // Future<void> commonRegistration(String id, String pw, String name,
   //     String nickname, String number, String gender) async {

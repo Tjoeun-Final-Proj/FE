@@ -1,4 +1,5 @@
-import 'package:boxmon/login/models/common_model.dart';
+import 'package:boxmon/login/models/driver_signup_request.dart';
+import 'package:boxmon/login/models/signup_request.dart';
 import 'package:boxmon/login/models/token_model.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:dio/dio.dart' as dio;
@@ -13,50 +14,63 @@ class AuthService extends GetxService {
       Get.find<dio.Dio>(); // Base URL이 http://10.0.2.2:8080/api 로 설정된채로 가져와짐
   final TokenService _tokenService = Get.find<TokenService>();
   
-  /// =================================================
-  /// 이메일 기반 회원가입 처리
-  /// - 성공 시 accessToken 포함 CommonModel 반환
-  /// =================================================
-  Future<CommonModel?> signupEmail(Map<String, dynamic> userData) async {
+/// =================================================
+/// 이메일 기반 회원가입 처리
+/// - 성공 시 accessToken 포함 CommonModel 반환
+/// =================================================
+// lib/login/services/auth_service.dart
+// 화주 회원가입
+Future<bool> signupEmail(SignupRequest request) async {
   try {
-    print("🚀 최종 요청 주소: ${_dio.options.baseUrl}user/signup");
-    print("=== [POST] /user/signup 요청 시작 ===");
-
     final response = await _dio.post(
-      'user/signup',
-      data: userData,
+      'user/shipperSignup',
+      data: request.toJson(),
     );
 
-    print("--- 서버 응답 성공 ---");
-    print("상태 코드: ${response.statusCode}");
-    print("응답 바디: ${response.data}");
+    // 로그 확인용
+    print("📥 서버 응답 바디: ${response.data}");
 
-    if (response.statusCode == 200 || response.statusCode == 204) {
-        // Backend returns CommonModel, which contains accessToken
-        return CommonModel.fromJson(response.data);
-      }
-      // Handle non-2xx errors
-    } on dio.DioException catch (e) {
-      String? errorMessage;
-      if (e.response != null && e.response?.data is Map) {
-        // Check if the backend sent a structured error response
-        errorMessage = e.response?.data['error']?.toString();
-      }
-
-      if (e.response?.statusCode == 409) {
-        errorMessage = errorMessage ?? '이미 가입된 이메일 주소입니다.';
-      } else {
-        errorMessage = errorMessage ?? '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-      }
-
-      print('DioError in registerWithEmail: ${e.message ?? errorMessage}');
-    } catch (e) {
-      print('Unexpected error in registerWithEmail: $e');
+    // 상태 코드가 200~299 사이면 성공으로 간주
+    if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+      return true; 
     }
-    return null;
+    return false;
+  } on dio.DioException catch (e) {
+    print("❌ Dio 에러: ${e.response?.data}");
+    return false;
+  } catch (e) {
+    print("❌ 일반 에러: $e");
+    return false;
   }
+}
 
-  // 화주 로그인하는 함수
+// 차주 회원가입
+Future<bool> driverSignupEmail(DriverSignupRequest request) async {
+  try {
+    final response = await _dio.post(
+      'user/driverSignup',
+      data: request.toJson(),
+    );
+
+    // 로그 확인용
+    print("📥 서버 응답 바디: ${response.data}");
+
+    // 상태 코드가 200~299 사이면 성공으로 간주
+    if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+      return true; 
+    }
+    return false;
+  } on dio.DioException catch (e) {
+    print("❌ Dio 에러: ${e.response?.data}");
+    return false;
+  } catch (e) {
+    print("❌ 일반 에러: $e");
+    return false;
+  }
+}
+
+    
+  // 화주/차주 로그인하는 함수
   Future<bool> userlogin(String email, String password) async {
   try {
     final response = await _dio.post(
@@ -64,25 +78,27 @@ class AuthService extends GetxService {
       data: {
         'email': email,
         'password': password,
+        'deviceToken': _tokenService.deviceToken
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 204) {
       print('✅ [Login Success]: ${response.data}');
 
       // 1. 서버 응답 데이터에서 토큰 추출 (서버 응답 구조에 맞게 수정하세요!)
       // 만약 { "accessToken": "...", "refreshToken": "..." } 구조라면:
       final String accessToken = response.data['accessToken'] ?? '';
       final String refreshToken = response.data['refreshToken'] ?? '';
+      final String userType = response.data['userType'] ?? '';
 
       // 2. TokenService를 사용해 기기에 저장 (반드시 await!)
       final TokenService tokenService = TokenService();
       await tokenService.saveToken(
         accessToken,
         refreshToken,
+        userType
       );
 
-      print('💾 [Token Saved] 토큰이 기기에 저장되었습니다.');
       return true;
     } else {
       print('⚠️ [Login Failed]: Status Code ${response.statusCode}');
@@ -96,11 +112,10 @@ class AuthService extends GetxService {
         }
         return false;
       }
-      
   }
-
+}
   // void logout() {
-  //   tokenController.clearToken();
+  //   TokenService.clearToken();
   // }
 
 // 미들웨어로 쓸 예정이에요 26.02.05
@@ -164,4 +179,3 @@ class AuthService extends GetxService {
   //     return false;
   //   }
   // }
-  }
