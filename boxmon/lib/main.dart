@@ -1,4 +1,3 @@
-import 'package:boxmon/firebase_options.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
@@ -21,13 +20,11 @@ void main() async {
   }
   await _initializeNaverMap();
 
-  // 2. 🔥 Firebase 초기화 (이게 없으면 [core/no-app] 에러 발생!)
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
   // 3. 🌐 Dio 전역 설정 (이게 없으면 "Dio not found" 에러 발생!)
-  Get.put(Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/api/')), permanent: true);
+  Get.put(
+    Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/api/')),
+    permanent: true,
+  );
 
   // 4. 지도 초기화 등 기타 설정
   await _initializeNaverMap();
@@ -54,7 +51,7 @@ class MyApp extends StatelessWidget {
       initialBinding: AuthBinding(),
       theme: ThemeData(
         fontFamily: 'Pretendard', // Pretendard 폰트를 기본 폰트로 설정
-      )
+      ),
     );
   }
 }
@@ -62,7 +59,9 @@ class MyApp extends StatelessWidget {
 Future<void> _initializeNaverMap() async {
   String clientId = dotenv.env['NAVER_MAP_CLIENT_ID'] ?? '';
   if (clientId.isEmpty) {
-    print("❌ [NaverMap] .env에서 Client ID를 찾을 수 없습니다! .env 파일과 pubspec.yaml 설정을 확인하세요.");
+    print(
+      "❌ [NaverMap] .env에서 Client ID를 찾을 수 없습니다! .env 파일과 pubspec.yaml 설정을 확인하세요.",
+    );
     return;
   }
   try {
@@ -78,5 +77,5 @@ Future<void> _initializeNaverMap() async {
     print("네이버 지도 초기화 성공");
   } catch (e) {
     print("네이버 지도 초기화 실패: $e");
-  } 
+  }
 }

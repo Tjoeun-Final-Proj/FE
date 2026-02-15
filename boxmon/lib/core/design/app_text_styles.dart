@@ -107,6 +107,14 @@ class AppTextStyles {
     color: Color(0xFF808080),
   );
 
+  // 로그인 폼에 사용하는 박스 텍스트
+  static const TextStyle realText = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    fontFamily: 'Pretendard',
+    color: Color.fromARGB(255, 0, 0, 0),
+  );
+
   // Error/Danger Text
   static const TextStyle error = TextStyle(
     fontSize: 16,

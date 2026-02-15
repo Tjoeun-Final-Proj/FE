@@ -1,3 +1,5 @@
+import 'package:boxmon/alarm/views/common_alarm.dart';
+import 'package:boxmon/chatting/views/common_chatting.dart';
 import 'package:boxmon/common/views/common_home.dart';
 import 'package:boxmon/common/views/common_order.dart';
 import 'package:boxmon/common/views/common_setting.dart';
@@ -26,12 +28,14 @@ class AppRoutes {
   static const commonHome = '/common/home';
   static const commonOrder = '/common/order';
   static const commonSetting = '/common/setting';
+  static const commonChatting = '/common/chatting';
+  static const commonAlarm = '/common/alarm';
 
   static final routes = <GetPage>[
     GetPage(name: splash, page: () => SplashView()),
 
     GetPage(name: selectLogin, page: () => SelectLoginView()),
-    
+
     GetPage(name: login, page: () => LoginView(), binding: AuthBinding()),
 
     GetPage(
@@ -86,6 +90,9 @@ class AppRoutes {
       binding: AuthBinding(),
     ),
 
+    GetPage(name: commonChatting, page: () => CommonChatting()),
+
+    GetPage(name: commonAlarm, page: () => CommonAlarm()),
     // 로그인 이후
     // GetPage(
     //   name: home,
