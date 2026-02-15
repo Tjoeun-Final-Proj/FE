@@ -1,4 +1,5 @@
 import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -26,7 +27,7 @@ class AppNavBar extends StatelessWidget implements PreferredSizeWidget {
       // 2. 오른쪽 아이콘 버튼들 설정
       actions: [
         IconButton(
-          onPressed: () => print("알림 클릭"),
+          onPressed: () => Get.toNamed(AppRoutes.commonAlarm),
           icon: const HugeIcon(
             icon: HugeIcons.strokeRoundedNotification01, // 종 아이콘
             color: Colors.black,
@@ -34,7 +35,7 @@ class AppNavBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         IconButton(
-          onPressed: () => print("메시지 클릭"),
+          onPressed: () => Get.toNamed(AppRoutes.commonChatting),
           icon: const HugeIcon(
             icon: HugeIcons.strokeRoundedTelegram, // 비행기 아이콘
             color: Colors.black,
