@@ -34,31 +34,94 @@ class AuthController extends GetxController {
   var birthError = "".obs;
   var phoneError = "".obs;
 
-  void login(String email, String password) {
+  Future<void> login(String email, String password) async {
+    print("========== 로그인 함수 시작 ==========");
+    print("입력 email: $email");
+    print("입력 password: $password");
+
     emailError.value = "";
     passwordError.value = "";
 
     // 이메일 검증 '@' 포함 여부 체크
     if (!email.contains('@')) {
+      print("이메일 형식 오류");
       emailError.value = "유효한 이메일 주소를 입력해주세요.";
       return;
     }
 
     // 비밀번호 검증
     if (password.isEmpty) {
+      print("비밀번호 비어있음");
       passwordError.value = "비밀번호를 입력해주세요.";
       return;
     }
 
-    // 검증 통과 시 로그인 시도
+    print("입력값 검증 통과");
+
+    // 1. 로딩 다이얼로그 표시
+    if (!Get.isDialogOpen!) {
+      print("로딩 다이얼로그 표시");
+      Get.dialog(
+        const PopScope(
+          canPop: false,
+          child: Dialog(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text("로그인 중입니다..."),
+                ],
+              ),
+            ),
+          ),
+        ),
+        barrierDismissible: false,
+      );
+    }
+
     try {
-      isLoading.value = true;
-      _authService.userlogin(email, password);
-      print("로그인 시도 중...");
-    } catch (e) {
-      Get.snackbar("로그인 실패", "아이디 또는 비밀번호를 확인해주세요.");
-    } finally {
+      print("========== 서버 로그인 요청 시작 ==========");
+      print("authService 호출 직전");
+
+      // 2. 실제 로그인 요청
+      final success = await _authService.userlogin(email, password);
+
+      print("========== 서버 응답 도착 ==========");
+      print("로그인 서비스 응답 결과: $success");
+
+      // 3. 다이얼로그 닫기
+      if (Get.isDialogOpen!) {
+        print("로딩 다이얼로그 닫기");
+        Get.back();
+      }
+
+      // 4. 결과에 따른 분기 처리
+      if (success == true) {
+        print("로그인 성공 → 홈 이동");
+        isLoading.value = false;
+        Get.offAllNamed(AppRoutes.commonHome);
+      } else {
+        print("로그인 실패 → 스낵바 표시");
+        isLoading.value = false;
+        Get.snackbar("로그인 실패", "아이디 또는 비밀번호를 확인해주세요.");
+      }
+    } catch (e, stackTrace) {
+      print("========== 로그인 예외 발생 ==========");
+      print("에러 내용: $e");
+      print("스택 트레이스: $stackTrace");
+
+      if (Get.isDialogOpen!) {
+        print("에러로 인해 다이얼로그 닫기");
+        Get.back();
+      }
+
       isLoading.value = false;
+      Get.snackbar("에러", "네트워크 문제나 서버 오류가 발생했습니다.");
+    } finally {
+      print("---------- 로그인 프로세스 종료 ----------");
     }
   }
 
@@ -112,7 +175,7 @@ class AuthController extends GetxController {
       nameError.value = "이름을 입력해주세요.";
       return;
     }
-    if (birth.length != 8) {
+    if (birth.length != 10) {
       birthError.value = "생년월일 8자리를 입력해주세요 (예: 19900101).";
       return;
     }
@@ -123,6 +186,7 @@ class AuthController extends GetxController {
 
     // 4. 모든 검증 통과 시 서버 통신 로직 실행
     print("회원가입 로직 실행!");
+    commonSignup();
   }
 
   // 이제 외부에서 호출 가능합니다.

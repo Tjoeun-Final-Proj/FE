@@ -2,6 +2,7 @@ import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/common_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class CommonHomeView extends StatelessWidget {
@@ -10,139 +11,159 @@ class CommonHomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppNavBar(),
-      body: Center(child: Column(
-        children: [
-          Text("은섭님 ㅎㅇㅎㅇ"),
-          Text("오늘 어떤 물건을 보내실 건가요?"),
-          Row(
-            children: [
-Expanded(
-  flex: 1,
-  child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 15.0), // 버튼 사이 간격
-    child: InkWell(
-      onTap: () {
-        print("배차 요청 클릭됨!");
-      },
-      borderRadius: BorderRadius.circular(10), // 클릭 효과 범위
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white, // 배경색
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFD1D1D1)), // 테두리
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            HugeIcon(
-              icon: HugeIcons.strokeRoundedInvoice01,
-              color: Colors.grey[800],
-              size: 49.0, // 아이콘 크기
-            ),
-            const SizedBox(height: 10), // 아이콘과 글자 사이 간격
-            const Text(
-              "배차 요청",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  ),
-),
-Expanded(
-  flex: 1,
-  child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 15.0), // 버튼 사이 간격
-    child: InkWell(
-      onTap: () {
-        print("배차 요청 클릭됨!");
-      },
-      borderRadius: BorderRadius.circular(10), // 클릭 효과 범위
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white, // 배경색
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFD1D1D1)), // 테두리
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            HugeIcon(
-              icon: HugeIcons.strokeRoundedInvoice01,
-              color: Colors.grey[800],
-              size: 49.0, // 아이콘 크기
-            ),
-            const SizedBox(height: 10), // 아이콘과 글자 사이 간격
-            const Text(
-              "배차 요청",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  ),
-),
-Expanded(
-  flex: 1,
-  child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 15.0), // 버튼 사이 간격
-    child: InkWell(
-      onTap: () {
-        print("배차 요청 클릭됨!");
-      },
-      borderRadius: BorderRadius.circular(10), // 클릭 효과 범위
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white, // 배경색
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFD1D1D1)), // 테두리
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            HugeIcon(
-              icon: HugeIcons.strokeRoundedInvoice01,
-              color: Colors.grey[800],
-              size: 49.0, // 아이콘 크기
-            ),
-            const SizedBox(height: 10), // 아이콘과 글자 사이 간격
-            const Text(
-              "배차 요청",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  ),
-)
-],
-          ),
-          const Expanded(
-        child: NaverMap(),
-      ),
-        ],
-      )),
-      // 속성 이름을 bottomNavigationBar로 수정하세요!
       bottomNavigationBar: CommonBottomNavigation(currentIndex: 0),
+
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+
+            const Text(
+              "은섭님",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+
+            Text(
+              "오늘 어떤 물건을 보내실 건가요?",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[600],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // ⭐ 메뉴 버튼 3개 전부 직작성
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /// 배차 요청
+                InkWell(
+                  onTap: () => Get.toNamed('/common/start/package'),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    width: 94,
+                    height: 94,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1F5AA6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        HugeIcon(
+                          icon: HugeIcons.strokeRoundedInvoice01,
+                          color: Colors.white,
+                          size: 49,
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          "배차 요청",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                /// 운송 현황
+                InkWell(
+                  onTap: () => print("운송 현황 클릭"),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    width: 94,
+                    height: 94,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        HugeIcon(
+                          icon: HugeIcons.strokeRoundedTruck,
+                          color: Colors.black87,
+                          size: 49,
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          "운송 현황",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                /// 정산 관리
+                InkWell(
+                  onTap: () => print("정산 관리 클릭"),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    width: 94,
+                    height: 94,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        HugeIcon(
+                          icon: HugeIcons.strokeRoundedWallet02,
+                          color: Colors.black87,
+                          size: 49,
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          "정산 관리",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: const NaverMap(),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+          ],
+        ),
+      ),
     );
   }
 }
