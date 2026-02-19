@@ -1,3 +1,4 @@
+import 'package:boxmon/firebase_options.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
@@ -19,6 +20,9 @@ void main() async {
     print("❌ .env 파일을 찾을 수 없습니다: $e");
   }
   await _initializeNaverMap();
+
+  // 2. 🔥 Firebase 초기화 (이게 없으면 [core/no-app] 에러 발생!)
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // 3. 🌐 Dio 전역 설정 (이게 없으면 "Dio not found" 에러 발생!)
   Get.put(

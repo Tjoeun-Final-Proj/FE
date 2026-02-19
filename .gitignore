@@ -122,3 +122,4 @@ linux/flutter/generated_plugins.cmake
 *.jks
 /.idea/
 assets/.env
+boxmon/lib/firebase_options.dart

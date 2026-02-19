@@ -3,6 +3,7 @@ import 'package:boxmon/chatting/views/common_chatting.dart';
 import 'package:boxmon/common/views/common_home.dart';
 import 'package:boxmon/common/views/common_order.dart';
 import 'package:boxmon/common/views/common_setting.dart';
+import 'package:boxmon/common/views/common_start_package.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/views/common_login_view.dart';
 import 'package:boxmon/login/views/common_registration_view.dart';
@@ -13,6 +14,9 @@ import 'package:boxmon/login/views/splash_view.dart';
 import 'package:boxmon/owner/views/owner_home.dart';
 import 'package:boxmon/owner/views/owner_order.dart';
 import 'package:boxmon/owner/views/owner_setting.dart';
+import 'package:boxmon/payment/screens/result.dart';
+import 'package:boxmon/payment/screens/tosspayments/payhome.dart';
+import 'package:boxmon/payment/screens/tosspayments/payment.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
@@ -28,8 +32,12 @@ class AppRoutes {
   static const commonHome = '/common/home';
   static const commonOrder = '/common/order';
   static const commonSetting = '/common/setting';
-  static const commonChatting = '/common/chatting';
+  static const commonStartPackage = '/common/start/package';
+  static const tossPayments = '/toss/payments';
+  static const tossPaymentsResult = '/toss/payments/result';
+  static const resultPage = '/result';
   static const commonAlarm = '/common/alarm';
+  static const commonChatting = '/common/chatting';
 
   static final routes = <GetPage>[
     GetPage(name: splash, page: () => SplashView()),
@@ -79,6 +87,18 @@ class AppRoutes {
       transition: Transition.noTransition,
     ),
     GetPage(
+      name: commonAlarm,
+      page: () => CommonAlarm(),
+      binding: AuthBinding(),
+      transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: commonChatting,
+      page: () => CommonChatting(),
+      binding: AuthBinding(),
+      transition: Transition.noTransition,
+    ),
+    GetPage(
       name: ownerLogin,
       page: () => OwnerLoginView(),
       binding: AuthBinding(),
@@ -90,9 +110,15 @@ class AppRoutes {
       binding: AuthBinding(),
     ),
 
-    GetPage(name: commonChatting, page: () => CommonChatting()),
+    GetPage(
+      name: commonStartPackage,
+      page: () => CommonStartPackageView(),
+      binding: AuthBinding(),
+    ),
 
-    GetPage(name: commonAlarm, page: () => CommonAlarm()),
+    GetPage(name: tossPayments, page: () => PayHome()),
+    GetPage(name: tossPaymentsResult, page: () => Payment()),
+    GetPage(name: resultPage, page: () => ResultPage()),
     // 로그인 이후
     // GetPage(
     //   name: home,
