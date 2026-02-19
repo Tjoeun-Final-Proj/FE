@@ -11,6 +11,7 @@ import 'package:boxmon/login/views/owner_login_view.dart';
 import 'package:boxmon/login/views/owner_registration_view.dart';
 import 'package:boxmon/login/views/select_login_view.dart';
 import 'package:boxmon/login/views/splash_view.dart';
+import 'package:boxmon/map/binding/map_binding.dart';
 import 'package:boxmon/owner/views/owner_home.dart';
 import 'package:boxmon/owner/views/owner_order.dart';
 import 'package:boxmon/owner/views/owner_setting.dart';
@@ -113,7 +114,7 @@ class AppRoutes {
     GetPage(
       name: commonStartPackage,
       page: () => CommonStartPackageView(),
-      binding: AuthBinding(),
+      binding: MapBinding(),
     ),
 
     GetPage(name: tossPayments, page: () => PayHome()),
