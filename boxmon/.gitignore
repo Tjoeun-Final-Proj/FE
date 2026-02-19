@@ -1,45 +1,125 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+# Flutter build artifacts
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+pubspec.lock
 
-# IntelliJ related
+# IntelliJ IDE files
+.idea/
+
+.idea/caches/
+.idea/libraries/
+.idea/shelf/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/.name
+.idea/compiler.xml
+.idea/copyright/profiles_settings.xml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/scopes/scope_settings.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+.idea/datasources.xml
+.idea/dataSources.ids
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/assetWizardSettings.xml
+.idea/gradle.xml
+.idea/jarRepositories.xml
+.idea/navEditor.xml
+
 *.iml
 *.ipr
 *.iws
-.idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code settings
+.vscode/
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
+# Android specific
+android/app/debug.keystore
+android/.gradle/
+android/key.properties
+android/local.properties
+android/app/google-services.json
+android/app/src/debug/
+android/app/src/profile/
+android/app/src/main/jniLibs/
 
-# Symbolication related
-app.*.symbols
+# iOS specific
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/App.framework/
+ios/Flutter/Flutter.framework/
+ios/Runner.xcworkspace/
+ios/.dart_tool/
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+ios/Podfile
 
-# Obfuscation related
-app.*.map.json
+# Firebase and Google services
+*.firebase/
+*.firebaserc
+*.flutter-plugins-dependencies
+*.flutter-plugins
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Web specific
+web/.dart_tool/
+
+# MacOS specific
+macos/Pods/
+macos/.dart_tool/
+macos/Flutter/ephemeral/
+macos/.symlinks/
+macos/Flutter/Flutter-Debug.xcconfig
+macos/Flutter/Flutter-Release.xcconfig
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Podfile
+
+# Windows specific
+windows/.dart_tool/
+windows/flutter/ephemeral/
+windows/CMakeCache.txt
+windows/CMakeFiles/
+windows/Makefile
+windows/*.pdb
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugins.cmake
+
+# Linux specific
+linux/.dart_tool/
+linux/flutter/ephemeral/
+linux/CMakeCache.txt
+linux/CMakeFiles/
+linux/Makefile
+linux/*.pdb
+linux/flutter/generated_plugin_registrant.cc
+linux/flutter/generated_plugins.cmake
+
+# Miscellaneous
+*.log
+*.lock
+*.tmp
+*.swp
+*.swo
+*.swn
+
+# User-generated files
+*.DS_Store
+*.p8
+*.pem
+*.crt
+*.key
+*.jks
+/.idea/
+assets/.env
+boxmon/lib/firebase_options.dart
