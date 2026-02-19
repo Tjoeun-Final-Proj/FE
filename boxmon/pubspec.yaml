@@ -49,6 +49,12 @@ dependencies:
   # 플러터 파이어베이스 쓰는법
   firebase_core: 
   firebase_messaging: 
+  tosspayments_widget_sdk_flutter: ^2.1.2
+  fluttertoast:
+  flutter_inappwebview:
+  device_info_plus: 
+  # 지도관련
+  provider: ^6.1.1
 
 dev_dependencies:
   flutter_test:
