@@ -17,6 +17,8 @@ void main() async {
     await dotenv.load(fileName: ".env");
     print("✅ .env 파일 로드 성공");
   } catch (e) {
+
+    
     print("❌ .env 파일을 찾을 수 없습니다: $e");
   }
   await _initializeNaverMap();
