@@ -56,6 +56,13 @@ dependencies:
   # 지도관련
   provider: ^6.1.1
 
+  # 카메라
+  image_picker:
+
+  # 달력
+  flutter_localizations:
+    sdk: flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

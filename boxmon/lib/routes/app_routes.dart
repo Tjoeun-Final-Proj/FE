@@ -1,9 +1,11 @@
 import 'package:boxmon/alarm/views/common_alarm.dart';
 import 'package:boxmon/chatting/views/common_chatting.dart';
+import 'package:boxmon/common/views/cargo_detail_view.dart';
 import 'package:boxmon/common/views/common_home.dart';
 import 'package:boxmon/common/views/common_order.dart';
 import 'package:boxmon/common/views/common_setting.dart';
 import 'package:boxmon/common/views/common_start_package.dart';
+import 'package:boxmon/common/views/dispatch_summary_view.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/views/common_login_view.dart';
 import 'package:boxmon/login/views/common_registration_view.dart';
@@ -39,6 +41,8 @@ class AppRoutes {
   static const resultPage = '/result';
   static const commonAlarm = '/common/alarm';
   static const commonChatting = '/common/chatting';
+  static const dispatchSummary = '/dispatch/summary';
+  static const cargoDetail = '/cargo/detail';
 
   static final routes = <GetPage>[
     GetPage(name: splash, page: () => SplashView()),
@@ -117,9 +121,14 @@ class AppRoutes {
       binding: MapBinding(),
     ),
 
+    GetPage(name: cargoDetail, page: () => CargoDetailView(), binding: MapBinding()),
+
     GetPage(name: tossPayments, page: () => PayHome()),
     GetPage(name: tossPaymentsResult, page: () => Payment()),
     GetPage(name: resultPage, page: () => ResultPage()),
+    GetPage(name: dispatchSummary, page: () => DispatchSummaryView(),
+      binding: MapBinding(),
+    ),
     // 로그인 이후
     // GetPage(
     //   name: home,

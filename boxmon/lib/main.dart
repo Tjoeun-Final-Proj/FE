@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 
@@ -55,6 +56,16 @@ class MyApp extends StatelessWidget {
       initialRoute: AppRoutes.splash,
       getPages: AppRoutes.routes,
       initialBinding: AuthBinding(),
+      // 🔥 여기에 다국어(Localization) 설정을 추가합니다.
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko', 'KR'), // 한국어 지원
+      ],
+      locale: const Locale('ko', 'KR'), // 기본 언어를 한국어로 설정
       theme: ThemeData(
         fontFamily: 'Pretendard', // Pretendard 폰트를 기본 폰트로 설정
       ),
