@@ -123,3 +123,6 @@ linux/flutter/generated_plugins.cmake
 /.idea/
 assets/.env
 boxmon/lib/firebase_options.dart
+*.swift
+*.cc
+*.cmake
