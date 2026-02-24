@@ -1,8 +1,11 @@
+import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/common/views/cargo_detail_view.dart';
 import 'package:boxmon/common/views/vehicle_select_view.dart';
 import 'package:boxmon/map/model/map_view_model.dart';
+import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart'; // 숫자 포맷팅을 위한 패키지
 
 class DispatchSummaryView extends StatelessWidget {
   const DispatchSummaryView({super.key});
@@ -10,6 +13,7 @@ class DispatchSummaryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = Get.find<MapViewModel>();
+    final controller = Get.put(ShipmentController());
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -45,7 +49,7 @@ class DispatchSummaryView extends StatelessWidget {
               )),
             ),
             
-            const Divider(thickness: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 20),
 
             Obx(() {
               final isEntered = viewModel.pickupDateTime.value != "운송일시를 선택해주세요";
@@ -58,7 +62,7 @@ class DispatchSummaryView extends StatelessWidget {
               );
             }),
 
-            const Divider(thickness: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 20),
 
             Obx(() {
               final isEntered = viewModel.deliveryDateTime.value != "도착일시를 선택해주세요";
@@ -70,18 +74,82 @@ class DispatchSummaryView extends StatelessWidget {
                 onTap: () => _selectDateTime(context, false),
               );
             }),
-
+const Divider(height: 20),
             Obx(() => _buildActionTile(
               icon: Icons.inventory_2_outlined,
               title: "짐내용 · 요청사항 입력하기",
               subtitle: viewModel.hasElevator.value ? "엘리베이터 있음" : "계단 이용",
               onTap: () => Get.to(() => const CargoDetailView()),
             )),
-
+const Divider(height: 20),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Text("• 냉동 / 냉장 제품일 경우 선택해 주세요", style: TextStyle(color: Colors.grey, fontSize: 12)),
-            ),
+  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  child: Text("• 냉동 / 냉장 제품일 경우 선택해 주세요", style: TextStyle(color: Colors.grey, fontSize: 12)),
+),
+
+
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+  child: Obx(() => Row( // Obx로 감싸서 상태 변화 감지
+    children: [
+      _buildTempButton(viewModel, TempType.frozen, "냉동 제품"),
+      const SizedBox(width: 8),
+      _buildTempButton(viewModel, TempType.refrigerated, "냉장 제품"),
+    ],
+  )),
+),
+const Divider(height: 20),
+const Padding(
+  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  child: Text("• 희망 운송요금", style: TextStyle(color: Colors.grey, fontSize: 12)),
+),
+Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        controller: viewModel.priceController,
+        keyboardType: TextInputType.number, // 🔢 숫자 키보드 호출
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+        decoration: InputDecoration(
+          hintText: "금액을 입력해주세요",
+          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16, fontWeight: FontWeight.normal),
+          suffixText: "원", // 뒤에 '원' 표시
+          suffixStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          // 테두리 디자인
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.blue, width: 2),
+          ),
+        ),
+        // 숫자가 바뀔 때마다 콤마 처리 로직을 넣고 싶다면 아래 참고
+        onChanged: (value) {
+  if (value.isEmpty) return;
+
+  // 1. 기존 콤마 제거 (숫자만 추출)
+  String content = value.replaceAll(',', '');
+  
+  // 2. 숫자로 변환 후 콤마 추가 포맷팅
+  final formatter = NumberFormat('#,###');
+  String formatted = formatter.format(int.parse(content));
+
+  // 3. 텍스트 필드 업데이트 및 커서 위치 조정
+  viewModel.priceController.value = TextEditingValue(
+    text: formatted,
+    selection: TextSelection.collapsed(offset: formatted.length),
+  );
+},
+      ),
+    ),
           ],
         ),
       ),
@@ -172,7 +240,9 @@ class DispatchSummaryView extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFEEEEEE)))),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+                Get.toNamed(AppRoutes.tossPayments);
+              },
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0047AB), minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
         child: const Text("운송요금 확인하기", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
       ),
@@ -200,3 +270,49 @@ class DispatchSummaryView extends StatelessWidget {
     }
   }
 } // 클래스 끝
+
+Widget _buildTempButton(MapViewModel viewModel, TempType type, String label) {
+  final bool isSelected = viewModel.selectedTempType.value == type;
+  
+  // 타입에 따른 아이콘과 색상 설정
+  IconData icon = type == TempType.frozen ? Icons.ac_unit : Icons.opacity;
+  Color activeColor = type == TempType.frozen ? Colors.blue.shade800 : Colors.cyan.shade600;
+
+  return Expanded(
+    child: GestureDetector(
+      onTap: () => viewModel.selectedTempType.value = isSelected ? TempType.none : type,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200), // 선택 시 부드러운 전환
+        height: 65, // 높이를 살짝 키워 시원하게 만듦
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor.withOpacity(0.1) : Colors.white,
+          border: Border.all(
+            color: isSelected ? activeColor : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(15), // 더 둥글게
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? activeColor : Colors.grey,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? activeColor : Colors.grey.shade700,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}

@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 
 // 설문 순서: 1. 지도 준비 -> 2. 현재 위치로 찾기 -> 3. 검색어 입력 -> 4. 장소 선택 -> 5. 지도에 마커 표시 및 주소 변환
 enum AddressType { start, end, stopover1, stopover2 }
+enum TempType { none, frozen, refrigerated } // 타입을 명확히 정의 (안함, 냉동, 냉장)
 
 class MapViewModel extends GetxController {
   final MapService _mapService;
@@ -20,6 +21,11 @@ class MapViewModel extends GetxController {
 
   final GeocodingRepository _repository;
   final RxList<SearchResult> searchResults = <SearchResult>[].obs;
+
+  // 요금 입력
+  final priceController = TextEditingController(); // 요금 입력 컨트롤러
+
+  
   MapViewModel(this._mapService, this._repository);
   // late 키워드로 선언 (onMapReady에서 초기화)
   NaverMapController? _mapController;
@@ -48,6 +54,9 @@ class MapViewModel extends GetxController {
 
   // 엘레베이터 토글
   var hasElevator = true.obs;
+
+  // 온도 타입 선택 (냉동/냉장/없음)
+  var selectedTempType = TempType.none.obs;
 
   // 설문 단계입니다.
   var startFullAddress = "".obs;
