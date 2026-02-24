@@ -1,39 +1,255 @@
 import 'package:boxmon/map/model/geocoding_repository.dart';
 import 'package:boxmon/map/model/naver_address_model.dart';
+import 'package:boxmon/map/model/search_result._model.dart';
+import 'package:boxmon/map/services/map_service.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
+// 설문 순서: 1. 지도 준비 -> 2. 현재 위치로 찾기 -> 3. 검색어 입력 -> 4. 장소 선택 -> 5. 지도에 마커 표시 및 주소 변환
+enum AddressType { start, end, stopover1, stopover2 }
 
 class MapViewModel extends GetxController {
-  final GeocodingRepository _repository;
+  final MapService _mapService;
   
+  // 상세주소 입력용
+  final detailAddressController = TextEditingController();
+
+  final GeocodingRepository _repository;
+  final RxList<SearchResult> searchResults = <SearchResult>[].obs;
+  MapViewModel(this._mapService, this._repository);
   // late 키워드로 선언 (onMapReady에서 초기화)
-  late NaverMapController _mapController;
+  NaverMapController? _mapController;
 
   // Rx 변수: GetX의 반응형 상태 관리
   var currentAddress = "".obs;
   var isLoading = false.obs;
   var selectedLatLng = Rxn<NLatLng>();
-
+  var isSearching = false.obs; // 검색 관리 여부
   var currentBuildingName = "".obs; // 건물명 추가
 
-  MapViewModel(this._repository);
+  // 설문 순서
+  var currentStep = 0.obs; // PageView의 현재 인덱스
+  var activeType = AddressType.start.obs; // 현재 입력 중인 대상
 
+  // 현재위치로 바꿀 계획입니다.
+  var targetLocation = const NLatLng(37.5540455, 126.9708338).obs;
+
+  // 연락처
+  var startContact = "".obs;
+  var stopover1Contact = "".obs;
+  var stopover2Contact = "".obs;
+  var endContact = "".obs;
+
+  // final TextEditingController searchController = TextEditingController(); // 검색어 기반으로 넘김
+
+  // 엘레베이터 토글
+  var hasElevator = true.obs;
+
+  // 설문 단계입니다.
+  var startFullAddress = "".obs;
+  var endFullAddress = "".obs;
+  var stopover1Address = "".obs;
+  var stopover2Address = "".obs;
+  
+
+  // 교통수단 선택입니다.
+  var selectedVehicle = "1톤 카고".obs;
+  var selectedVehicleDesc = "적재함이 개방된 형태의 트럭이에요.".obs;
+
+  // 달력
+  var pickupDateTime = "".obs;
+  var deliveryDateTime = "".obs;
+  var formatDateTime = (DateTime date, TimeOfDay time) {
+    // 날짜와 시간을 포맷팅하여 문자열로 반환
+    return "${date.year}년 ${date.month}월 ${date.day}일 ${time.hour}시 ${time.minute}분";
+  };
+
+  // 교통수단 선택하는 함수
+  void updateVehicle(String title, String desc) {
+    selectedVehicle.value = title;
+    selectedVehicleDesc.value = desc;
+  }
+
+  // 화물 상세 요청사항 입력
+  var cargoDescription = "".obs;    // 상세 요청사항 텍스트
+  // ✅ 사진 관련 상태변수 및 기능
+  final ImagePicker _picker = ImagePicker();
+  RxList<XFile> cargoImages = <XFile>[].obs; // 선택된 이미지 리스트
+
+  // 갤러리에서 사진 여러 장 선택하기
+  Future<void> pickCargoImages() async {
+    final List<XFile> selectedImages = await _picker.pickMultiImage();
+    if (selectedImages.isNotEmpty) {
+      // 기존 리스트에 추가
+      cargoImages.addAll(selectedImages);
+    }
+  }
+
+  // 선택한 사진 삭제하기
+  void removeImage(int index) {
+    cargoImages.removeAt(index);
+  }
+  
   // 지도가 준비되었을 때 컨트롤러 주입
   void onMapReady(NaverMapController controller) {
     _mapController = controller;
     print("✅ 네이버 맵 컨트롤러가 준비되었습니다.");
+
+    // 🔥 지도가 로드되자마자 '검색했던 위치'로 카메라 이동
+    _mapController?.updateCamera(
+      NCameraUpdate.withParams(target: targetLocation.value, zoom: 16),
+    );
+  }
+
+  // 2단계: 검색 결과 클릭 시 3단계(지도)로 이동 준비
+  void selectLocation(SearchResult item) {
+    targetLocation.value = NLatLng(item.lat, item.lng);
+    currentAddress.value = item.address;
+    currentBuildingName.value = item.title;
+    
+    // 지도가 떠 있다면 즉시 카메라 이동
+    _mapController?.updateCamera(NCameraUpdate.withParams(
+      target: targetLocation.value,
+      zoom: 16,
+    ));
+  }
+
+  void confirmAddressSelection(PageController pageController) {
+  // 1. 현재 입력값 정리
+  String finalAddr = currentAddress.value;
+  if (detailAddressController.text.isNotEmpty) {
+    finalAddr += " ${detailAddressController.text}";
+  }
+  if (currentBuildingName.value.isNotEmpty) {
+    finalAddr += " (${currentBuildingName.value})";
+  }
+
+  // 2. 타입에 맞춰 저장
+  switch (activeType.value) {
+    case AddressType.start:
+      startFullAddress.value = finalAddr;
+      break;
+    case AddressType.end:
+      endFullAddress.value = finalAddr;
+      break;
+    case AddressType.stopover1:
+      stopover1Address.value = finalAddr;
+      break;
+    case AddressType.stopover2:
+      stopover2Address.value = finalAddr;
+      break;
+  }
+
+  // 🔥 3. 핵심: 다시 1번 페이지(인덱스 0)로 강제 이동
+  pageController.jumpToPage(0); 
+  
+  // 4. 입력 상태 초기화
+  detailAddressController.clear();
+  searchResults.clear();
+}
+void startAddressSetup(AddressType type, PageController pageController) {
+  // 1. 현재 어떤 주소를 입력할지 설정 (출발/도착/경유)
+  activeType.value = type;
+  
+  // 2. 이전 검색 기록 및 상세주소 입력값 초기화
+  searchResults.clear();
+  detailAddressController.clear();
+  currentAddress.value = "";
+  currentBuildingName.value = "";
+  
+  // 3. 2단계(검색 화면)로 이동
+  pageController.animateToPage(
+    1, 
+    duration: const Duration(milliseconds: 300), 
+    curve: Curves.ease
+  );
+}
+
+  // 검색 상태 리셋 함수
+  void _resetSearchState() {
+    searchResults.clear();
+    currentAddress.value = "";
+    currentBuildingName.value = "";
+    detailAddressController.clear();
+  }
+
+  // 최종 5번 페이지로 가기 전 데이터 검증
+  bool canRequestDispatch() {
+    return startFullAddress.value.isNotEmpty && endFullAddress.value.isNotEmpty;
   }
 
   // 마커 업데이트 (기존 마커 제거 후 새로 생성)
   void _updateMarker(NLatLng latLng) {
-    _mapController.clearOverlays();
+    _mapController?.clearOverlays();
     final marker = NMarker(id: 'selected_loc', position: latLng);
-    _mapController.addOverlay(marker);
+    _mapController?.addOverlay(marker);
     print("📌 지도에 마커가 표시되었습니다.");
   }
+
+  // 2. "현재 위치로 찾기" 버튼을 눌렀을 때
+  Future<void> useCurrentLocation() async {
+    isLoading.value = true;
+    try {
+      // Geolocator 패키지 등을 사용하여 실제 GPS 좌표를 가져옴
+      // Position position = await Geolocator.getCurrentPosition();
+      
+      // 임시 좌표 (실제로는 position.latitude 등 사용)
+      targetLocation.value = NLatLng(37.5665, 126.9780); 
+      currentAddress.value = "현재 위치 근처 주소 정보...";
+      currentBuildingName.value = "내 위치";
+      
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+
+// 검색어 기반으로 위치 이동 (예시용, 실제로는 API 호출 필요)
+Future<void> searchLocation(String query) async {
+    print("📌 [LOG 1] 검색 시작: 입력값 = '$query'");
+    
+    isSearching.value = true;
+   try {
+    final results = await _repository.fetchSearchResults(query);
+
+    // 🔥 이 부분이 핵심: Rx 리스트를 갈아끼워줍니다.
+    searchResults.assignAll(results);
+    
+    if (results.isEmpty) {
+      Get.snackbar("알림", "검색 결과가 없습니다.");
+    }
+  }catch (e) {
+    print("❌ API 호출 중 에러 발생: $e");
+  } finally {
+      isSearching.value = false;
+      print("📌 [LOG 4] 검색 프로세스 종료 (로딩 바 숨김)");
+    }
+  }
+
+//   // 🛠 2. 장소 선택 (데이터 확정 및 지도 준비)
+//   void selectLocation(SearchResult item) {
+//     print("📌 [LOG 5] 장소 선택됨: ${item.title}");
+    
+//     targetLocation.value = NLatLng(item.lat, item.lng);
+//     currentAddress.value = item.address;
+//     currentBuildingName.value = item.title;
+
+//     print("📌 [LOG 6] 좌표 업데이트 완료: ${item.lat}, ${item.lng} -> 지도 이동 준비");
+
+//     // 2. 만약 지도 컨트롤러가 이미 준비되어 있다면 즉시 이동
+//   // (이미 3단계에 한 번이라도 들어갔던 경우를 대비)
+//   print("📌 [LOG 6] 지도 카메라 즉시 이동 실행");
+//   _mapController?.updateCamera(
+//     NCameraUpdate.withParams(
+//       target: targetLocation.value,
+//       zoom: 16, // 적절한 줌 레벨
+//     ),
+//   );
+// }
 
 // MapViewModel 내의 주소 변환 로직 예시
 Future<void> handleMapTap(NLatLng latLng, {String? buildingName}) async {

@@ -16,7 +16,7 @@ class CommonStartPackageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 1. 상태 및 컨트롤러 변수
-
+    final viewModel = Get.find<MapViewModel>();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -95,17 +95,36 @@ class CommonStartPackageView extends StatelessWidget {
                   child: Obx(
                     () => ElevatedButton(
                       onPressed: () {
-                        if (currentPage.value < totalSteps - 1) {
-                          // 다음 페이지로 이동
-                          pageController.nextPage(
-                            duration: 300.milliseconds,
-                            curve: Curves.ease,
-                          );
-                        } else {
-                          // 최종 완료 처리
-                          Get.back();
-                        }
-                      },
+  // 1. 현재가 1번 페이지(메인)인 경우
+  if (currentPage.value == 0) {
+    if (viewModel.canRequestDispatch()) {
+      // 출발/도착지가 다 있다면 최종 5번 페이지로 이동 (또는 다음 로직)
+      print("모든 주소 입력 완료! 다음 단계로 이동");
+      // 만약 5번 페이지를 만드셨다면: pageController.jumpToPage(4); 
+      Get.toNamed('/dispatch/summary');
+    } else {
+      // 주소가 없으면 안내 메시지
+      Get.snackbar("알림", "출발지와 도착지를 먼저 입력해주세요.",
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  } 
+  // 2. 현재가 4번 페이지(주소 상세 입력)인 경우
+  else if (currentPage.value == 3) {
+    // 뷰모델에 저장하고 다시 1번 페이지로 복귀
+    viewModel.confirmAddressSelection(pageController);
+  } 
+  // 3. 그 외 (2, 3단계 검색/지도 화면)
+  else if (currentPage.value < totalSteps - 1) {
+    pageController.nextPage(
+      duration: 300.milliseconds,
+      curve: Curves.ease,
+    );
+  } 
+  // 4. 마지막 페이지인 경우
+  else {
+    Get.back();
+  }
+},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryLight,
                         minimumSize: const Size(0, 55),
@@ -114,7 +133,7 @@ class CommonStartPackageView extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        currentPage.value < totalSteps - 1 ? "다음" : "요청 완료",
+                        currentPage.value < totalSteps - 1 ? "입력 완료" : "요청 완료",
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -133,6 +152,9 @@ class CommonStartPackageView extends StatelessWidget {
 
   // --- 1단계: 경로 입력 (함수 제거 버전) ---
   Widget _buildFirstStep() {
+
+    final viewModel = Get.find<MapViewModel>(); // 뷰모델 가져오기
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -159,72 +181,81 @@ class CommonStartPackageView extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // 1. 출발지 행 (생코드로 직접 구현)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      children: [
-                        const HugeIcon(
-                          icon: HugeIcons.strokeRoundedCar03,
-                          color: Colors.black,
-                          size: 24.0,
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            "출발지",
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                  // 1. 출발지 행 (🔥 수정됨: GestureDetector 추가)
+                  GestureDetector(
+                    onTap: () => viewModel.startAddressSetup(AddressType.start, pageController),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      child: Row(
+                        children: [
+                          const HugeIcon(
+                            icon: HugeIcons.strokeRoundedCar03,
+                            color: Colors.black,
+                            size: 24.0,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              // 🔥 데이터가 있으면 주소 표시, 없으면 힌트 표시
+                              viewModel.startFullAddress.value.isEmpty 
+                                  ? "출발지" 
+                                  : viewModel.startFullAddress.value,
+                              style: TextStyle(
+                                color: viewModel.startFullAddress.value.isEmpty ? Colors.grey : Colors.black,
+                                fontSize: 16,
+                                fontWeight: viewModel.startFullAddress.value.isNotEmpty ? FontWeight.bold : FontWeight.normal,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
-                  // 2. 추가된 경유지 리스트 (최대 2개)
+                  // 2. 추가된 경유지 리스트 (🔥 수정됨: 클릭 시 편집 가능하게)
                   ...stopovers.asMap().entries.map((entry) {
                     int idx = entry.key;
                     return Column(
                       children: [
-                        Divider(
-                          height: 1,
-                          color: Colors.grey.shade300,
-                          indent: 55,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 7,
+                        Divider(height: 1, color: Colors.grey.shade300, indent: 55),
+                        GestureDetector(
+                          onTap: () => viewModel.startAddressSetup(
+                            idx == 0 ? AddressType.stopover1 : AddressType.stopover2, 
+                            pageController
                           ),
-                          child: Row(
-                            children: [
-                              const HugeIcon(
-                                icon: HugeIcons.strokeRoundedFlag01,
-                                color: Colors.black,
-                                size: 24.0,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  "경유지 ${idx + 1}",
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 16,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                            child: Row(
+                              children: [
+                                const HugeIcon(icon: HugeIcons.strokeRoundedFlag01, color: Colors.black, size: 24.0),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    // 🔥 경유지 데이터 바인딩
+                                    (idx == 0 ? viewModel.stopover1Address.value : viewModel.stopover2Address.value).isEmpty
+                                        ? "경유지 ${idx + 1}"
+                                        : (idx == 0 ? viewModel.stopover1Address.value : viewModel.stopover2Address.value),
+                                    style: TextStyle(
+                                      color: (idx == 0 ? viewModel.stopover1Address.value : viewModel.stopover2Address.value).isEmpty 
+                                          ? Colors.grey : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                              ),
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                icon: const Icon(
-                                  Icons.remove_circle_outline,
-                                  color: Colors.red,
-                                  size: 20,
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 20),
+                                  onPressed: () {
+                                    stopovers.removeAt(idx);
+                                    // 삭제 시 뷰모델 데이터도 비워주기
+                                    if(idx == 0) viewModel.stopover1Address.value = "";
+                                    else viewModel.stopover2Address.value = "";
+                                  },
                                 ),
-                                onPressed: () => stopovers.removeAt(idx),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -233,48 +264,35 @@ class CommonStartPackageView extends StatelessWidget {
 
                   Divider(height: 1, color: Colors.grey.shade300, indent: 55),
 
-                  // 3. 도착지 행
+                  // 3. 도착지 행 (🔥 수정됨: GestureDetector 추가)
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        const HugeIcon(
-                          icon: HugeIcons.strokeRoundedCar04,
-                          color: Colors.black,
-                          size: 24.0,
-                        ),
+                        const HugeIcon(icon: HugeIcons.strokeRoundedCar04, color: Colors.black, size: 24.0),
                         const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            "도착지",
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => viewModel.startAddressSetup(AddressType.end, pageController),
+                            child: Text(
+                              // 🔥 데이터 바인딩
+                              viewModel.endFullAddress.value.isEmpty ? "도착지" : viewModel.endFullAddress.value,
+                              style: TextStyle(
+                                color: viewModel.endFullAddress.value.isEmpty ? Colors.grey : Colors.black,
+                                fontSize: 16,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
 
-                        // 경유지 추가 버튼
                         if (stopovers.length < 2)
                           GestureDetector(
                             onTap: () => stopovers.add("새 경유지"),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                "경유지 +",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(20)),
+                              child: const Text("경유지 +", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                             ),
                           ),
                       ],
@@ -284,9 +302,10 @@ class CommonStartPackageView extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 8),
           const Text(
-            "경유지 버튼을 클릭하면, 경유지를 추가 할 수 있습니다.",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            "※ 경유지 버튼을 클릭하면, 경유지를 추가 할 수 있습니다.",
+            style: TextStyle(color: Colors.black, fontSize: 14),
           ),
         ],
       ),
@@ -353,51 +372,125 @@ class CommonStartPackageView extends StatelessWidget {
     );
   }
 
-  Widget _buildSecondStep() {
-    return Column(
-      // Center + children 대신 Column 사용
-      children: [
-        // 1. 검색창 영역
-        Padding(
-          padding: const EdgeInsets.all(
-            20.0,
-          ), // AppSpacing.paddingLG 대신 일단 상수로 넣었습니다.
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: "지번, 도로명, 건물명으로 검색",
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  // Controller 처리 로직
-                },
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                  12,
-                ), // AppBorderRadius 대신 상수로 대체
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            onSubmitted: (value) {
-              // 검색 명령
-            },
+Widget _buildSecondStep() {
+  final viewModel = Get.find<MapViewModel>();
+
+  return Column(
+    children: [
+      // 1. 검색창
+      Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: "지번, 도로명, 건물명으로 검색",
+            prefixIcon: const Icon(Icons.search),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
+          onSubmitted: (value) async {
+            // 🔥 여기서 바로 페이지를 넘기지 말고, 검색 결과만 불러옵니다.
+            await viewModel.searchLocation(value);
+          },
+        ),
+      ),
+
+      // 2. 검색 결과 리스트 영역
+      Expanded(
+        child: Obx(() {
+          if (viewModel.isSearching.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          return ListView.builder(
+            itemCount: viewModel.searchResults.length,
+            itemBuilder: (context, index) {
+              final item = viewModel.searchResults[index];
+              return ListTile(
+                title: Text(item.title), // 건물명 (ex. 강남역 2호선)
+                subtitle: Text(item.address), // 전체 주소
+                onTap: () {
+                  // 🔥 사용자가 실제 장소를 "선택"했을 때만 지도로 이동!
+                  viewModel.selectLocation(item); 
+                  print("📌 [LOG 7] 지도 화면으로 이동");
+  
+  // 2. PageView의 다음 페이지(지도 화면)로 이동
+  pageController.nextPage(
+    duration: const Duration(milliseconds: 300), 
+    curve: Curves.ease
+  );
+                },
+              );
+            },
+          );
+        }),
+      ),
+      
+      // 3. 현재 위치로 찾기 (하단 고정 혹은 리스트 위에 배치)
+      TextButton(
+        onPressed: () => viewModel.useCurrentLocation(),
+        child: const Text("현재 위치로 찾기", style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+    ],
+  );
+}
+Widget _buildThirdStep() {
+    final MapViewModel viewModel = Get.find<MapViewModel>();
+
+    return Obx(() => Stack(
+      children: [
+        NaverMap(
+          // 🔥 1.4.4 버전 핵심: 모든 설정은 'options' 파라미터 내부의 'NaverMapOptions'에 넣어야 합니다.
+options: NaverMapViewOptions( 
+    initialCameraPosition: NCameraPosition(
+      target: viewModel.targetLocation.value,
+      zoom: 16,
+    ),
+    // 괄호 안에 있는 다른 설정들도 그대로 유지합니다.
+    locationButtonEnable: true,
+  ),
+          onMapReady: (controller) {
+            viewModel.onMapReady(controller);
+            
+            // 지도가 준비된 후 다시 한번 이동 보정
+            controller.updateCamera(NCameraUpdate.withParams(
+              target: viewModel.targetLocation.value,
+              zoom: 16,
+            ));
+          },
+          onMapTapped: (point, latLng) {
+            viewModel.handleMapTap(latLng);
+          },
+          onSymbolTapped: (symbol) {
+            print("클릭한 건물: ${symbol.caption}, 좌표: ${symbol.position}");
+            viewModel.handleMapTap(symbol.position, buildingName: symbol.caption);
+          },
         ),
 
-        // 2. 지도에서 주소 찾기 텍스트
-        const Text(
-          "현재 위치로 찾기",
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-        ),
+        // 주소 카드 레이어
+        if (viewModel.currentAddress.value.isNotEmpty)
+          Positioned(
+            bottom: 20,
+            left: 16,
+            right: 16,
+            child: _buildAddressCard(viewModel),
+          ),
+
+        // 로딩 바
+        if (viewModel.isLoading.value)
+          const Center(child: CircularProgressIndicator(color: Color(0xFF1A2F4B))),
       ],
-    );
+    ));
   }
-
-  Widget _buildThirdStep() {
-    final viewModel = Get.find<MapViewModel>();
-
-    return Stack(
+Widget _buildAddressCard(MapViewModel viewModel) {
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)],
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         NaverMap(
           onMapReady: (controller) => viewModel.onMapReady(controller),
@@ -435,78 +528,187 @@ class CommonStartPackageView extends StatelessWidget {
               : const SizedBox.shrink(),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+Widget _buildFourthStep() {
+  final MapViewModel viewModel = Get.find<MapViewModel>();
 
-  Widget _buildAddressCard(MapViewModel viewModel) {
-    return Container(
+  return Obx(() {
+    // 1. 현재 주소 타입 상태값들을 Obx 내부에서 정의
+    final currentType = viewModel.activeType.value;
+    final bool isStart = currentType == AddressType.start;
+    final bool isEnd = currentType == AddressType.end;
+
+    String contactTitle = "";
+    switch (viewModel.activeType.value) {
+      case AddressType.start:
+        contactTitle = "출발지 연락처 정보";
+        break;
+      case AddressType.stopover1:
+        contactTitle = "경유지 1 연락처 정보";
+        break;
+      case AddressType.stopover2:
+        contactTitle = "경유지 2 연락처 정보";
+        break;
+      case AddressType.end:
+        contactTitle = "도착지 연락처 정보";
+        break;
+    }
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2),
-        ],
-      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "선택한 위치 정보",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          // 1. 주소 조회 및 수정 버튼
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    viewModel.currentAddress.value,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => pageController.animateToPage(1,
+                      duration: 300.milliseconds, curve: Curves.ease),
+                  child: const Text("수정", style: TextStyle(color: Colors.grey)),
+                ),
+              ],
+            ),
           ),
-          const Divider(height: 24),
+          const SizedBox(height: 12),
 
-          // 🔥 여기가 핵심! Obx가 currentAddress의 변화를 감시해서 글자를 바꿔줍니다.
-          Obx(() {
-            // 주소와 건물명을 조합합니다.
-            String displayAddress = viewModel.currentAddress.value;
-            if (viewModel.currentBuildingName.value.isNotEmpty) {
-              displayAddress += " (${viewModel.currentBuildingName.value})";
-            }
+          // 2. 상세 주소 입력 (동, 호수 등)
+          TextField(
+            controller: viewModel.detailAddressController,
+            decoration: InputDecoration(
+              hintText: "상세 주소를 입력해주세요 (예: 101동 501호)",
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+            ),
+          ),
+          const SizedBox(height: 12),
 
-            return Text(
-              displayAddress.isNotEmpty ? displayAddress : "주소를 불러오는 중...",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A2F4B),
-              ),
-            );
-          }),
+          // 🔥 3. 중량 입력 (출발지일 때만 표시)
+          if (isStart) ...[
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "중량을 입력해주세요...",
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<String>(
+                    value: "톤",
+                    underline: const SizedBox(),
+                    items: ["톤", "kg"]
+                        .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                        .toList(),
+                    onChanged: (_) {},
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
 
-          const SizedBox(height: 16),
+          // 5. 엘리베이터 유무 토글
+          Row(
+            children: [
+              _buildElevatorButton(viewModel, true, "엘리베이터 있음"),
+              const SizedBox(width: 8),
+              _buildElevatorButton(viewModel, false, "계단만 있음"),
+            ],
+          ),
 
+          const Divider(height: 40),
+
+          // 🔥 6. 연락처 정보 (문구 동적 변경)
+          Text(
+            isStart ? "출발지 연락처 정보" : "도착지 연락처 정보",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.person_outline),
+              hintText: "이름",
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.phone_android_outlined),
+              hintText: "휴대전화번호",
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(height: 30),
+
+          // 7. 최종 완료 버튼
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: 55,
             child: ElevatedButton(
-              onPressed: () {
-                // 4단계로 이동하며 주소 확정
-                pageController.nextPage(
-                  duration: 300.milliseconds,
-                  curve: Curves.ease,
-                );
-              },
+              onPressed: () => viewModel.confirmAddressSelection(pageController),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A2F4B), // coRunning 메인 컬러
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                backgroundColor: const Color(0xFF0047AB),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text(
-                "이 장소로 설정",
-                style: TextStyle(color: Colors.white),
-              ),
+              child: const Text("주소 입력 완료",
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
       ),
     );
+  });
   }
 
   Widget _buildFourthStep() => const Center(child: Text("마지막 단계 화면입니다."));
 }
 
-
+// 엘리베이터 버튼 중복 코드 방지를 위한 헬퍼 위젯
+Widget _buildElevatorButton(MapViewModel viewModel, bool value, String label) {
+  final bool isSelected = viewModel.hasElevator.value == value;
+  return Expanded(
+    child: GestureDetector(
+      onTap: () => viewModel.hasElevator.value = value,
+      child: Container(
+        height: 50,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0047AB) : Colors.white,
+          border: Border.all(color: const Color(0xFF0047AB)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : const Color(0xFF0047AB),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    ),
+  );
+}
