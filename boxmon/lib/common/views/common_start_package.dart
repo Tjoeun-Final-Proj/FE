@@ -492,37 +492,40 @@ Widget _buildAddressCard(MapViewModel viewModel) {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("선택한 위치 정보", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        const Divider(height: 24),
-        
-        // 🔥 여기가 핵심! Obx가 currentAddress의 변화를 감시해서 글자를 바꿔줍니다.
-        Obx(() {// 주소와 건물명을 조합합니다.
-  String displayAddress = viewModel.currentAddress.value;
-  if (viewModel.currentBuildingName.value.isNotEmpty) {
-    displayAddress += " (${viewModel.currentBuildingName.value})";
-  }
+        NaverMap(
+          onMapReady: (controller) => viewModel.onMapReady(controller),
+          onMapTapped: (point, latLng) {
+            viewModel.handleMapTap(latLng);
+          },
+          onSymbolTapped: (symbol) {
+            print("클릭한 건물: ${symbol.caption}, 좌표: ${symbol.position}");
+            // 심볼의 위치(position)를 기존 좌표 처리 로직으로 넘깁니다.
+            viewModel.handleMapTap(
+              symbol.position,
+              buildingName: symbol.caption,
+            );
+          },
+        ),
 
-  return Text(
-    displayAddress.isNotEmpty ? displayAddress : "주소를 불러오는 중...",
-    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A2F4B)),
-  );}),
-        
-        const SizedBox(height: 16),
-        
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: () {
-              // 4단계로 이동하며 주소 확정
-              pageController.nextPage(duration: 300.milliseconds, curve: Curves.ease);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1A2F4B), // coRunning 메인 컬러
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text("이 장소로 설정", style: TextStyle(color: Colors.white)),
-          ),
+        // 주소 카드 레이어
+        Obx(
+          () => viewModel.currentAddress.value.isNotEmpty
+              ? Positioned(
+                  bottom: 20,
+                  left: 14,
+                  right: 14,
+                  child: _buildAddressCard(viewModel),
+                )
+              : const SizedBox.shrink(),
+        ),
+
+        // 로딩 바
+        Obx(
+          () => viewModel.isLoading.value
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF1A2F4B)),
+                )
+              : const SizedBox.shrink(),
         ),
       ],
     ),
@@ -679,6 +682,9 @@ Widget _buildFourthStep() {
       ),
     );
   });
+  }
+
+  Widget _buildFourthStep() => const Center(child: Text("마지막 단계 화면입니다."));
 }
 
 // 엘리베이터 버튼 중복 코드 방지를 위한 헬퍼 위젯
@@ -705,5 +711,4 @@ Widget _buildElevatorButton(MapViewModel viewModel, bool value, String label) {
       ),
     ),
   );
-}
 }
