@@ -123,3 +123,11 @@ linux/flutter/generated_plugins.cmake
 /.idea/
 assets/.env
 boxmon/lib/firebase_options.dart
+*.env
+boxmon/firebase.json
+*.cc
+*.cmake
+*.swift
+boxmon/android/app/src/main/AndroidManifest.xml
+boxmon/android/settings.gradle.kts
+boxmon/android/app/build.gradle.kts
