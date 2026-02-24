@@ -432,104 +432,74 @@ Widget _buildSecondStep() {
     ],
   );
 }
-Widget _buildThirdStep() {
-    final MapViewModel viewModel = Get.find<MapViewModel>();
-
-    return Obx(() => Stack(
-      children: [
-        NaverMap(
-          // 🔥 1.4.4 버전 핵심: 모든 설정은 'options' 파라미터 내부의 'NaverMapOptions'에 넣어야 합니다.
-options: NaverMapViewOptions( 
-    initialCameraPosition: NCameraPosition(
-      target: viewModel.targetLocation.value,
-      zoom: 16,
-    ),
-    // 괄호 안에 있는 다른 설정들도 그대로 유지합니다.
-    locationButtonEnable: true,
-  ),
-          onMapReady: (controller) {
-            viewModel.onMapReady(controller);
-            
-            // 지도가 준비된 후 다시 한번 이동 보정
-            controller.updateCamera(NCameraUpdate.withParams(
-              target: viewModel.targetLocation.value,
-              zoom: 16,
-            ));
-          },
-          onMapTapped: (point, latLng) {
-            viewModel.handleMapTap(latLng);
-          },
-          onSymbolTapped: (symbol) {
-            print("클릭한 건물: ${symbol.caption}, 좌표: ${symbol.position}");
-            viewModel.handleMapTap(symbol.position, buildingName: symbol.caption);
-          },
-        ),
-
-        // 주소 카드 레이어
-        if (viewModel.currentAddress.value.isNotEmpty)
-          Positioned(
-            bottom: 20,
-            left: 16,
-            right: 16,
-            child: _buildAddressCard(viewModel),
-          ),
-
-        // 로딩 바
-        if (viewModel.isLoading.value)
-          const Center(child: CircularProgressIndicator(color: Color(0xFF1A2F4B))),
-      ],
-    ));
-  }
+// 1. 카드는 오직 "주소 정보"만 보여주는 역할만 합니다.
 Widget _buildAddressCard(MapViewModel viewModel) {
   return Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
-      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)],
+      boxShadow: [
+        BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)
+      ],
     ),
     child: Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min, // 중요: 내용물만큼만 높이 차지
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        NaverMap(
-          onMapReady: (controller) => viewModel.onMapReady(controller),
-          onMapTapped: (point, latLng) {
-            viewModel.handleMapTap(latLng);
-          },
-          onSymbolTapped: (symbol) {
-            print("클릭한 건물: ${symbol.caption}, 좌표: ${symbol.position}");
-            // 심볼의 위치(position)를 기존 좌표 처리 로직으로 넘깁니다.
-            viewModel.handleMapTap(
-              symbol.position,
-              buildingName: symbol.caption,
-            );
-          },
+        const Text(
+          "선택된 위치",
+          style: TextStyle(color: Colors.grey, fontSize: 13),
         ),
-
-        // 주소 카드 레이어
-        Obx(
-          () => viewModel.currentAddress.value.isNotEmpty
-              ? Positioned(
-                  bottom: 20,
-                  left: 14,
-                  right: 14,
-                  child: _buildAddressCard(viewModel),
-                )
-              : const SizedBox.shrink(),
+        const SizedBox(height: 8),
+        Text(
+          viewModel.currentAddress.value, // 뷰모델의 현재 주소 바인딩
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-
-        // 로딩 바
-        Obx(
-          () => viewModel.isLoading.value
-              ? const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF1A2F4B)),
-                )
-              : const SizedBox.shrink(),
+        const SizedBox(height: 4),
+        const Text(
+          "지도를 움직여 위치를 조정할 수 있습니다.",
+          style: TextStyle(color: AppColors.primaryLight, fontSize: 12),
         ),
       ],
     ),
   );
+}
+
+// 2. 여기서 Stack 구조를 잡아줍니다.
+Widget _buildThirdStep() {
+  final MapViewModel viewModel = Get.find<MapViewModel>();
+
+  return Obx(() => Stack(
+    children: [
+      // 배경: 메인 지도 (이거 하나면 충분합니다!)
+      NaverMap(
+        options: NaverMapViewOptions(
+          initialCameraPosition: NCameraPosition(
+            target: viewModel.targetLocation.value,
+            zoom: 16,
+          ),
+          locationButtonEnable: true,
+        ),
+        onMapReady: (controller) => viewModel.onMapReady(controller),
+        onMapTapped: (point, latLng) => viewModel.handleMapTap(latLng),
+        onSymbolTapped: (symbol) => viewModel.handleMapTap(symbol.position, buildingName: symbol.caption),
+      ),
+
+      // 위층: 주소 카드 (Positioned는 Stack의 직계 자식이어야 함!)
+      if (viewModel.currentAddress.value.isNotEmpty)
+        Positioned(
+          bottom: 20,
+          left: 16,
+          right: 16,
+          child: _buildAddressCard(viewModel), // 수정된 카드 위젯
+        ),
+
+      // 최상단: 로딩바
+      if (viewModel.isLoading.value)
+        const Center(child: CircularProgressIndicator(color: Color(0xFF1A2F4B))),
+    ],
+  ));
 }
 Widget _buildFourthStep() {
   final MapViewModel viewModel = Get.find<MapViewModel>();
@@ -684,7 +654,6 @@ Widget _buildFourthStep() {
   });
   }
 
-  Widget _buildFourthStep() => const Center(child: Text("마지막 단계 화면입니다."));
 }
 
 // 엘리베이터 버튼 중복 코드 방지를 위한 헬퍼 위젯

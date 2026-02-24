@@ -59,6 +59,9 @@ dependencies:
   # 카메라
   image_picker:
 
+  # . << 점 단위 가격 표시
+  intl:
+
   # 달력
   flutter_localizations:
     sdk: flutter
