@@ -101,6 +101,12 @@ class AuthController extends GetxController {
       // 4. 결과에 따른 분기 처리
       if (success == true) {
         print("로그인 성공 → 홈 이동");
+        // ✅ 추가: 화면 넘기기 전에 저장소에 있는 토큰을 메모리로 확실히 끌어올립니다.
+        final tokenService = Get.find<TokenService>();
+        await tokenService.loadToken(); 
+
+        print("✅ 최신 토큰 메모리 로드 완료: ${tokenService.accessToken}");
+        
         isLoading.value = false;
         Get.offAllNamed(AppRoutes.commonHome);
       } else {

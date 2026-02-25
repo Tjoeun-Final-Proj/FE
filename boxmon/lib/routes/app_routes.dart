@@ -17,6 +17,7 @@ import 'package:boxmon/map/binding/map_binding.dart';
 import 'package:boxmon/owner/views/owner_home.dart';
 import 'package:boxmon/owner/views/owner_order.dart';
 import 'package:boxmon/owner/views/owner_setting.dart';
+import 'package:boxmon/payment/binding/payment_binding.dart';
 import 'package:boxmon/payment/screens/result.dart';
 import 'package:boxmon/payment/screens/tosspayments/payhome.dart';
 import 'package:boxmon/payment/screens/tosspayments/payment.dart';
@@ -122,8 +123,7 @@ class AppRoutes {
     ),
 
     GetPage(name: cargoDetail, page: () => CargoDetailView(), binding: MapBinding()),
-
-    GetPage(name: tossPayments, page: () => PayHome()),
+    GetPage(name: tossPayments, page: () => PayHome(), binding: PaymentBinding()),
     GetPage(name: tossPaymentsResult, page: () => Payment()),
     GetPage(name: resultPage, page: () => ResultPage()),
     GetPage(name: dispatchSummary, page: () => DispatchSummaryView(),
