@@ -17,8 +17,32 @@ class _PayHomeState extends State<PayHome> {
   late String orderId;
   late String orderName;
   late String amount;
-  late String customerName = "황덕배"; // 초기값 설정
+  late String customerName = "황덕배";
   late String customerEmail = "test@example.com";
+
+ @override
+  void initState() {
+    super.initState();
+    
+    // 2. 이전 화면에서 보낸 arguments를 안전하게 꺼냅니다.
+    final dynamic args = Get.arguments;
+    
+    if (args != null && args is Map) {
+      // 전달받은 배송 ID와 금액을 변수에 할당
+      final int shipmentId = args['shipmentId'] ?? 0;
+      final int rawAmount = args['amount'] ?? 0;
+
+      orderId = "$shipmentId"; // 배송 ID를 주문번호로 사용
+      amount = rawAmount.toString(); // 금액을 문자열로 변환하여 할당
+    } else {
+      // 데이터가 없을 경우를 대비한 예외 처리
+      orderId = '${DateTime.now().millisecondsSinceEpoch}';
+      amount = "50000"; 
+    }
+    orderName = '일반 용달 운송';
+    
+    print("🎯 [PayHome] 데이터 로드 완료: ID=$orderId, Price=$amount");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,17 +83,17 @@ class _PayHomeState extends State<PayHome> {
 
               // --- 섹션 2: 주문 정보 ---
               _buildCardSection(
-                title: "주문 정보",
-                child: Column(
-                  children: [
-                    _buildStyledField('주문번호', initial: '${DateTime.now().millisecondsSinceEpoch}', onSaved: (v) => orderId = v!),
-                    const Divider(),
-                    _buildStyledField('주문명', initial: '일반 용달 운송', onSaved: (v) => orderName = v!),
-                    const Divider(),
-                    _buildStyledField('결제금액', initial: '50000', isNumber: true, onSaved: (v) => amount = v!),
-                  ],
-                ),
-              ),
+        title: "주문 정보",
+        child: Column(
+          children: [
+            _buildStyledField('주문번호', initial: orderId, onSaved: (v) => orderId = v!), // 하드코딩 제거
+            const Divider(),
+            _buildStyledField('주문명', initial: orderName, onSaved: (v) => orderName = v!),
+            const Divider(),
+            _buildStyledField('결제금액', initial: amount, isNumber: true, onSaved: (v) => amount = v!), // 하드코딩 제거
+          ],
+        ),
+      ),
 
               const SizedBox(height: 16),
 

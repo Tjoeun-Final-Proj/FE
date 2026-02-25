@@ -1,8 +1,8 @@
 import 'package:boxmon/common/controller/shipment_controller.dart';
+import 'package:boxmon/common/model/shipment_model.dart';
 import 'package:boxmon/common/views/cargo_detail_view.dart';
 import 'package:boxmon/common/views/vehicle_select_view.dart';
 import 'package:boxmon/map/model/map_view_model.dart';
-import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // 숫자 포맷팅을 위한 패키지
@@ -234,18 +234,110 @@ Padding(
       onTap: onTap,
     );
   }
+Widget _buildBottomButton() {
+    // 1. 필요한 컨트롤러들 찾아오기
+    final viewModel = Get.find<MapViewModel>();
+    final shipmentController = Get.find<ShipmentController>();
 
-  Widget _buildBottomButton() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFEEEEEE)))),
-      child: ElevatedButton(
-        onPressed: () {
-                Get.toNamed(AppRoutes.tossPayments);
-              },
-        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0047AB), minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-        child: const Text("운송요금 확인하기", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
       ),
+      child: Obx(() => ElevatedButton(
+        // 로딩 중일 때는 버튼 클릭 방지
+        onPressed: shipmentController.isLoading.value
+            ? null
+            : () async {
+                try {
+                  print("📝 [UI] 배송 요청 데이터 조립 시작...");
+
+                  // 2. 가격 데이터 가공 (콤마 제거 후 int 변환)
+                  final String priceText = viewModel.priceController.text.replaceAll(',', '');
+                  final int finalPrice = int.tryParse(priceText) ?? 0;
+
+                  // 3. 날짜 데이터 가공 (DateTime 객체로 변환)
+                  // 뷰모델의 pickupDateRaw를 사용하거나 문자열을 파싱합니다.
+                  DateTime pickupDate = viewModel.pickupDateRaw.value ?? DateTime.now();
+                  DateTime deliveryDate = viewModel.deliveryDateRaw.value ?? DateTime.now().add(const Duration(hours: 3));
+
+                  // 4. ShipmentModel 생성 (서버 전송 규격에 맞춤)
+                  final requestModel = ShipmentModel(
+                    // 출발지
+                    pickupPoint: {
+                      "x": viewModel.startLng.value,
+                      "y": viewModel.startLat.value,
+                    },
+                    pickupAddress: viewModel.startFullAddress.value,
+                    pickupDesiredAt: pickupDate,
+
+                    // 도착지
+                    dropoffPoint: {
+                      "x": viewModel.endLng.value,
+                      "y": viewModel.endLat.value,
+                    },
+                    dropoffAddress: viewModel.endFullAddress.value,
+                    dropoffDesiredAt: deliveryDate,
+
+                    // 경유지 1 (있을 때만 포함)
+                    waypoint1Point: viewModel.stopover1Address.value.isNotEmpty
+                        ? {"x": viewModel.stop1Lng.value, "y": viewModel.stop1Lat.value}
+                        : null,
+                    waypoint1Address: viewModel.stopover1Address.value.isNotEmpty
+                        ? viewModel.stopover1Address.value
+                        : null,
+
+                    // 경유지 2 (있을 때만 포함)
+                    waypoint2Point: viewModel.stopover2Address.value.isNotEmpty
+                        ? {"x": viewModel.stop2Lng.value, "y": viewModel.stop2Lat.value}
+                        : null,
+                    waypoint2Address: viewModel.stopover2Address.value.isNotEmpty
+                        ? viewModel.stopover2Address.value
+                        : null,
+
+                    // 기타 운송 정보
+                    price: finalPrice,
+                    vehicleType: viewModel.selectedVehicleType.value.name, // Enum의 이름을 문자열로 전송
+                    cargoType: "GENERAL", // 필요 시 뷰모델 변수 연결
+                    cargoWeight: 1.0,    // 필요 시 뷰모델 변수 연결
+                    cargoVolume: "기본",  // 필요 시 뷰모델 변수 연결
+                    
+                    // 온도 관리 옵션
+                    needRefrigerate: viewModel.selectedTempType.value == TempType.refrigerated,
+                    needFreeze: viewModel.selectedTempType.value == TempType.frozen,
+
+                    description: viewModel.detailAddressController.text, // 상세 요청사항
+                    cargoPhotoUrl: "https://example.com/photo.png", // 사진 연동 시 수정
+                    companyName: "TV형원(주)",
+                  );
+
+                  // 5. 컨트롤러 호출 (서버 전송 실행)
+                  await shipmentController.submitShipment(requestModel);
+
+                } catch (e) {
+                  print("❌ [UI Error] 데이터 조립 중 에러: $e");
+                  Get.snackbar("알림", "입력 정보를 다시 확인해주세요.");
+                }
+              },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0047AB),
+          disabledBackgroundColor: Colors.grey, // 로딩 중 버튼 색상
+          minimumSize: const Size(double.infinity, 55),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 0,
+        ),
+        child: shipmentController.isLoading.value
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              )
+            : const Text(
+                "운송요금 확인하기",
+                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+      )),
     );
   }
 

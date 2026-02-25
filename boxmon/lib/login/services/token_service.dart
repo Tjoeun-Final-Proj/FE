@@ -16,6 +16,10 @@ class TokenService extends GetxService {
   static const String _userTypeKey = 'user_type';
   // 디바이스 토큰을 저장하는 장소
   String? _deviceToken;
+// 메모리에 들고있을 엑세스 토큰
+  String? _currentAccessToken;
+  String? get accessToken => _currentAccessToken;
+
   String? get deviceToken => _deviceToken;
 
   // 로그인하자마자 디바이스 토큰을 가져옵니다.
@@ -43,6 +47,7 @@ class TokenService extends GetxService {
 
   // 토큰 저장 하는 컨트롤러입니다.
   Future<void> saveToken(String accessToken, String refreshToken, String userType) async {
+    _currentAccessToken = accessToken; // 🔥 추가
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_accessTokenKey, accessToken);
@@ -74,6 +79,7 @@ class TokenService extends GetxService {
 
     // 💡 여기서 값을 확인하고 Token 객체를 반환해야 함!
     if (accessToken != null && accessToken.isNotEmpty) {
+      _currentAccessToken = accessToken; // 🔥 추가
       print("✅ [TokenService] 토큰 로드 성공!");
       return Token(
         accessToken: accessToken,
@@ -114,6 +120,7 @@ class TokenService extends GetxService {
 
   // ✅ 401 발생 시 토큰 갱신
   Future<bool> refreshToken() async {
+    _currentAccessToken = null; // 갱신 시 기존 토큰 초기화
     Token? token = await loadToken();
     if (token == null) return false;
       return false;

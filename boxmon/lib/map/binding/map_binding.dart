@@ -1,3 +1,5 @@
+import 'package:boxmon/common/controller/shipment_controller.dart';
+import 'package:boxmon/common/services/shipment_service.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/login/services/auth_service.dart';
 import 'package:boxmon/login/services/token_service.dart';
@@ -31,10 +33,14 @@ class MapBinding extends Bindings {
 
     Get.lazyPut<TokenService>(() => TokenService());
     Get.lazyPut<AuthService>(() => AuthService());
+    Get.lazyPut<ShipmentService>(() => ShipmentService());
     // 6. 컨트롤러들: 화면의 상태를 관리하고 비즈니스 로직을 실행
     Get.lazyPut<AuthController>(() => AuthController()); // 유저 인증 상태 관리
 
     final repository = NaverGeocodingRepository(Get.find<Dio>(), Get.find<MapService>());
     Get.lazyPut<MapViewModel>(() => MapViewModel(Get.find<MapService>(), repository));
+
+    Get.lazyPut<ShipmentController>(() => ShipmentController());
+
   }
 }

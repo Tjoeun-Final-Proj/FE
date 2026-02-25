@@ -12,6 +12,20 @@ import 'package:image_picker/image_picker.dart';
 // 설문 순서: 1. 지도 준비 -> 2. 현재 위치로 찾기 -> 3. 검색어 입력 -> 4. 장소 선택 -> 5. 지도에 마커 표시 및 주소 변환
 enum AddressType { start, end, stopover1, stopover2 }
 enum TempType { none, frozen, refrigerated } // 타입을 명확히 정의 (안함, 냉동, 냉장)
+enum VehicleType {
+  BULK("벌크"),
+  VAN("밴"),
+  DUMP("덤프 트럭"),
+  TANKER("탱크로리"),
+  CARGO("1톤 카고"),
+  WINGBODY("윙바디");
+
+  // UI에 보여줄 한글 이름을 함께 정의
+  final String krName;
+  const VehicleType(this.krName);
+}
+
+var selectedVehicleType = VehicleType.CARGO.obs; // 초기값
 
 class MapViewModel extends GetxController {
   final MapService _mapService;
@@ -77,11 +91,40 @@ class MapViewModel extends GetxController {
     return "${date.year}년 ${date.month}월 ${date.day}일 ${time.hour}시 ${time.minute}분";
   };
 
-  // 교통수단 선택하는 함수
-  void updateVehicle(String title, String desc) {
-    selectedVehicle.value = title;
-    selectedVehicleDesc.value = desc;
-  }
+// 1. 관찰 가능한 Enum 변수 추가 (클래스 상단 변수 선언부)
+var selectedVehicleType = VehicleType.CARGO.obs; 
+
+// 2. 교통수단 선택 함수 수정 (인자에 VehicleType 추가)
+void updateVehicle(VehicleType type, String title, String desc) {
+  // 서버 전송을 위한 Enum 값 저장 (DUMP, TANKER 등)
+  selectedVehicleType.value = type;
+  
+  // UI 표시를 위한 한글 이름과 설명 저장
+  selectedVehicle.value = title;
+  selectedVehicleDesc.value = desc;
+  
+  print("🚚 차량 선택 완료: ${type.name} ($title)");
+}
+// 기존 formatDateTime 변수를 아래와 같이 실제 객체를 저장하는 방식으로 병행하면 좋습니다.
+var pickupDateRaw = Rxn<DateTime>();
+var deliveryDateRaw = Rxn<DateTime>();
+
+// 날짜 선택 시 호출되는 로직 보완 (View에서 호출 시)
+void updatePickupDateTime(DateTime date, TimeOfDay time) {
+  final now = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+  pickupDateRaw.value = now;
+  pickupDateTime.value = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00";
+}
+
+  // MapViewModel 클래스 상단에 추가
+  var startLat = 0.0.obs;
+  var startLng = 0.0.obs;
+  var endLat = 0.0.obs;
+  var endLng = 0.0.obs;
+  var stop1Lat = 0.0.obs;
+  var stop1Lng = 0.0.obs;
+  var stop2Lat = 0.0.obs;
+  var stop2Lng = 0.0.obs;
 
   // 화물 상세 요청사항 입력
   var cargoDescription = "".obs;    // 상세 요청사항 텍스트
@@ -97,7 +140,39 @@ class MapViewModel extends GetxController {
       cargoImages.addAll(selectedImages);
     }
   }
+void confirmAddressSelection(PageController pageController) {
+  String finalAddr = currentAddress.value;
+  if (detailAddressController.text.isNotEmpty) {
+    finalAddr += " ${detailAddressController.text}";
+  }
 
+  // 핵심: 현재 targetLocation에 담긴 좌표를 타입별 변수에 할당
+  switch (activeType.value) {
+    case AddressType.start:
+      startFullAddress.value = finalAddr;
+      startLat.value = targetLocation.value.latitude;
+      startLng.value = targetLocation.value.longitude;
+      break;
+    case AddressType.end:
+      endFullAddress.value = finalAddr;
+      endLat.value = targetLocation.value.latitude;
+      endLng.value = targetLocation.value.longitude;
+      break;
+    case AddressType.stopover1:
+      stopover1Address.value = finalAddr;
+      stop1Lat.value = targetLocation.value.latitude;
+      stop1Lng.value = targetLocation.value.longitude;
+      break;
+    case AddressType.stopover2:
+      stopover2Address.value = finalAddr;
+      stop2Lat.value = targetLocation.value.latitude;
+      stop2Lng.value = targetLocation.value.longitude;
+      break;
+  }
+
+  pageController.jumpToPage(0); 
+  _resetSearchState(); // 기존에 만든 리셋 함수 활용
+}
   // 선택한 사진 삭제하기
   void removeImage(int index) {
     cargoImages.removeAt(index);
@@ -127,39 +202,6 @@ class MapViewModel extends GetxController {
     ));
   }
 
-  void confirmAddressSelection(PageController pageController) {
-  // 1. 현재 입력값 정리
-  String finalAddr = currentAddress.value;
-  if (detailAddressController.text.isNotEmpty) {
-    finalAddr += " ${detailAddressController.text}";
-  }
-  if (currentBuildingName.value.isNotEmpty) {
-    finalAddr += " (${currentBuildingName.value})";
-  }
-
-  // 2. 타입에 맞춰 저장
-  switch (activeType.value) {
-    case AddressType.start:
-      startFullAddress.value = finalAddr;
-      break;
-    case AddressType.end:
-      endFullAddress.value = finalAddr;
-      break;
-    case AddressType.stopover1:
-      stopover1Address.value = finalAddr;
-      break;
-    case AddressType.stopover2:
-      stopover2Address.value = finalAddr;
-      break;
-  }
-
-  // 🔥 3. 핵심: 다시 1번 페이지(인덱스 0)로 강제 이동
-  pageController.jumpToPage(0); 
-  
-  // 4. 입력 상태 초기화
-  detailAddressController.clear();
-  searchResults.clear();
-}
 void startAddressSetup(AddressType type, PageController pageController) {
   // 1. 현재 어떤 주소를 입력할지 설정 (출발/도착/경유)
   activeType.value = type;

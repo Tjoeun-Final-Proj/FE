@@ -39,7 +39,11 @@ void main() async {
   // 5. 서비스 및 컨트롤러 등록 (순서 중요: TokenService가 먼저!)
   await Get.putAsync(() => TokenService().init());
   Get.put(AuthController(), permanent: true);
-
+// 1. 서비스 등록
+  final tokenService = Get.put(TokenService());
+  
+  // 2. 🔥 저장된 토큰을 메모리로 로드 (이걸 안 하면 계속 null이 뜹니다)
+  await tokenService.loadToken();
   runApp(const MyApp());
 
   Get.put(AuthController(), permanent: true);
