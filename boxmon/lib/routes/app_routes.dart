@@ -6,6 +6,7 @@ import 'package:boxmon/common/views/common_order.dart';
 import 'package:boxmon/common/views/common_setting.dart';
 import 'package:boxmon/common/views/common_start_package.dart';
 import 'package:boxmon/common/views/dispatch_summary_view.dart';
+import 'package:boxmon/common/views/ship_detail_screen.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/views/common_login_view.dart';
 import 'package:boxmon/login/views/common_registration_view.dart';
@@ -21,6 +22,7 @@ import 'package:boxmon/payment/binding/payment_binding.dart';
 import 'package:boxmon/payment/screens/result.dart';
 import 'package:boxmon/payment/screens/tosspayments/payhome.dart';
 import 'package:boxmon/payment/screens/tosspayments/payment.dart';
+import 'package:boxmon/wallet/views/common_wallet_view.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
@@ -44,6 +46,8 @@ class AppRoutes {
   static const commonChatting = '/common/chatting';
   static const dispatchSummary = '/dispatch/summary';
   static const cargoDetail = '/cargo/detail';
+  static const shipmentDetail = '/shipment-detail/:shipmentId'; // 자세히 보기
+  static const commonWallet = '/common/wallet';
 
   static final routes = <GetPage>[
     GetPage(name: splash, page: () => SplashView()),
@@ -51,6 +55,12 @@ class AppRoutes {
     GetPage(name: selectLogin, page: () => SelectLoginView()),
 
     GetPage(name: login, page: () => LoginView(), binding: AuthBinding()),
+
+    GetPage(
+      name: commonWallet,
+      page: () => CommonWalletView(),
+      binding: AuthBinding(),
+    ),
 
     GetPage(
       name: register,
@@ -120,6 +130,13 @@ class AppRoutes {
       name: commonStartPackage,
       page: () => CommonStartPackageView(),
       binding: MapBinding(),
+    ),
+
+    GetPage(
+      name: shipmentDetail,
+      page: () => ShipDetailScreen(),
+      binding: AuthBinding(),
+      transition: Transition.noTransition,
     ),
 
     GetPage(name: cargoDetail, page: () => CargoDetailView(), binding: MapBinding()),

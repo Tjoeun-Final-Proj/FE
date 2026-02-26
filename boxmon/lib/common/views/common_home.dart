@@ -110,7 +110,7 @@ class CommonHomeView extends StatelessWidget {
 
                 /// 정산 관리
                 InkWell(
-                  onTap: () => print("정산 관리 클릭"),
+                  onTap: () => Get.toNamed('/common/wallet'),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     width: 94,
