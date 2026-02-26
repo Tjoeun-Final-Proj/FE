@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class ShipmentModel {
   // 1. 서버 JSON 구조에 맞춰 변수 타입 조정
   final Map<String, double>? pickupPoint;
@@ -20,6 +22,7 @@ class ShipmentModel {
   final String? description;
   final String? cargoPhotoUrl;
   final String? companyName;
+  final File? files;
 
   ShipmentModel({
     this.pickupPoint,
@@ -42,6 +45,7 @@ class ShipmentModel {
     this.description,
     this.cargoPhotoUrl,
     this.companyName,
+    this.files
   });
 
   // 2. 서버로 보낼 때 사용하는 변환 함수 (핵심!)
@@ -83,6 +87,7 @@ class ShipmentModel {
       // ... 나머지도 동일한 방식으로 null 체크하며 파싱 ...
       price: json['price'],
       companyName: json['companyName'],
+      files: null, // 파일은 별도로 처리 
     );
   }
 }
