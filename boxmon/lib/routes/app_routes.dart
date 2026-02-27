@@ -24,6 +24,7 @@ import 'package:boxmon/payment/screens/result.dart';
 import 'package:boxmon/payment/screens/tosspayments/payhome.dart';
 import 'package:boxmon/payment/screens/tosspayments/payment.dart';
 import 'package:boxmon/wallet/views/common_wallet_view.dart';
+import 'package:boxmon/wallet/views/owner_wallet_view.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
@@ -49,6 +50,7 @@ class AppRoutes {
   static const cargoDetail = '/cargo/detail';
   static const shipmentDetail = '/shipment-detail/:shipmentId'; // 자세히 보기
   static const commonWallet = '/common/wallet';
+  static const ownerWallet = '/owner/wallet';
 
   static final routes = <GetPage>[
     GetPage(name: splash, page: () => SplashView()),
@@ -63,6 +65,11 @@ class AppRoutes {
       binding: AuthBinding(),
     ),
 
+    GetPage(name: ownerWallet,
+      page: () => OwnerWalletView(),
+      binding: AuthBinding(),
+    ),
+    
     GetPage(
       name: register,
       page: () => RegistrationView(),
