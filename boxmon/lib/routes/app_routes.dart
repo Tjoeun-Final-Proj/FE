@@ -15,6 +15,7 @@ import 'package:boxmon/login/views/owner_registration_view.dart';
 import 'package:boxmon/login/views/select_login_view.dart';
 import 'package:boxmon/login/views/splash_view.dart';
 import 'package:boxmon/map/binding/map_binding.dart';
+import 'package:boxmon/middlewares/driver_middleware.dart';
 import 'package:boxmon/owner/views/owner_home.dart';
 import 'package:boxmon/owner/views/owner_order.dart';
 import 'package:boxmon/owner/views/owner_setting.dart';
@@ -73,16 +74,32 @@ class AppRoutes {
       page: () => OwnerHomeView(),
       binding: AuthBinding(),
       transition: Transition.noTransition, // 이 페이지만 줌 효과 제거
+      middlewares: [
+        // 여기에 미들웨어 추가! 
+        // 이 수문장이 "DRIVER"인지 "SHIPPER"인지 체크해서 리다이렉트 시킵니다.
+        DriverMiddleware(), 
+      ],
     ),
     GetPage(
       name: ownerOrder,
       page: () => OwnerOrderView(),
       transition: Transition.noTransition,
+      binding: AuthBinding(),
+      middlewares: [
+        // 여기에 미들웨어 추가! 
+        // 이 수문장이 "DRIVER"인지 "SHIPPER"인지 체크해서 리다이렉트 시킵니다.
+        DriverMiddleware(), 
+      ],
     ),
     GetPage(
       name: ownerSetting,
       page: () => OwnerSettingView(),
       transition: Transition.noTransition,
+      middlewares: [
+        // 여기에 미들웨어 추가! 
+        // 이 수문장이 "DRIVER"인지 "SHIPPER"인지 체크해서 리다이렉트 시킵니다.
+        DriverMiddleware(), 
+      ],
     ),
     GetPage(
       name: commonHome,
