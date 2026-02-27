@@ -11,17 +11,19 @@ import '../models/token_model.dart';
 class TokenService extends GetxService {
   final _storage = const FlutterSecureStorage();
   
+  // 고정 키 이름입니다.
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
   static const String _userTypeKey = 'user_type';
   // 디바이스 토큰을 저장하는 장소
   String? _deviceToken;
-// 메모리에 들고있을 엑세스 토큰
+  // 메모리에 들고있을 엑세스 토큰
   String? _currentAccessToken;
+  String? _userType;
   String? get accessToken => _currentAccessToken;
 
   String? get deviceToken => _deviceToken;
-
+  String? get userType => _userType; // << 외부내부 DRIVER / SHIPPER 비교
   // 로그인하자마자 디바이스 토큰을 가져옵니다.
   Future<TokenService> init() async {
     try {
@@ -80,6 +82,7 @@ class TokenService extends GetxService {
     // 💡 여기서 값을 확인하고 Token 객체를 반환해야 함!
     if (accessToken != null && accessToken.isNotEmpty) {
       _currentAccessToken = accessToken; // 🔥 추가
+      _userType = userType; // 비교 들어갈 예정
       print("✅ [TokenService] 토큰 로드 성공!");
       return Token(
         accessToken: accessToken,

@@ -29,10 +29,10 @@ class _PayHomeState extends State<PayHome> {
     
     if (args != null && args is Map) {
       // 전달받은 배송 ID와 금액을 변수에 할당
-      final int shipmentId = args['shipmentId'] ?? 0;
+      final String shipmentId = args['shipmentId'] ?? 0;
       final int rawAmount = args['amount'] ?? 0;
 
-      orderId = "$shipmentId"; // 배송 ID를 주문번호로 사용
+      orderId = shipmentId; // 배송 ID를 주문번호로 사용
       amount = rawAmount.toString(); // 금액을 문자열로 변환하여 할당
     } else {
       // 데이터가 없을 경우를 대비한 예외 처리

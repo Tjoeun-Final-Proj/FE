@@ -1,3 +1,4 @@
+import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/common/services/shipment_service.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/login/services/auth_service.dart';
@@ -21,5 +22,6 @@ class AuthBinding extends Bindings {
     Get.lazyPut<CommonWalletService>(() => CommonWalletService());
     // 6. 컨트롤러들: 화면의 상태를 관리하고 비즈니스 로직을 실행
     Get.lazyPut<AuthController>(() => AuthController()); // 유저 인증 상태 관리
+    Get.lazyPut<ShipmentController>(() => ShipmentController());
   }
 }

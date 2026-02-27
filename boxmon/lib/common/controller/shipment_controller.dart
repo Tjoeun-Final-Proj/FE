@@ -3,9 +3,14 @@ import 'package:boxmon/common/model/shipment_model.dart';
 import 'package:boxmon/common/model/shipment_response_model.dart';
 import 'package:boxmon/common/services/shipment_service.dart';
 import 'package:boxmon/routes/app_routes.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ShipmentController extends GetxController {
+
+  final ImagePicker _imagePicker = ImagePicker();
+  
   // 1. 서비스 찾아오기
   final ShipmentService _shipmentService = Get.find<ShipmentService>();
 
@@ -39,7 +44,7 @@ void onInit() {
       print("🎮 [Controller] 배송 생성 프로세스 시작...");
 
       // 3. 서비스 호출 (ShipmentID를 받아옴)
-      int? shipmentId = await _shipmentService.createShipment(request);
+      String? shipmentId = await _shipmentService.createShipment(request);
 
       // 4. 결과값(ID)에 따른 분기 처리
       if (shipmentId != null) {
@@ -100,4 +105,125 @@ Future<void> loadDetail(int id) async {
     print("🏁 [Controller] 로딩 상태 종료 (isLoading: ${isLoading.value})");
   }
 }
+/// 1. 배차 취소 실행 (POST /shipment/{id}/cancel)
+  Future<void> requestCancel(int shipmentId) async {
+    try {
+      isLoading.value = true;
+      bool success = await _shipmentService.cancelOrder(shipmentId);
+      
+      if (success) {
+        Get.snackbar("성공", "배차가 성공적으로 취소되었습니다.", 
+            backgroundColor: Colors.blue, colorText: Colors.white);
+        // 상태 갱신을 위해 상세 정보를 다시 불러오거나 홈으로 이동
+        await loadDetail(shipmentId); 
+      } else {
+        Get.snackbar("알림", "취소 처리에 실패했습니다.");
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// 2. 취소 철회 실행 (POST /shipment/{id}/cancel/withdraw)
+  Future<void> requestWithdrawCancel(int shipmentId) async {
+    try {
+      isLoading.value = true;
+      // 아까 확인한 withdraw 엔드포인트 호출
+      bool success = await _shipmentService.requestWithdrawCancel(shipmentId);
+
+      if (success) {
+        Get.snackbar("성공", "취소 철회가 완료되어 배차가 유지됩니다.", 
+            backgroundColor: Colors.green, colorText: Colors.white);
+        await loadDetail(shipmentId); // UI 갱신
+      } else {
+        Get.snackbar("오류", "철회 요청을 처리할 수 없습니다.");
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }  
+
+ /// 배차 수락 실행 (POST /shipment/{id}/accept)
+Future<void> acceptShipment(int shipmentId) async {
+  try {
+    isLoading.value = true;
+    bool success = await _shipmentService.acceptShipment(shipmentId);
+    
+    if (success) {
+      Get.snackbar("성공", "배차를 수락했습니다.", 
+          backgroundColor: Colors.blue, colorText: Colors.white);
+      // 수락 후 상태 갱신을 위해 상세 정보를 다시 불러옵니다.
+      await loadDetail(shipmentId);
+    } else {
+      Get.snackbar("알림", "배차 수락에 실패했습니다.");
+    }
+  } finally {
+    isLoading.value = false;
+  }
+}  
+/// 운송 시작하기 실행 (POST /shipment/{id}/start)
+  Future<void> requestStartShipment(int shipmentId) async {
+    try {
+      isLoading.value = true;
+      bool success = await _shipmentService.startShipment(shipmentId);
+      
+      if (success) {
+        Get.snackbar("성공", "운송을 시작합니다.", backgroundColor: Colors.blue, colorText: Colors.white);
+        // 🔥 중요: 상태가 IN_TRANSIT으로 바뀐 데이터를 다시 불러와야 버튼이 "운송 완료하기"로 바뀝니다!
+        await loadDetail(shipmentId); 
+      } else {
+        Get.snackbar("오류", "운송 시작 처리에 실패했습니다.");
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// 운송 완료 프로세스 (사진 촬영 -> 업로드)
+  Future<void> completeShipmentProcess(int shipmentId) async {
+    try {
+      // 1. 카메라로 사진 촬영
+      final XFile? photo = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 50, // 용량 최적화
+      );
+
+      // 사용자가 촬영을 취소한 경우
+      if (photo == null) {
+        // 별도의 에러보다는 가벼운 안내가 좋습니다.
+        return; 
+      }
+
+      // 2. 서버 전송 시작 시점에 로딩 시작
+      isLoading.value = true;
+      
+      print("📸 촬영 완료: ${photo.path}");
+
+      // 3. 서버에 업로드
+      // photo.path는 실제 파일의 절대 경로입니다.
+      bool success = await _shipmentService.finalShipment(shipmentId, photo.path);
+      
+      if (success) {
+        Get.snackbar("성공", "운송 완료 처리가 되었습니다.", 
+            backgroundColor: Colors.green, colorText: Colors.white);
+        
+        // 1. 상태를 최신화하고 싶다면 (선택사항)
+        // await loadDetail(shipmentId); 
+
+        // 2. 홈 화면으로 이동 (스택을 비우고 홈으로 가는 것을 추천)
+        // '/ownerHome'은 덕배님이 정의하신 차주 홈 라우트 명으로 바꾸세요!
+        Get.offAllNamed('/owner/home'); 
+        
+      } else {
+        Get.snackbar("오류", "서버 전송에 실패했습니다.",
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      print("🚨 운송 완료 처리 중 에러: $e");
+      Get.snackbar("오류", "작업 수행 중 문제가 발생했습니다.");
+    } finally {
+      // 성공하든 실패하든 로딩은 꺼줘야 합니다.
+      isLoading.value = false;
+    }
+  }
 }

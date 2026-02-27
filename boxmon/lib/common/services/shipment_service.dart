@@ -18,7 +18,7 @@ class ShipmentService extends GetxService {
       Get.find<dio.Dio>(); // Base URL이 http://10.0.2.2:8080/api 로 설정된채로 가져와짐
   final TokenService _tokenService = Get.find<TokenService>();
 
-  Future<int?> createShipment(ShipmentModel request, {
+  Future<String?> createShipment(ShipmentModel request, {
     File? files, // 단일 파일 전송
   }) async {
     try {
@@ -84,7 +84,7 @@ class ShipmentService extends GetxService {
         if (rawId != null) {
           final int shipmentId = rawId as int;
           print("🎯 [SUCCESS] 추출된 Shipment ID: $shipmentId");
-          return shipmentId;
+          return shipmentId.toString().padLeft(6,'0');
         }
       }
       
@@ -177,4 +177,230 @@ Future<ShipDetailResponseModel?> getShipmentDetail(int shipmentId) async {
 }
 
 
+  /// =================================================
+  /// 화주, 차주 전용 배차 취소 함수
+  /// - 반환 값 void 204
+  /// =================================================
+  /// final url ('shipment/:shipmentId/cancel')
+  /// 바디 값없음
+  /// Params => shipmentId << 반환된 값 받아와야됨
+  Future<bool> cancelOrder(int shipmentId) async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      
+      // 1. URL의 :shipmentId 부분을 실제 ID 값으로 치환해야 합니다.
+      final url = 'shipment/$shipmentId/cancel';
+      
+      print("🌐 [API 요청] POST: $url");
+
+      final response = await _dio.post(
+        url,
+        // 바디 값이 없으므로 data는 생략하거나 null을 전달합니다.
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      // 2. 204 No Content 혹은 200번대 상태 코드 확인
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        print("✅ [취소 성공] 상태 코드: ${response.statusCode}");
+        return true;
+      }
+      return false;
+    } on dio.DioException catch (e) {
+      print("❌ [Dio 에러] 상태 코드: ${e.response?.statusCode}");
+      print("❌ [Dio 에러] 메시지: ${e.response?.data}");
+      return false;
+    } catch (e) {
+      print("🚨 [알 수 없는 에러]: $e");
+      return false;
+    }
+  }
+
+  /// =================================================
+  /// 화주, 차주 전용 배차 취소에 취소하는 함수
+  /// - 반환 값 void 204
+  /// =================================================
+  /// final url ('shipment/:shipmentId/cancel/drawable')
+  /// 바디 값없음
+  /// Params => shipmentId << 반환된 값 받아와야됨
+  Future<bool> requestWithdrawCancel(int shipmentId) async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      
+      // 1. URL의 :shipmentId 부분을 실제 ID 값으로 치환해야 합니다.
+      final url = 'shipment/$shipmentId/cancel';
+      
+      print("🌐 [API 요청] POST: $url");
+
+      final response = await _dio.post(
+        url,
+        // 바디 값이 없으므로 data는 생략하거나 null을 전달합니다.
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      // 2. 204 No Content 혹은 200번대 상태 코드 확인
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        print("✅ [취소 성공] 상태 코드: ${response.statusCode}");
+        return true;
+      }
+      return false;
+    } on dio.DioException catch (e) {
+      print("❌ [Dio 에러] 상태 코드: ${e.response?.statusCode}");
+      print("❌ [Dio 에러] 메시지: ${e.response?.data}");
+      return false;
+    } catch (e) {
+      print("🚨 [알 수 없는 에러]: $e");
+      return false;
+    }
+  }
+
+  
+  /// =================================================
+  /// 화주가 배차 수락 받는 함수
+  /// - 반환 값 void 204
+  /// =================================================
+  /// final url ('shipment/:shipmentId/accept')
+  /// 바디 값없음
+  /// Params => shipmentId << 반환된 값 받아와야됨
+  Future<bool> acceptShipment(int shipmentId) async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      
+      // 1. URL의 :shipmentId 부분을 실제 ID 값으로 치환해야 합니다.
+      final url = 'shipment/$shipmentId/accept';
+      
+      print("🌐 [API 요청] POST: $url");
+
+      final response = await _dio.post(
+        url,
+        // 바디 값이 없으므로 data는 생략하거나 null을 전달합니다.
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      // 2. 204 No Content 혹은 200번대 상태 코드 확인
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        print("✅ [취소 성공] 상태 코드: ${response.statusCode}");
+        return true;
+      }
+      return false;
+    } on dio.DioException catch (e) {
+      print("❌ [Dio 에러] 상태 코드: ${e.response?.statusCode}");
+      print("❌ [Dio 에러] 메시지: ${e.response?.data}");
+      return false;
+    } catch (e) {
+      print("🚨 [알 수 없는 에러]: $e");
+      return false;
+    }
+  }
+
+
+  /// =================================================
+  /// 차주가 운송 시작하는 함수
+  /// - 반환 값 void 204
+  /// =================================================
+  /// final url ('shipment/:shipmentId/start')
+  /// 바디 값없음
+  /// Params => shipmentId << 반환된 값 받아와야됨
+  Future<bool> startShipment(int shipmentId) async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      
+      // 1. URL의 :shipmentId 부분을 실제 ID 값으로 치환해야 합니다.
+      final url = 'shipment/$shipmentId/start';
+      
+      print("🌐 [API 요청] POST: $url");
+
+      final response = await _dio.post(
+        url,
+        // 바디 값이 없으므로 data는 생략하거나 null을 전달합니다.
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      // 2. 204 No Content 혹은 200번대 상태 코드 확인
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        print("✅ [취소 성공] 상태 코드: ${response.statusCode}");
+        return true;
+      }
+      return false;
+    } on dio.DioException catch (e) {
+      print("❌ [Dio 에러] 상태 코드: ${e.response?.statusCode}");
+      print("❌ [Dio 에러] 메시지: ${e.response?.data}");
+      return false;
+    } catch (e) {
+      print("🚨 [알 수 없는 에러]: $e");
+      return false;
+    }
+  }
+
+  
+  /// =================================================
+  /// 차주가 운송 완료했다고 하는 함수
+  /// - 반환 값 void 204
+  /// =================================================
+  /// final url ('shipment/:shipmentId/complete')
+  /// 바디 값없음
+  /// Params => shipmentId << 반환된 값 받아와야됨
+  /// 차주 운송 완료 처리 (사진 첨부 포함)
+  Future<bool> finalShipment(int shipmentId, String imagePath) async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      final url = 'shipment/$shipmentId/complete';
+
+      // 1. Multipart 파일 생성
+      // 파일 경로에서 파일명을 추출하여 MultipartFile로 변환합니다.
+      dio.MultipartFile file = await dio.MultipartFile.fromFile(
+        imagePath,
+        filename: imagePath.split('/').last,
+      );
+
+      // 2. FormData 구성 (Key: dropoffPhoto)
+      dio.FormData formData = dio.FormData.fromMap({
+        "dropoffPhoto": file,
+      });
+
+      print("🌐 [API 요청] POST (Multipart): $url");
+
+      final response = await _dio.post(
+        url,
+        data: formData, // JSON 대신 FormData를 전달
+        options: dio.Options(
+          headers: {
+            'Authorization': 'Bearer $currentToken',
+            // Multipart 요청임을 명시 (Dio가 자동으로 처리해주지만 명시하면 안전함)
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        print("✅ [운송 완료 성공] 상태 코드: ${response.statusCode}");
+        return true;
+      }
+      return false;
+    } on dio.DioException catch (e) {
+      print("❌ [Dio 에러] 상태 코드: ${e.response?.statusCode}");
+      print("❌ [Dio 에러] 메시지: ${e.response?.data}");
+      return false;
+    } catch (e) {
+      print("🚨 [알 수 없는 에러]: $e");
+      return false;
+    }
+  }
 }
