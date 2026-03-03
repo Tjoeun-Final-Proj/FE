@@ -36,35 +36,47 @@ class OwnerWalletController extends GetxController {
     ]);
   }
 
-  // 3. API 호출 함수
+  // 3. API 호출 함수 - 요약 데이터
   Future<void> fetchSummary2() async {
     try {
       isLoading.value = true;
-      print("💳 [WalletController] 정산 데이터 동기화 시작...");
+      print("📊 [WalletController-Summary] 요약 데이터 요청 시작...");
 
       final result = await _walletService.getSettlementSummary1();
 
       if (result != null) {
         summaryData.assignAll(result);
-        print("✅ [WalletController] 데이터 로드 성공: $result");
+        print("✅ [WalletController-Summary] 로드 성공! 이번 달 총액: ${summaryData['thisMonthTotalAmount']}, 차액: ${summaryData['difference']}");
+      } else {
+        print("⚠️ [WalletController-Summary] 응답은 성공했으나 데이터가 null입니다.");
       }
+    } catch (e) {
+      print("❌ [WalletController-Summary] 요약 데이터 로드 실패: $e");
     } finally {
       isLoading.value = false;
     }
   }
+
   // 2. 🎯 월별 정산 리스트 가져오기
   Future<void> fetchSettlementList2() async {
+    final year = selectedYear.value;
+    final month = selectedMonth.value;
+
     try {
       isLoading.value = true;
-      final result = await _walletService.getSettlementList1(
-        selectedYear.value, 
-        selectedMonth.value
-      );
+      print("📋 [WalletController-List] 리스트 데이터 요청 시작... 대상: $year년 $month월");
+
+      final result = await _walletService.getSettlementList1(year, month);
 
       if (result != null) {
         settlementList.assignAll(result);
-        print("🎯 리스트 로드 완료: ${settlementList.length}건");
+        print("✅ [WalletController-List] 로드 성공! 총 ${settlementList.length}건의 정산 내역이 있습니다. (대상: $year년 $month월)");
+      } else {
+        settlementList.clear(); // null일 경우 기존 리스트 비우기
+        print("⚠️ [WalletController-List] 결과가 null입니다. 빈 리스트로 초기화합니다. (대상: $year년 $month월)");
       }
+    } catch (e) {
+      print("❌ [WalletController-List] 리스트 데이터 로드 실패: $e");
     } finally {
       isLoading.value = false;
     }

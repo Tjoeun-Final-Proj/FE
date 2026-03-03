@@ -2,6 +2,7 @@ import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/owner_bottom_navigation.dart';
 import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/owner/views/vehicle_register_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -64,7 +65,7 @@ class OwnerSettingView extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        "결제 관리",
+                        "차량 관리",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -121,6 +122,30 @@ class OwnerSettingView extends StatelessWidget {
 
             const SizedBox(height: 32),
 
+            // --- 운송목적 선택 섹션 ---
+            Text(
+  "차량 등록하기",
+  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+),
+const SizedBox(height: 12),
+Container(
+  decoration: BoxDecoration(
+    border: Border.all(color: Colors.grey[200]!),
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: ListTile(
+    // 🎯 다이얼로그 대신 새 페이지로 이동!
+    onTap: () => Get.to(() => const VehicleRegisterView()), 
+    leading: const Icon(Icons.car_crash_rounded, color: Colors.black),
+    title: const Text(
+      "차량 등록",
+      style: TextStyle(fontWeight: FontWeight.w500),
+    ),
+    trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+  ),
+),
+  
+            const SizedBox(height: 32),
             // --- 운송목적 선택 섹션 ---
             Text(
               "계좌 등록하기",

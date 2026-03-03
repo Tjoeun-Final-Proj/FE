@@ -10,6 +10,9 @@ class CommonWalletView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(CommonWalletController());
 
+// 🔥 실제로 메모리에 올라간 컨트롤러의 진짜 이름을 출력해봅니다.
+  print("🕵️ 현재 화면에 잡힌 컨트롤러 타입: ${controller.runtimeType}");
+  
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -57,7 +60,7 @@ class CommonWalletView extends StatelessWidget {
                       return _buildWalletItem(
                         date: DateFormat('MM/dd').format(item.createdAt!),
                         status: item.shipmentStatus ?? "상태미정",
-                        price: "-${NumberFormat('#,###').format(item.price ?? 0)}원",
+                        price: "${NumberFormat('#,###').format(item.price ?? 0)}원",
                         pickup: item.pickupAddress ?? "",
                         time: DateFormat('HH:mm').format(item.createdAt!),
                         dropoffAddress : item.dropoffAddress ?? ""
@@ -102,11 +105,11 @@ class CommonWalletView extends StatelessWidget {
               const Text("저번달 보다", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(width: 20),
               Text(
-                "${controller.differenceAmount}원 ${controller.isSaved ? '더 지출했습니다.' : '절약했습니다.'}", 
+                "${controller.differenceAmount}원 ${controller.isSaved ? '절약했습니다.' : '더 지출했습니다.'}", 
                 style: TextStyle(
                   fontSize: 16, 
                   fontWeight: FontWeight.bold,
-                  color: controller.isSaved ? Colors.red :  Colors.blue
+                  color: controller.isSaved ? Colors.blue :  Colors.red
                 ),
               ),
             ],
