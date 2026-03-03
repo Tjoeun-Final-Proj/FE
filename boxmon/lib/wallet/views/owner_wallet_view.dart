@@ -10,6 +10,10 @@ class OwnerWalletView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(OwnerWalletController());
 
+// 🔥 실제로 메모리에 올라간 컨트롤러의 진짜 이름을 출력해봅니다.
+  print("🕵️ 현재 화면에 잡힌 컨트롤러 타입: ${controller.runtimeType}");
+
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -57,7 +61,7 @@ class OwnerWalletView extends StatelessWidget {
                       return _buildWalletItem(
                         date: DateFormat('MM/dd').format(item.createdAt!),
                         status: item.shipmentStatus ?? "상태미정",
-                        price: "-${NumberFormat('#,###').format(item.price ?? 0)}원",
+                        profit: "${NumberFormat('#,###').format(item.profit ?? 0)}원",
                         pickup: item.pickupAddress ?? "",
                         time: DateFormat('HH:mm').format(item.createdAt!),
                         dropoffAddress : item.dropoffAddress ?? ""
@@ -148,7 +152,7 @@ class OwnerWalletView extends StatelessWidget {
   Widget _buildWalletItem({
     required String date, 
     required String status, 
-    required String price, 
+    required String profit, 
     required String pickup,
     required String time,
     required String dropoffAddress
@@ -190,7 +194,7 @@ class OwnerWalletView extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(price, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(profit, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

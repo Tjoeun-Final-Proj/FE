@@ -77,7 +77,7 @@ class OwnerHomeView extends StatelessWidget {
 
                 /// 운송 현황
                 InkWell(
-                  onTap: () => print("운송 현황 클릭"),
+                  onTap: () => Get.toNamed('/driver/inventory'),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     width: 94,

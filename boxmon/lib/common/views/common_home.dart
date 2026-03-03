@@ -77,7 +77,7 @@ class CommonHomeView extends StatelessWidget {
 
                 /// 운송 현황
                 InkWell(
-                  onTap: () => print("운송 현황 클릭"),
+                  onTap: () => Get.toNamed('/shipper/inventory'),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     width: 94,
@@ -110,7 +110,7 @@ class CommonHomeView extends StatelessWidget {
 
                 /// 정산 관리
                 InkWell(
-                  onTap: () => Get.toNamed('/owner/wallet'),
+                  onTap: () => Get.toNamed('/common/wallet'),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     width: 94,

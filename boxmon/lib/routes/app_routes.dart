@@ -7,6 +7,8 @@ import 'package:boxmon/common/views/common_setting.dart';
 import 'package:boxmon/common/views/common_start_package.dart';
 import 'package:boxmon/common/views/dispatch_summary_view.dart';
 import 'package:boxmon/common/views/ship_detail_screen.dart';
+import 'package:boxmon/drive-list/views/common_inventory_view.dart';
+import 'package:boxmon/drive-list/views/driver_invetory_view.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/views/common_login_view.dart';
 import 'package:boxmon/login/views/common_registration_view.dart';
@@ -51,6 +53,8 @@ class AppRoutes {
   static const shipmentDetail = '/shipment-detail/:shipmentId'; // 자세히 보기
   static const commonWallet = '/common/wallet';
   static const ownerWallet = '/owner/wallet';
+  static const shipperInventory = '/shipper/inventory';
+  static const driverInventory = '/driver/inventory';
 
   static final routes = <GetPage>[
     GetPage(name: splash, page: () => SplashView()),
@@ -102,6 +106,7 @@ class AppRoutes {
       name: ownerSetting,
       page: () => OwnerSettingView(),
       transition: Transition.noTransition,
+      binding: AuthBinding(),
       middlewares: [
         // 여기에 미들웨어 추가! 
         // 이 수문장이 "DRIVER"인지 "SHIPPER"인지 체크해서 리다이렉트 시킵니다.
@@ -161,6 +166,20 @@ class AppRoutes {
       page: () => ShipDetailScreen(),
       binding: AuthBinding(),
       transition: Transition.noTransition,
+    ),
+
+    GetPage(
+      name: shipperInventory,
+      page: () => CommonInvetoryView(),
+      binding : AuthBinding(),
+      transition: Transition.noTransition
+    ),
+
+    GetPage(
+      name: driverInventory,
+      page: () => DriverInvetoryView(),
+      binding : AuthBinding(),
+      transition: Transition.noTransition
     ),
 
     GetPage(name: cargoDetail, page: () => CargoDetailView(), binding: MapBinding()),

@@ -2,6 +2,7 @@ import 'package:boxmon/common/model/detail_shipment_model.dart';
 import 'package:boxmon/login/models/token_model.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/owner/model/shipment_unassigned_response_model.dart';
+import 'package:boxmon/owner/model/vehicle_model.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
@@ -171,6 +172,31 @@ Future<ShipDetailResponseModel?> getShipmentDetail(int shipmentId) async {
   }
   return null;
 }
+  // 관리자 차량 등록하는 함수입니다.
+  // 차량 등록 실행 함수
+  Future<bool> registerVehicle(VehicleModel vehicle) async {
+  try {
+    final currentToken = _tokenService.accessToken;
+    
+    print("🌐 [Vehicle Service] 차량 등록 요청 시작");
 
+    final response = await _dio.post(
+      'driver/vehicle',
+      // 🎯 여기서 모델의 toJson()을 호출합니다. 
+      // 컨트롤러에서 굳이 Map으로 변환해서 줄 필요가 없어집니다.
+      data: vehicle.toJson(), 
+      options: dio.Options(headers: {'Authorization': 'Bearer $currentToken'}),
+    );
 
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("✅ [Vehicle Service] 차량 등록 성공");
+      return true;
+    }
+  } on dio.DioException catch (e) {
+    print("❌ [Vehicle Service Error] ${e.response?.statusCode}: ${e.response?.data}");
+  } catch (e) {
+    print("🚨 [Vehicle Service Critical] $e");
+  }
+  return false;
+}
 }

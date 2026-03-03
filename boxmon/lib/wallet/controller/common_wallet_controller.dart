@@ -25,46 +25,62 @@ class CommonWalletController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    print("🚀 [WalletController] onInit 호출됨 - 기본값: ${selectedYear.value}년 ${selectedMonth.value}월");
     refreshAll(); // 페이지 진입 시 요약과 리스트 모두 로드
   }
 
   // 전체 데이터 새로고침
   Future<void> refreshAll() async {
+    print("🔄 [WalletController] 전체 데이터(요약 & 월별 리스트) 동기화 시작...");
+    // 두 API가 끝날 때까지 대기
     await Future.wait([
       fetchSummary(),
       fetchSettlementList(),
     ]);
+    print("✅ [WalletController] 전체 데이터 동기화 완료");
   }
 
-  // 3. API 호출 함수
+  // 3. API 호출 함수 - 요약 데이터
   Future<void> fetchSummary() async {
     try {
       isLoading.value = true;
-      print("💳 [WalletController] 정산 데이터 동기화 시작...");
+      print("📊 [WalletController-Summary] 요약 데이터 요청 시작...");
 
       final result = await _walletService.getSettlementSummary();
 
       if (result != null) {
         summaryData.assignAll(result);
-        print("✅ [WalletController] 데이터 로드 성공: $result");
+        print("✅ [WalletController-Summary] 로드 성공! 이번 달 총액: ${summaryData['thisMonthTotalAmount']}, 차액: ${summaryData['difference']}");
+      } else {
+        print("⚠️ [WalletController-Summary] 응답은 성공했으나 데이터가 null입니다.");
       }
+    } catch (e) {
+      print("❌ [WalletController-Summary] 요약 데이터 로드 실패: $e");
     } finally {
       isLoading.value = false;
     }
   }
+
   // 2. 🎯 월별 정산 리스트 가져오기
   Future<void> fetchSettlementList() async {
+    final year = selectedYear.value;
+    final month = selectedMonth.value;
+
     try {
       isLoading.value = true;
-      final result = await _walletService.getSettlementList(
-        selectedYear.value, 
-        selectedMonth.value
-      );
+      print("📋 [WalletController-List] 리스트 데이터 요청 시작... 대상: $year년 $month월");
+
+      final result = await _walletService.getSettlementList(year, month);
 
       if (result != null) {
         settlementList.assignAll(result);
-        print("🎯 리스트 로드 완료: ${settlementList.length}건");
+        print("✅ [WalletController-List] 로드 성공! 총 ${settlementList.length}건의 정산 내역이 있습니다. (대상: $year년 $month월)");
+      } else {
+        settlementList.clear(); // null일 경우 기존 리스트 비우기
+        print("⚠️ [WalletController-List] 결과가 null입니다. 빈 리스트로 초기화합니다. (대상: $year년 $month월)");
       }
+    } catch (e) {
+      print("❌ [WalletController-List] 리스트 데이터 로드 실패: $e");
     } finally {
       isLoading.value = false;
     }
@@ -72,7 +88,11 @@ class CommonWalletController extends GetxController {
 
   // 월 변경 시 호출 (Next/Prev 버튼용)
   void changeMonth(int delta) {
-    int nextMonth = selectedMonth.value + delta;
+    int oldYear = selectedYear.value;
+    int oldMonth = selectedMonth.value;
+    
+    int nextMonth = oldMonth + delta;
+    
     if (nextMonth > 12) {
       selectedYear.value++;
       selectedMonth.value = 1;
@@ -82,6 +102,9 @@ class CommonWalletController extends GetxController {
     } else {
       selectedMonth.value = nextMonth;
     }
+
+    print("🗓️ [WalletController-Date] 월 변경됨: $oldYear년 $oldMonth월 ➡️ ${selectedYear.value}년 ${selectedMonth.value}월");
+    
     fetchSettlementList(); // 월 변경 후 리스트 다시 불러오기
   }
 }
