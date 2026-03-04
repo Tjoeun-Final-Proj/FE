@@ -15,94 +15,6 @@ class OrderShipmentServices extends GetxService {
       Get.find<dio.Dio>(); // Base URL이 http://10.0.2.2:8080/api 로 설정된채로 가져와짐
   final TokenService _tokenService = Get.find<TokenService>();
 
-//   Future<int?> createShipment(ShipmentModel request, {
-//     File? files, // 단일 파일 전송
-//   }) async {
-//     try {
-//       final currentToken = _tokenService.accessToken; 
-  
-//   print("🔑 [DEBUG] 통신 직전 토큰: $currentToken"); // 여기서 최신 로그와 대조!
-      
-//       // 1. 토큰 자체 값 확인 로그
-//       print("🔑 [DEBUG] _tokenService.accessToken: ${_tokenService.accessToken ?? 'NULL'}");
-
-//       print("🚀 [Shipment API] 배송 생성 요청 시작");
-      
-//       final formData = dio.FormData();
-//       // JSON 파트 추가 (Spring @RequestPart와 대응)
-//       formData.files.add(
-//   MapEntry(
-//     'request',
-//     dio.MultipartFile.fromString(
-//       jsonEncode(request.toJson()), // 실제 데이터가 담긴 객체를 변환해서 보내야 함!
-//       contentType: dio.DioMediaType('application', 'json'),
-//     ),
-//   ),
-// );
-
-//       // 이미지 파트 추가
-//       if (files != null) {
-//         formData.files.add(
-//           MapEntry(
-//             'cargoPhoto', // 서버 API 명세에 따라 'file' 또는 'files' 확인 필수!
-//             await dio.MultipartFile.fromFile(
-//               files.path,
-//               filename: files.path.split('/').last,
-//               contentType: dio.DioMediaType('image', 'jpeg'),
-//             ),
-//           ),
-//         );
-//       }
-//       // 2. 요청 직전 헤더 구성을 미리 정의
-//       final requestHeaders = {
-//         'Authorization': 'Bearer $currentToken',
-//       };
-
-//       // 3. 실제로 보낼 헤더 상세 로그
-//       print("📝 [HEADER LOG] 전송 예정 헤더: $requestHeaders");
-//       print("📤 [REQUEST BODY]: $formData");
-
-//       // 4. 서버에 POST 요청
-//       final response = await _dio.post(
-//         'shipment', 
-//         data: formData,
-//         options: dio.Options(
-//           contentType : 'multipart/form-data',
-//           headers: requestHeaders,
-//         ),
-//       );
-
-//       // ... 이하 성공 로직 동일 ...
-//       print("✅ [RESPONSE STATUS]: ${response.statusCode}");
-//       print("📥 [RESPONSE BODY]: ${response.data}");
-
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         final dynamic rawId = response.data['shipmentId'];
-//         if (rawId != null) {
-//           final int shipmentId = rawId as int;
-//           print("🎯 [SUCCESS] 추출된 Shipment ID: $shipmentId");
-//           return shipmentId;
-//         }
-//       }
-      
-//     } on dio.DioException catch (e) {
-//       print("❌ [DioException] 발생!");
-//       if (e.response != null) {
-//         print("  - 에러 상태 코드: ${e.response?.statusCode}");
-//         print("  - 에러 응답 데이터: ${e.response?.data}");
-//         // 🔥 실제 Dio 요청 객체에 담겼던 헤더를 다시 확인
-//         print("  - 실제 보낸 헤더: ${e.requestOptions.headers}");
-//         print("  - 요청 경로: ${e.requestOptions.path}");
-//       } else {
-//         print("  - 에러 메시지: ${e.message}");
-//       }
-//     } catch (e) {
-//       print("🚨 [CRITICAL ERROR]: $e");
-//     }
-    
-//     return null;
-//   }
-
 Future<List<ShipmentUnassignedResponseModel>?> UnassignedShipments() async {
   try {
     final currentToken = _tokenService.accessToken;
@@ -199,4 +111,83 @@ Future<ShipDetailResponseModel?> getShipmentDetail(int shipmentId) async {
   }
   return false;
 }
+
+// 차주 계좌 등록하는 함수입니다.
+  
+  Future<bool> registerAccount(String bankCode, String accountNumber, String holderName) async {
+  try {
+    final currentToken = _tokenService.accessToken;
+    
+    print("🌐 [user/account Service] 차량 등록 요청 시작");
+
+    final response = await _dio.post(
+      'user/account',
+      // 🎯 여기서 모델의 toJson()을 호출합니다. 
+      // 컨트롤러에서 굳이 Map으로 변환해서 줄 필요가 없어집니다.
+      data: {
+       'bankCode': bankCode,        // 변수명을 Key로 바로 매핑
+        'accountNumber': accountNumber,
+        'holderName': holderName,
+      },
+      options: dio.Options(headers: {'Authorization': 'Bearer $currentToken'}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("✅ [account Service] 차량 등록 성공");
+      return true;
+    }
+  } on dio.DioException catch (e) {
+    print("❌ [account Service Error] ${e.response?.statusCode}: ${e.response?.data}");
+  } catch (e) {
+    print("🚨 [account Service Critical] $e");
+  }
+  return false;
+}
+
+
+// 차주/화주 공통 문의 등록하는 함수입니다.
+  
+  Future<bool> registerInquiry(String content, List<String> imagePaths) async {
+  try {
+    final currentToken = _tokenService.accessToken;
+    
+    // 1. 파일들을 MultipartFile 리스트로 변환
+    List<dio.MultipartFile> multipartFileList = [];
+    for (String path in imagePaths) {
+      multipartFileList.add(
+        await dio.MultipartFile.fromFile(path, filename: path.split('/').last)
+      );
+    }
+      
+      // 2. FormData 구성 (Key: dropoffPhoto)
+      dio.FormData formData = dio.FormData.fromMap({
+        "contactContent" : content,
+        "images": multipartFileList,
+      });
+
+    // 3. API 호출
+    final response = await _dio.post(
+      'contact/create', // 실제 문의 등록 엔드포인트로 변경하세요
+      data: formData, // FormData 전달
+      options: dio.Options(
+        headers: {
+          'Authorization': 'Bearer $currentToken',
+          // Multipart 전송 시 Content-Type은 Dio가 자동으로 지정해주므로 생략 가능합니다.
+          'Content-Type': 'multipart/form-data',
+        },
+      ),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("✅ [Inquiry Service] 문의 등록 성공");
+      return true;
+    }
+  } on dio.DioException catch (e) {
+    print("❌ [Inquiry Service Error] ${e.response?.statusCode}: ${e.response?.data}");
+  } catch (e) {
+    print("🚨 [Inquiry Service Critical] $e");
+  }
+  return false;
+}
+
 }

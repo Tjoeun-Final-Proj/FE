@@ -100,7 +100,6 @@ class CommonSettingView extends StatelessWidget {
             const SizedBox(height: 24),
 
             // --- 이벤트 배너 ---
-            // --- 이벤트 배너 ---
             Center(
               // 센터 정렬
               child: Container(
