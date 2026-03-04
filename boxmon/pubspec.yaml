@@ -38,6 +38,7 @@ dependencies:
   hugeicons:
   dio:
   get_storage:
+  geolocator: ^10.1.0
 
   shared_preferences:
   shared_preferences_web:
