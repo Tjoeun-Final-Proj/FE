@@ -1,4 +1,5 @@
 import 'package:boxmon/alarm/views/common_alarm.dart';
+import 'package:boxmon/chatting/views/chat_room_view.dart';
 import 'package:boxmon/chatting/views/common_chatting.dart';
 import 'package:boxmon/common/views/cargo_detail_view.dart';
 import 'package:boxmon/common/views/common_home.dart';
@@ -48,6 +49,7 @@ class AppRoutes {
   static const resultPage = '/result';
   static const commonAlarm = '/common/alarm';
   static const commonChatting = '/common/chatting';
+  static const chatRoom = '/chat/room';
   static const dispatchSummary = '/dispatch/summary';
   static const cargoDetail = '/cargo/detail';
   static const shipmentDetail = '/shipment-detail/:shipmentId'; // 자세히 보기
@@ -142,6 +144,11 @@ class AppRoutes {
       page: () => CommonChatting(),
       binding: AuthBinding(),
       transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: chatRoom,
+      page: () => ChatRoomView(),
+      binding: AuthBinding(),
     ),
     GetPage(
       name: ownerLogin,

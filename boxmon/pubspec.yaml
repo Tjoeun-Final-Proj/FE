@@ -37,6 +37,7 @@ dependencies:
   get:
   hugeicons:
   dio:
+  stomp_dart_client:
   get_storage:
 
   shared_preferences:

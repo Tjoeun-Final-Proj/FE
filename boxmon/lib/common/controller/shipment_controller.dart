@@ -1,3 +1,4 @@
+import 'package:boxmon/chatting/controllers/chat_room_list_controller.dart';
 import 'package:boxmon/common/model/detail_shipment_model.dart';
 import 'package:boxmon/common/model/shipment_model.dart';
 import 'package:boxmon/common/model/shipment_response_model.dart';
@@ -152,6 +153,9 @@ Future<void> acceptShipment(int shipmentId) async {
     if (success) {
       Get.snackbar("성공", "배차를 수락했습니다.", 
           backgroundColor: Colors.blue, colorText: Colors.white);
+      try {
+        Get.find<ChatRoomListController>().onShipmentAccepted(shipmentId);
+      } catch (_) {}
       // 수락 후 상태 갱신을 위해 상세 정보를 다시 불러옵니다.
       await loadDetail(shipmentId);
     } else {

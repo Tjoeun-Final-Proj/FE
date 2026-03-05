@@ -23,26 +23,24 @@ Boxmon 프로젝트는 Flutter 프레임워크를 사용하여 개발된 모바�
 *   **아이콘:** `hugeicons`
 *   **폰트:** Pretendard
 
-## 아키텍처: MVVM (Model-View-ViewModel)
+## 아키텍처: Feature-First MVVM
 
-프로젝트는 MVVM 패턴을 기반으로 다음과 같이 구조화되어 있습니다.
+프로젝트는 기능(Feature) 중심의 MVVM 패턴을 기반으로 다음과 같이 구조화되어 있습니다.
 
 *   **`lib/core`**: 앱 전반에 걸쳐 사용되는 공통적인 요소들을 포함합니다.
-    *   `components`: 재사용 가능한 위젯 및 UI 요소.
-    *   `design`: 디자인 시스템 (색상, 간격, 텍스트 스타일, 보더 라디우스, 테마 등)을 정의하여 일관된 UI/UX를 보장합니다.
-*   **`lib/data`**: 데이터 처리 및 저장 로직을 담당합니다.
-    *   `datasource`: API 통신(`remote`) 또는 로컬 데이터베이스(`local`)와 같은 특정 데이터 소스와의 상호작용을 정의합니다.
-    *   `repository`: `domain` 계층의 리포지토리 인터페이스를 구현하며, 여러 데이터 소스(`datasource`)로부터 데이터를 가져와 `domain` 계층으로 전달합니다.
-*   **`lib/domain`**: 앱의 핵심 비즈니스 로직을 정의합니다.
-    *   `entity`: 앱의 핵심 데이터 모델.
-    *   `repository`: 데이터 소스에 대한 추상화된 인터페이스.
-    *   `usecase`: 특정 비즈니스 로직을 수행하는 단일 책임 원칙을 따르는 클래스. `repository` 인터페이스를 사용하여 데이터를 조작합니다.
-*   **`lib/presentation`**: 사용자 인터페이스(UI) 및 UI 로직을 담당합니다.
-    *   `views`: 화면에 표시되는 위젯.
-    *   `controllers`: GetX Controller로 구현되며, `ViewModel` 역할을 수행합니다. `View`와 `domain` 계층(`usecase`) 사이의 상호작용을 관리하고, `View`의 상태를 업데이트합니다.
-    *   `bindings`: GetX 의존성 주입(Dependency Injection)을 설정하여 `Controller`와 `Service` 등을 초기화하고 연결합니다.
+    *   `components`: 재사용 가능한 위젯 및 전역 UI 요소.
+    *   `design`: 디자인 시스템 (색상, 간격, 텍스트 스타일, 테마 등) 정의.
+*   **`lib/[feature]`**: 각 기능(도메인)별로 독립적인 폴더를 구성합니다. (예: `login`, `owner`, `payment`, `wallet` 등)
+    *   `views`: 화면 UI 위젯.
+    *   `controllers`: GetX Controller 기반의 ViewModel. UI 상태 관리 및 서비스 호출.
+    *   `services`: 외부 API 통신 및 데이터 처리 로직.
+    *   `models`: 데이터 모델 및 DTO 정의.
+    *   `bindings`: GetX 의존성 주입(DI) 설정.
+*   **`lib/common`**: 여러 도메인에서 공유하거나 기사 앱의 기본 기능을 담은 공통 도메인.
+*   **`lib/routes` & `lib/middlewares`**: 앱의 라우팅 체계 및 접근 제어 로직 관리.
 
 ## 빌드 및 실행
+
 
 ### 프로젝트 의존성 설치
 

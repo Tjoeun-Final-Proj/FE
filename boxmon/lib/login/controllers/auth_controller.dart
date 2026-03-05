@@ -1,3 +1,4 @@
+import 'package:boxmon/chatting/services/chat_socket_service.dart';
 import 'package:boxmon/login/models/driver_signup_request.dart';
 import 'package:boxmon/login/models/signup_request.dart';
 import 'package:boxmon/login/models/token_model.dart';
@@ -9,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  final TokenService _tokenService = TokenService();
+  final TokenService _tokenService = Get.find<TokenService>();
   final AuthService _authService = AuthService();
 
   final emailController = TextEditingController();
@@ -424,6 +425,9 @@ class AuthController extends GetxController {
 
   // ✅ 로그아웃 처리
   Future<void> userlogout() async {
+    try {
+      Get.find<ChatSocketService>().disconnect();
+    } catch (_) {}
     _tokenService.clearToken();
     // isAuthenticated.value = false;
     Get.offAllNamed(AppRoutes.selectLogin);
