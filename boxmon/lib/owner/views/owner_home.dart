@@ -54,20 +54,20 @@ class OwnerHomeView extends StatelessWidget {
                     width: 94,
                     height: 94,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1F5AA6),
+                      color: const Color(0xFF434343),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         HugeIcon(
-                          icon: HugeIcons.strokeRoundedInvoice01,
+                          icon: HugeIcons.strokeRoundedPackageSearch,
                           color: Colors.white,
                           size: 49,
                         ),
                         SizedBox(height: 6),
                         Text(
-                          "배차 요청",
+                          "배차 검색",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

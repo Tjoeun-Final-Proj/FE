@@ -150,14 +150,6 @@ Widget _buildOrderItem(InventoryModel item) {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  if (item.description != null && item.description!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        item.description!,
-                        style: TextStyle(fontSize: 11, color: Colors.orange.shade700),
-                      ),
-                    ),
                   Text(
                     "${formatPrice(item.price)}원",
                     style: TextStyle(

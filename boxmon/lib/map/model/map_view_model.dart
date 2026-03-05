@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:boxmon/common/model/shipment_model.dart';
+import 'package:boxmon/common/services/shipment_service.dart';
 import 'package:boxmon/map/model/geocoding_repository.dart';
 import 'package:boxmon/map/model/naver_address_model.dart';
 import 'package:boxmon/map/model/search_result._model.dart';
@@ -29,7 +33,7 @@ var selectedVehicleType = VehicleType.CARGO.obs; // 초기값
 
 class MapViewModel extends GetxController {
   final MapService _mapService;
-  
+  final ShipmentService _shipmentService = Get.find<ShipmentService>();
   // 상세주소 입력용
   final detailAddressController = TextEditingController();
 
@@ -78,6 +82,8 @@ class MapViewModel extends GetxController {
   var stopover1Address = "".obs;
   var stopover2Address = "".obs;
   
+  final ImagePicker _picker = ImagePicker();
+var selectedCargoImage = Rxn<File>(); // 🔥 딱 1장만 담을 수 있는 변수 (Rxn은 null 허용)
 
   // 교통수단 선택입니다.
   var selectedVehicle = "1톤 카고".obs;
@@ -90,6 +96,9 @@ class MapViewModel extends GetxController {
     // 날짜와 시간을 포맷팅하여 문자열로 반환
     return "${date.year}년 ${date.month}월 ${date.day}일 ${time.hour}시 ${time.minute}분";
   };
+  // --- [추가] 화물 규격 및 중량 입력용 컨트롤러 ---
+  final weightController = TextEditingController(); // 중량
+
 
 // 1. 관찰 가능한 Enum 변수 추가 (클래스 상단 변수 선언부)
 var selectedVehicleType = VehicleType.CARGO.obs; 
@@ -128,18 +137,79 @@ void updatePickupDateTime(DateTime date, TimeOfDay time) {
 
   // 화물 상세 요청사항 입력
   var cargoDescription = "".obs;    // 상세 요청사항 텍스트
-  // ✅ 사진 관련 상태변수 및 기능
-  final ImagePicker _picker = ImagePicker();
-  RxList<XFile> cargoImages = <XFile>[].obs; // 선택된 이미지 리스트
+  // --- [추가] 화물 정보를 담을 그릇들 ---
+  final companyNameController = TextEditingController(); // 회사 이름
+  final widthController = TextEditingController();       // 가로
+  final lengthController = TextEditingController();      // 세로
+  final heightController = TextEditingController();      // 높이
+  
+  // 갤러리에서 사진 딱 1장만 선택하기
+Future<void> pickSingleCargoImage() async {
+  // pickMultiImage 대신 pickImage 사용
+  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  if (image != null) {
+    selectedCargoImage.value = File(image.path); // 선택한 사진 저장
+  }
+}
+Future<void> submitShipmentRequest() async {
+    try {
+      isLoading.value = true;
+      print("🎮 [Controller] 배송 생성 프로세스 시작...");
 
-  // 갤러리에서 사진 여러 장 선택하기
-  Future<void> pickCargoImages() async {
-    final List<XFile> selectedImages = await _picker.pickMultiImage();
-    if (selectedImages.isNotEmpty) {
-      // 기존 리스트에 추가
-      cargoImages.addAll(selectedImages);
+      // 1. 화면에 따로따로 입력된 [가로], [세로], [높이]를 "1개의 문장"으로 묶어줍니다.
+      String combinedDescription = "${widthController.text}x${lengthController.text}x${heightController.text} cm";
+      
+      // 상세 요청사항 적은 게 있다면 뒤에 붙여줍니다.
+      if (cargoDescription.value.isNotEmpty) {
+        combinedDescription += " / 요청사항: ${cargoDescription.value}";
+      }
+
+      // 2. 서버로 보낼 'ShipmentModel' 상자에 지금까지 모은 데이터를 다 담습니다.
+      final requestModel = ShipmentModel(
+        pickupAddress: startFullAddress.value, // 출발지
+        dropoffAddress: endFullAddress.value,  // 도착지
+        cargoWeight: double.tryParse(weightController.text) ?? 0.0, // 중량
+        description: combinedDescription, // 🔥 위에서 하나로 묶은 글자가 여기에 들어갑니다!
+        vehicleType: selectedVehicleType.value.name, // 차량 종류
+        // (필요하다면 pickupPoint, price 등의 나머지 값도 여기에 똑같이 넣어주시면 됩니다)
+      );
+
+      // 3. 사진 파일(1장)과 모델 상자를 서비스 함수에 넘겨서 서버로 POST 전송합니다!
+      // (주의: _shipmentService 부분은 덕배님이 실제로 쓰시는 서비스 객체 이름으로 맞춰주세요)
+      String? shipmentId = await _shipmentService.createShipment(
+        requestModel, 
+        files: selectedCargoImage.value, // 선택한 사진 파일 딱 1장!
+      );
+
+      // 4. 전송 성공 / 실패에 따른 화면 이동 처리
+      if (shipmentId != null) {
+        print("✅ 배송 요청 성공! 발급된 ID: $shipmentId");
+        
+        // 결제 화면으로 이동
+        Get.toNamed('/tossPayments', arguments: {
+          'shipmentId': shipmentId,
+          // 'amount': requestModel.price, // 요금 변수가 있다면 같이 넘겨줍니다.
+        });
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Get.snackbar("성공", "배송 요청이 정상적으로 등록되었습니다.");
+        });
+      } else {
+        print("❌ 배송 생성 실패 (서버에서 null 반환)");
+        Get.snackbar("오류", "배송 요청에 실패했습니다. 다시 시도해주세요.", snackPosition: SnackPosition.BOTTOM);
+      }
+      
+    } catch (e) {
+      print("🚨 [Controller] 예상치 못한 에러 발생: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
+
+// 사진 삭제하기
+void removeImage() {
+  selectedCargoImage.value = null; // null로 비워버림
+}
 void confirmAddressSelection(PageController pageController) {
   String finalAddr = currentAddress.value;
   if (detailAddressController.text.isNotEmpty) {
@@ -173,10 +243,6 @@ void confirmAddressSelection(PageController pageController) {
   pageController.jumpToPage(0); 
   _resetSearchState(); // 기존에 만든 리셋 함수 활용
 }
-  // 선택한 사진 삭제하기
-  void removeImage(int index) {
-    cargoImages.removeAt(index);
-  }
   
   // 지도가 준비되었을 때 컨트롤러 주입
   void onMapReady(NaverMapController controller) {

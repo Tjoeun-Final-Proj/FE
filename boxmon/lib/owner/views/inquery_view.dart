@@ -10,7 +10,7 @@ class InqueryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final InqueryController inqueryController = Get.find<InqueryController>();
+    final InqueryController inqueryController = Get.put(InqueryController());
 
     return Scaffold(
       backgroundColor: Colors.white,

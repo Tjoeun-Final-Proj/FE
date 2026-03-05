@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:boxmon/common/model/detail_shipment_model.dart';
 import 'package:boxmon/common/model/shipment_model.dart';
 import 'package:boxmon/common/model/shipment_response_model.dart';
@@ -37,14 +39,15 @@ void onInit() {
   }
 }
   /// 배송 요청 실행 함수
-  Future<void> submitShipment(ShipmentModel request) async {
+  Future<void> submitShipment(ShipmentModel request, {File? files}) async {
     try {
       // 로딩 시작
       isLoading.value = true;
       print("🎮 [Controller] 배송 생성 프로세스 시작...");
 
       // 3. 서비스 호출 (ShipmentID를 받아옴)
-      String? shipmentId = await _shipmentService.createShipment(request);
+      String? shipmentId = await _shipmentService.createShipment(request,
+      files: files);
 
       // 4. 결과값(ID)에 따른 분기 처리
       if (shipmentId != null) {
@@ -73,7 +76,6 @@ void onInit() {
       isLoading.value = false;
     }
   }
-
 Future<void> loadDetail(int id) async {
     isLoading.value = true;
     final result = await _shipmentService.getShipmentDetail(id);
