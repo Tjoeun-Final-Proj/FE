@@ -6,10 +6,7 @@ class LocationLogRequest {
   final int shipmentId;
   final List<LocationPoint> points;
 
-  LocationLogRequest({
-    required this.shipmentId,
-    required this.points,
-  });
+  LocationLogRequest({required this.shipmentId, required this.points});
 
   // 🎯 핵심: 서버가 원하는 '문자열 형태의 JSON'으로 변환
   Map<String, dynamic> toServerPayload() {

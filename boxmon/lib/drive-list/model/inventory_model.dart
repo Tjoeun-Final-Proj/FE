@@ -28,7 +28,7 @@ class InventoryModel {
     this.estimatedDistance,
     this.vehicleType,
     this.waypoint1Address,
-    this.waypoint2Address
+    this.waypoint2Address,
   });
 
   // JSON Map을 단일 객체로 변환
@@ -40,24 +40,24 @@ class InventoryModel {
       profit: json['profit'] as int? ?? 0,
       pickupAddress: json['pickupAddress'] as String?,
       dropoffAddress: json['dropoffAddress'] as String?,
-      
+
       // 🔥 경유지 데이터 파싱 추가 (이게 빠지면 리스트에 안 나와요!)
       waypoint1Address: json['waypoint1Address'] as String?,
       waypoint2Address: json['waypoint2Address'] as String?,
 
-      pickupDesiredAt: json['pickupDesiredAt'] != null 
-          ? DateTime.parse(json['pickupDesiredAt']) 
+      pickupDesiredAt: json['pickupDesiredAt'] != null
+          ? DateTime.parse(json['pickupDesiredAt'])
           : null,
-      dropoffDesiredAt: json['dropoffDesiredAt'] != null 
-          ? DateTime.parse(json['dropoffDesiredAt']) 
+      dropoffDesiredAt: json['dropoffDesiredAt'] != null
+          ? DateTime.parse(json['dropoffDesiredAt'])
           : null,
 
-      cargoWeight: json['cargoWeight'] != null 
-          ? (json['cargoWeight'] as num).toDouble() 
+      cargoWeight: json['cargoWeight'] != null
+          ? (json['cargoWeight'] as num).toDouble()
           : null,
       description: json['description'] as String?,
-      estimatedDistance: json['estimatedDistance'] != null 
-          ? (json['estimatedDistance'] as num).toDouble() 
+      estimatedDistance: json['estimatedDistance'] != null
+          ? (json['estimatedDistance'] as num).toDouble()
           : null,
       vehicleType: json['vehicleType'] as String?,
     );

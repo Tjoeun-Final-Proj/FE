@@ -21,16 +21,17 @@ class _SplashViewState extends State<SplashView> {
   Future<void> _startAuthCheck() async {
     // 1.5초 동안 로고 보여주기
     await Future.delayed(const Duration(milliseconds: 1500));
-    
+
     // AuthController의 함수 호출 (언더바 없음!)
-    await _authController.checkAuthStatus(); 
+    await _authController.checkAuthStatus();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset('assets/img/boxmon.png', height: 303, width: 338)), // 로딩 인디케이터
+        child: Image.asset('assets/img/boxmon.png', height: 303, width: 338),
+      ), // 로딩 인디케이터
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 class InventoryService extends GetxService {
-  
   String? accessToken;
   String? refreshToken;
   late Token token;
@@ -14,46 +13,49 @@ class InventoryService extends GetxService {
   final TokenService _tokenService = Get.find<TokenService>();
 
   Future<List<InventoryModel>?> shipmentinventory() async {
-  try {
-    final currentToken = _tokenService.accessToken;
-    
-    print("🌐 [Wallet API] 정산 요약 정보 요청 시작");
+    try {
+      final currentToken = _tokenService.accessToken;
+
+      print("🌐 [Wallet API] 정산 요약 정보 요청 시작");
       print("🚀 [Payment API] 결제 최종 승인 요청 시작");
-      
-     final response = await _dio.get(
-      'shipment/my/inventory/shipper',
-      options: dio.Options(headers: {'Authorization': 'Bearer $currentToken'}),
-    );
 
-    print("✅ [응답 성공]: ${response.data}");
+      final response = await _dio.get(
+        'shipment/my/inventory/shipper',
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
 
-    if (response.statusCode == 200 && response.data != null) {
-      // 🚨 핵심: 여기서 모델 리스트로 변환해서 리턴해야 합니다!
-      return InventoryModel.fromJsonList(response.data as List<dynamic>);
+      print("✅ [응답 성공]: ${response.data}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        // 🚨 핵심: 여기서 모델 리스트로 변환해서 리턴해야 합니다!
+        return InventoryModel.fromJsonList(response.data as List<dynamic>);
+      }
+    } catch (e) {
+      print("🚨 에러 발생: $e");
     }
-  } catch (e) {
-    print("🚨 에러 발생: $e");
+    return null;
   }
-  return null;
-}
 
-Future<List<InventoryModel>?> driverinventory() async {
-  try {
-    final currentToken = _tokenService.accessToken;
-    
-    final response = await _dio.get(
-      'shipment/my/inventory/driver',
-      options: dio.Options(headers: {'Authorization': 'Bearer $currentToken'}),
-    );
+  Future<List<InventoryModel>?> driverinventory() async {
+    try {
+      final currentToken = _tokenService.accessToken;
 
+      final response = await _dio.get(
+        'shipment/my/inventory/driver',
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
 
-    if (response.statusCode == 200 && response.data != null) {
-      // 🚨 핵심: 여기서 모델 리스트로 변환해서 리턴해야 합니다!
-      return InventoryModel.fromJsonList(response.data as List<dynamic>);
+      if (response.statusCode == 200 && response.data != null) {
+        // 🚨 핵심: 여기서 모델 리스트로 변환해서 리턴해야 합니다!
+        return InventoryModel.fromJsonList(response.data as List<dynamic>);
+      }
+    } catch (e) {
+      print("🚨 [Critical Error] $e");
     }
-  } catch (e) {
-    print("🚨 [Critical Error] $e");
+    return null;
   }
-  return null;
-}
 }

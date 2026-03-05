@@ -8,7 +8,16 @@ class CommonModel {
   final String? message; // 성공 메시지용 추가
   final int isPushEnabled;
 
-  CommonModel({required this.email, required this.password, required this.name, required this.phone, required this.birth, required this.userType, this.message, required this.isPushEnabled});
+  CommonModel({
+    required this.email,
+    required this.password,
+    required this.name,
+    required this.phone,
+    required this.birth,
+    required this.userType,
+    this.message,
+    required this.isPushEnabled,
+  });
 
   factory CommonModel.fromJson(Map<String, dynamic> json) {
     return CommonModel(
@@ -19,7 +28,7 @@ class CommonModel {
       birth: DateTime.parse(json['birth']),
       userType: json['userType'],
       message: json['message'] ?? "Success",
-      isPushEnabled: json['isPushEnabled']
+      isPushEnabled: json['isPushEnabled'],
     );
   }
 }

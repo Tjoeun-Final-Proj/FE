@@ -40,10 +40,11 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textWhite,
           textStyle: AppTextStyles.buttonText,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppBorderRadius.radiusSM,
+          shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.radiusSM),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
           ),
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
           minimumSize: const Size(88, 48),
         ),
       ),
@@ -51,7 +52,10 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
           textStyle: AppTextStyles.bodyMedium,
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -59,10 +63,11 @@ class AppTheme {
           foregroundColor: AppColors.primary,
           textStyle: AppTextStyles.bodyMedium,
           side: BorderSide(color: AppColors.primary),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppBorderRadius.radiusSM,
+          shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.radiusSM),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
           ),
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
           minimumSize: const Size(88, 48),
         ),
       ),

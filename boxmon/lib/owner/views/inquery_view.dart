@@ -42,7 +42,9 @@ class InqueryView extends StatelessWidget {
               maxLength: 500,
               decoration: InputDecoration(
                 hintText: "문의하실 내용을 상세히 적어주세요.",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 filled: true,
                 fillColor: Colors.grey[100],
               ),
@@ -51,19 +53,37 @@ class InqueryView extends StatelessWidget {
             const SizedBox(height: 40),
 
             // 3️⃣ 완료 버튼 (서버 전송 로직 연결)
-            Obx(() => ElevatedButton(
-              onPressed: inqueryController.isLoading.value 
-                ? null 
-                : () => inqueryController.submit(), // 컨트롤러의 submit 호출
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A2F4B),
-                minimumSize: const Size(double.infinity, 56), // 꽉 찬 버튼
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Obx(
+              () => ElevatedButton(
+                onPressed: inqueryController.isLoading.value
+                    ? null
+                    : () => inqueryController.submit(), // 컨트롤러의 submit 호출
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A2F4B),
+                  minimumSize: const Size(double.infinity, 56), // 꽉 찬 버튼
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: inqueryController.isLoading.value
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        "문의 등록 완료",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
-              child: inqueryController.isLoading.value
-                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text("문의 등록 완료", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            )),
+            ),
           ],
         ),
       ),
@@ -71,7 +91,10 @@ class InqueryView extends StatelessWidget {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
+    return Text(
+      title,
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    );
   }
 
   // 🎯 사진 첨부 영역 (리스트 구조 최적화)
@@ -79,9 +102,8 @@ class InqueryView extends StatelessWidget {
     final InqueryController inqueryController = Get.find<InqueryController>();
 
     return Obx(() {
-      
       // Obx 내부에서 .length를 호출함으로써 상태 변화를 감지함
-      final images = inqueryController.imagePath; 
+      final images = inqueryController.imagePath;
 
       return SizedBox(
         height: 100,
@@ -104,13 +126,16 @@ class InqueryView extends StatelessWidget {
                   children: [
                     const Icon(Icons.camera_alt_outlined, color: Colors.grey),
                     const SizedBox(height: 4),
-                    Text("${images.length}/5", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(
+                      "${images.length}/5",
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(width: 12),
-            
+
             // 선택된 사진 리스트
             Expanded(
               child: ListView.separated(
@@ -138,8 +163,15 @@ class InqueryView extends StatelessWidget {
                           onTap: () => inqueryController.removeImage(index),
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                            child: const Icon(Icons.close, size: 16, color: Colors.white),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),

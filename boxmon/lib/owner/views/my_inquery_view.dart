@@ -11,11 +11,13 @@ class MyInqueryView extends StatelessWidget {
     // 문의하기에서 썼던 컨트롤러 그대로 사용 (목록 로드 함수가 있다고 가정)
     final controller = Get.put(InqueryController());
 
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA), // 연한 회색 배경으로 카드 부각
       appBar: AppBar(
-        title: const Text("내 문의 내역", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "내 문의 내역",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
@@ -26,12 +28,10 @@ class MyInqueryView extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
             return null;
-          
           },
         );
       }),
@@ -47,7 +47,7 @@ class MyInqueryView extends StatelessWidget {
   // --- 문의 내역 카드 위젯 ---
   Widget _buildInqueryCard(dynamic item) {
     // 답변 여부에 따른 색상 정의
-    bool isReplied = item.replyContent != null; 
+    bool isReplied = item.replyContent != null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -55,7 +55,11 @@ class MyInqueryView extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Theme(
@@ -68,7 +72,11 @@ class MyInqueryView extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.content ?? "",
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF333333),
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -85,16 +93,31 @@ class MyInqueryView extends StatelessWidget {
           // 펼쳤을 때 보여줄 내용
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 10),
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                bottom: 20,
+                top: 10,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Divider(height: 1),
                   const SizedBox(height: 15),
-                  const Text("문의 내용", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const Text(
+                    "문의 내용",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text(item.content ?? "", style: const TextStyle(fontSize: 14, height: 1.5)),
-                  
+                  Text(
+                    item.content ?? "",
+                    style: const TextStyle(fontSize: 14, height: 1.5),
+                  ),
+
                   if (isReplied) ...[
                     const SizedBox(height: 20),
                     Container(
@@ -108,13 +131,26 @@ class MyInqueryView extends StatelessWidget {
                         children: [
                           Row(
                             children: const [
-                              Icon(Icons.subdirectory_arrow_right, size: 16, color: Colors.blueGrey),
+                              Icon(
+                                Icons.subdirectory_arrow_right,
+                                size: 16,
+                                color: Colors.blueGrey,
+                              ),
                               SizedBox(width: 4),
-                              Text("답변 완료", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey)),
+                              Text(
+                                "답변 완료",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(item.replyContent!, style: const TextStyle(fontSize: 14, height: 1.5)),
+                          Text(
+                            item.replyContent!,
+                            style: const TextStyle(fontSize: 14, height: 1.5),
+                          ),
                         ],
                       ),
                     ),
@@ -153,9 +189,16 @@ class MyInqueryView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.assignment_late_outlined, size: 60, color: Colors.grey[300]),
+          Icon(
+            Icons.assignment_late_outlined,
+            size: 60,
+            color: Colors.grey[300],
+          ),
           const SizedBox(height: 16),
-          const Text("문의하신 내역이 없습니다.", style: TextStyle(color: Colors.grey, fontSize: 16)),
+          const Text(
+            "문의하신 내역이 없습니다.",
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
         ],
       ),
     );

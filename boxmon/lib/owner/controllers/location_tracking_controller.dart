@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 
 class LocationTrackingController extends GetxController {
   final LocationService _locationService = LocationService();
-  
+
   // 1. 관찰 가능한 상태 변수들
   var isTracking = false.obs;
   var locationBuffer = <LocationPoint>[].obs; // 현재 쌓인 좌표 리스트
@@ -28,7 +28,7 @@ class LocationTrackingController extends GetxController {
     _timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
       await _collectCurrentLocation();
     });
-    
+
     print("🚀 위치 추적 시작 (Shipment ID: $shipmentId)");
   }
 
@@ -68,26 +68,32 @@ class LocationTrackingController extends GetxController {
     final int sendCount = locationBuffer.length;
     final request = LocationLogRequest(
       shipmentId: _currentShipmentId!,
-      points: List.from(locationBuffer), 
+      points: List.from(locationBuffer),
     );
 
-    print("📤 [API 전송 시도] ShipmentID: $_currentShipmentId | 데이터 개수: $sendCount개");
-    print("📦 [Payload] ${request.toServerPayload()['locationChunk']}"); // 서버로 가는 실제 문자열 확인
+    print(
+      "📤 [API 전송 시도] ShipmentID: $_currentShipmentId | 데이터 개수: $sendCount개",
+    );
+    print(
+      "📦 [Payload] ${request.toServerPayload()['locationChunk']}",
+    ); // 서버로 가는 실제 문자열 확인
 
     isLoading.value = true;
-    
+
     // 2. 서비스 호출 및 결과 대기
     bool success = await _locationService.sendLocationLog(request);
-    
+
     isLoading.value = false;
 
     if (success) {
       // ✅ 성공 로그
       print("✅ [API 전송 성공] 서버에 $sendCount개의 좌표가 정상 등록되었습니다.");
-      locationBuffer.clear(); 
+      locationBuffer.clear();
     } else {
       // ❌ 실패 로그
-      print("      🚨 [API 전송 실패] 서버 응답 오류. 다음 주기에 재시도합니다. (현재 버퍼: ${locationBuffer.length}개)");
+      print(
+        "      🚨 [API 전송 실패] 서버 응답 오류. 다음 주기에 재시도합니다. (현재 버퍼: ${locationBuffer.length}개)",
+      );
     }
   }
 

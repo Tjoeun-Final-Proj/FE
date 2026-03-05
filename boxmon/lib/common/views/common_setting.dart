@@ -2,8 +2,8 @@ import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/common_bottom_navigation.dart';
 import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
-import 'package:boxmon/owner/views/my_inquery_view.dart';
 import 'package:boxmon/owner/views/inquery_view.dart';
+import 'package:boxmon/owner/views/my_inquery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -158,13 +158,13 @@ class CommonSettingView extends StatelessWidget {
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
             const SizedBox(height: 12),
-            ...["공지사항", "문의하기", "내 문의 목록 보기","시스템 설정"].map((title) {
+            ...["공지사항", "문의하기", "내 문의 목록 보기", "시스템 설정"].map((title) {
               IconData icon;
               if (title == "공지사항")
                 icon = Icons.campaign_outlined;
               else if (title == "문의하기")
                 icon = Icons.headset_mic_outlined;
-              else if (title =="내 문의 목록 보기")
+              else if (title == "내 문의 목록 보기")
                 icon = Icons.chat_bubble_outline_rounded; // 💬 말풍선 아이콘
               else
                 icon = Icons.settings_outlined;
@@ -187,21 +187,20 @@ class CommonSettingView extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   onTap: () {
-  if (title == "문의하기") {
-    Get.to(() => const InqueryView());
-  } else if(title == "내 문의 목록 보기") {
-    Get.to(() => const MyInqueryView());
-    }
-    else {
-    // 공지사항, 시스템 설정 등 아직 안 만든 메뉴들
-    Get.snackbar(
-      "알림", 
-      "$title 기능은 현재 준비 중입니다.",
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 1),
-    );
-  }
-},
+                    if (title == "문의하기") {
+                      Get.to(() => const InqueryView());
+                    } else if (title == "내 문의 목록 보기") {
+                      Get.to(() => const MyInqueryView());
+                    } else {
+                      // 공지사항, 시스템 설정 등 아직 안 만든 메뉴들
+                      Get.snackbar(
+                        "알림",
+                        "$title 기능은 현재 준비 중입니다.",
+                        snackPosition: SnackPosition.BOTTOM,
+                        duration: const Duration(seconds: 1),
+                      );
+                    }
+                  },
                 ),
               );
             }),

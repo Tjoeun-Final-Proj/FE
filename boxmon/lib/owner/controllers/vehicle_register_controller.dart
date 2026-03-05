@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 
 class VehicleRegisterController extends GetxController {
   // 텍스트 필드 제어
-  final OrderShipmentServices _inventoryService = Get.find<OrderShipmentServices>();
+  final OrderShipmentServices _inventoryService =
+      Get.find<OrderShipmentServices>();
 
   final vehicleNumberController = TextEditingController();
   final weightController = TextEditingController();
@@ -13,9 +14,8 @@ class VehicleRegisterController extends GetxController {
   final accountNumberController = TextEditingController();
   final holderNameController = TextEditingController();
 
-
   // 관찰 가능한 변수들 (유지)
-  var vehicleType = "CARGO".obs; 
+  var vehicleType = "CARGO".obs;
   var isRefrigerated = false.obs;
   var isFrozen = false.obs;
   var isLoading = false.obs;
@@ -51,39 +51,38 @@ class VehicleRegisterController extends GetxController {
     }
   }
 
-  
-// 계좌 등록 로직 (Controller 내부)
-Future<void> checkAccount() async {
-  // 1. 유효성 검사 (빈 값 체크)
-  if (accountNumberController.text.isEmpty) {
-    Get.snackbar("알림", "계좌 번호를 입력해주세요.");
-    return;
-  }
-
-  try {
-    isLoading.value = true;
-
-    // 2. 서비스 호출 
-    // 모델을 안 쓰기로 했으니, 각각의 문자열 값을 인자로 던집니다.
-    bool isSuccess = await _inventoryService.registerAccount(
-      bankCodeController.text,      // 선택된 은행 코드
-      accountNumberController.text, // 입력된 계좌 번호
-      holderNameController.text,    // 입력된 예금주명
-    );
-
-    // 3. 결과 처리
-    if (isSuccess) {
-      Get.back(); // 이전 화면으로 이동
-      Get.snackbar("성공", "계좌가 성공적으로 등록되었습니다.");
-    } else {
-      Get.snackbar("실패", "등록에 실패했습니다. 다시 시도해주세요.");
+  // 계좌 등록 로직 (Controller 내부)
+  Future<void> checkAccount() async {
+    // 1. 유효성 검사 (빈 값 체크)
+    if (accountNumberController.text.isEmpty) {
+      Get.snackbar("알림", "계좌 번호를 입력해주세요.");
+      return;
     }
-  } catch (e) {
-    Get.snackbar("에러", "네트워크 오류가 발생했습니다.");
-  } finally {
-    isLoading.value = false;
+
+    try {
+      isLoading.value = true;
+
+      // 2. 서비스 호출
+      // 모델을 안 쓰기로 했으니, 각각의 문자열 값을 인자로 던집니다.
+      bool isSuccess = await _inventoryService.registerAccount(
+        bankCodeController.text, // 선택된 은행 코드
+        accountNumberController.text, // 입력된 계좌 번호
+        holderNameController.text, // 입력된 예금주명
+      );
+
+      // 3. 결과 처리
+      if (isSuccess) {
+        Get.back(); // 이전 화면으로 이동
+        Get.snackbar("성공", "계좌가 성공적으로 등록되었습니다.");
+      } else {
+        Get.snackbar("실패", "등록에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (e) {
+      Get.snackbar("에러", "네트워크 오류가 발생했습니다.");
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 
   @override
   void onClose() {
