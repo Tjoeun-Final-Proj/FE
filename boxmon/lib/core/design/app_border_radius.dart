@@ -20,12 +20,18 @@ class AppBorderRadius {
   static const BorderRadius radiusLG = BorderRadius.all(Radius.circular(lg));
   static const BorderRadius radiusXL = BorderRadius.all(Radius.circular(xl));
   static const BorderRadius radiusXXL = BorderRadius.all(Radius.circular(xxl));
-  static const BorderRadius radiusRound = BorderRadius.all(Radius.circular(round));
+  static const BorderRadius radiusRound = BorderRadius.all(
+    Radius.circular(round),
+  );
 
   // Card BorderRadius
   static const BorderRadius cardRadius = BorderRadius.all(Radius.circular(md));
-  static const BorderRadius cardRadiusLarge = BorderRadius.all(Radius.circular(lg));
+  static const BorderRadius cardRadiusLarge = BorderRadius.all(
+    Radius.circular(lg),
+  );
 
   // Container BorderRadius
-  static const BorderRadius containerRadius = BorderRadius.all(Radius.circular(xl));
+  static const BorderRadius containerRadius = BorderRadius.all(
+    Radius.circular(xl),
+  );
 }

@@ -12,7 +12,7 @@ class ResultPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // 1. 컨트롤러 주입 (onInit에서 서버 승인 자동 실행)
     final controller = Get.put(PaymentResultController());
-    
+
     // Get.arguments 데이터
     final Success res = Get.arguments as Success;
     final formatter = NumberFormat('#,###');
@@ -21,11 +21,14 @@ class ResultPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('결제 완료', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text(
+          '결제 완료',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
       ),
       // 💡 Obx로 감싸서 컨트롤러의 상태를 지켜봅니다.
       body: Obx(() {
@@ -48,7 +51,11 @@ class ResultPage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 50),
-              const Icon(Icons.check_circle, size: 90, color: Color(0xFF0047AB)),
+              const Icon(
+                Icons.check_circle,
+                size: 90,
+                color: Color(0xFF0047AB),
+              ),
               const SizedBox(height: 24),
               const Text(
                 "결제가 성공했습니다!",
@@ -60,7 +67,7 @@ class ResultPage extends StatelessWidget {
                 style: TextStyle(color: Colors.grey, fontSize: 15),
               ),
               const SizedBox(height: 40),
-              
+
               // 요약 카드 (기존 UI 유지)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -77,13 +84,17 @@ class ResultPage extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Divider(color: Color(0xFFE9ECEF), thickness: 1),
                       ),
-                      _buildSummaryRow("결제 금액", "$formattedAmount원", isPrice: true),
+                      _buildSummaryRow(
+                        "결제 금액",
+                        "$formattedAmount원",
+                        isPrice: true,
+                      ),
                     ],
                   ),
                 ),
               ),
               const Spacer(),
-              
+
               // 하단 버튼 (기존 UI 유지)
               Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -94,12 +105,18 @@ class ResultPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0047AB),
                         minimumSize: const Size(double.infinity, 60),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         elevation: 0,
                       ),
                       child: const Text(
                         '주문 내역 확인하기',
-                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -107,7 +124,11 @@ class ResultPage extends StatelessWidget {
                       onPressed: () => Get.offAllNamed(AppRoutes.commonHome),
                       child: const Text(
                         '홈으로 돌아가기',
-                        style: TextStyle(color: Colors.grey, fontSize: 15, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -125,7 +146,10 @@ class ResultPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF495057), fontSize: 15)),
+        Text(
+          label,
+          style: const TextStyle(color: Color(0xFF495057), fontSize: 15),
+        ),
         Text(
           value,
           style: TextStyle(

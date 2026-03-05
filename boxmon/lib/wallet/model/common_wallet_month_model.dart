@@ -1,5 +1,3 @@
-
-
 class CommonWalletMonthModel {
   final int? shipmentId;
   final String? shipmentStatus;
@@ -22,7 +20,7 @@ class CommonWalletMonthModel {
     this.pickupDesiredAt,
     this.dropoffDesiredAt,
     this.createdAt,
-    this.profit
+    this.profit,
   });
 
   // JSON Map을 단일 객체로 변환
@@ -36,20 +34,22 @@ class CommonWalletMonthModel {
       pickupAddress: json['pickupAddress'] as String?,
       dropoffAddress: json['dropoffAddress'] as String?,
       // 날짜 데이터가 ISO8601 형식이므로 DateTime으로 파싱
-      pickupDesiredAt: json['pickupDesiredAt'] != null 
-          ? DateTime.parse(json['pickupDesiredAt']) 
+      pickupDesiredAt: json['pickupDesiredAt'] != null
+          ? DateTime.parse(json['pickupDesiredAt'])
           : null,
-      dropoffDesiredAt: json['dropoffDesiredAt'] != null 
-          ? DateTime.parse(json['dropoffDesiredAt']) 
+      dropoffDesiredAt: json['dropoffDesiredAt'] != null
+          ? DateTime.parse(json['dropoffDesiredAt'])
           : null,
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
           : null,
     );
   }
 
   // JSON 리스트를 객체 리스트로 변환하는 정적 메서드
   static List<CommonWalletMonthModel> fromJsonList(List<dynamic> jsonList) {
-    return jsonList.map((json) => CommonWalletMonthModel.fromJson(json)).toList();
+    return jsonList
+        .map((json) => CommonWalletMonthModel.fromJson(json))
+        .toList();
   }
 }

@@ -5,7 +5,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 class CommonWalletService extends GetxService {
-  
   String? accessToken;
   String? refreshToken;
   late Token token;
@@ -14,56 +13,62 @@ class CommonWalletService extends GetxService {
   final TokenService _tokenService = Get.find<TokenService>();
 
   Future<Map<String, dynamic>?> getSettlementSummary() async {
-  try {
-    final currentToken = _tokenService.accessToken;
-    
-    print("🌐 [Wallet API] 정산 요약 정보 요청 시작");
+    try {
+      final currentToken = _tokenService.accessToken;
+
+      print("🌐 [Wallet API] 정산 요약 정보 요청 시작");
       print("🚀 [Payment API] 결제 최종 승인 요청 시작");
-      
-     final response = await _dio.get(
-      'shipments/settlements/shipper/summary',
-      options: dio.Options(headers: {'Authorization': 'Bearer $currentToken'}),
-    );
 
-    print("✅ [응답 성공]: ${response.data}");
+      final response = await _dio.get(
+        'shipments/settlements/shipper/summary',
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
 
-    if (response.statusCode == 200) {
-      return response.data; // 그냥 Map 자체를 리턴
+      print("✅ [응답 성공]: ${response.data}");
+
+      if (response.statusCode == 200) {
+        return response.data; // 그냥 Map 자체를 리턴
+      }
+    } catch (e) {
+      print("🚨 에러 발생: $e");
     }
-  } catch (e) {
-    print("🚨 에러 발생: $e");
+    return null;
   }
-  return null;
-}
 
-Future<List<CommonWalletMonthModel>?> getSettlementList(int year, int month) async {
-  try {
-    final currentToken = _tokenService.accessToken;
-    
-    print("🌐 [Wallet API] 월별 정산 리스트 요청: $year년 $month월");
+  Future<List<CommonWalletMonthModel>?> getSettlementList(
+    int year,
+    int month,
+  ) async {
+    try {
+      final currentToken = _tokenService.accessToken;
 
-    final response = await _dio.get(
-      'shipments/settlements/shipper', // 엔드포인트
-      queryParameters: {
-        'year': year,
-        'month': month,
-      },
-      options: dio.Options(headers: {'Authorization': 'Bearer $currentToken'}),
-    );
+      print("🌐 [Wallet API] 월별 정산 리스트 요청: $year년 $month월");
 
-    // 성공 시 호출된 최종 URL 출력
-    print("✅ [Wallet API List Success] 상태 코드: ${response.statusCode}");
-    print("🔗 [Wallet API] 정상 호출된 URL: ${response.realUri}");
-    
-    if (response.statusCode == 200 && response.data != null) {
-      // JSON 리스트를 모델 리스트로 변환하여 반환
-      return CommonWalletMonthModel.fromJsonList(response.data);
+      final response = await _dio.get(
+        'shipments/settlements/shipper', // 엔드포인트
+        queryParameters: {'year': year, 'month': month},
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      // 성공 시 호출된 최종 URL 출력
+      print("✅ [Wallet API List Success] 상태 코드: ${response.statusCode}");
+      print("🔗 [Wallet API] 정상 호출된 URL: ${response.realUri}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        // JSON 리스트를 모델 리스트로 변환하여 반환
+        return CommonWalletMonthModel.fromJsonList(response.data);
+      }
+    } on dio.DioException catch (e) {
+      print(
+        "❌ [Wallet API List Error] ${e.response?.statusCode}: ${e.response?.data}",
+      );
+    } catch (e) {
+      print("🚨 [Critical Error] $e");
     }
-  } on dio.DioException catch (e) {
-    print("❌ [Wallet API List Error] ${e.response?.statusCode}: ${e.response?.data}");
-  } catch (e) {
-    print("🚨 [Critical Error] $e");
+    return null;
   }
-  return null;
-}
 }

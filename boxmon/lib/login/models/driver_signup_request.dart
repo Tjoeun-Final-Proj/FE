@@ -16,9 +16,9 @@ class DriverSignupRequest {
     required this.phone,
     required this.birth,
     this.userType = "DRIVER", // 기본값 설정
-    this.isPushEnabled = 1,    // 기본값 설정
+    this.isPushEnabled = 1, // 기본값 설정
     required this.businessNumber,
-    required this.certNumber
+    required this.certNumber,
   });
 
   // 서버에 보낼 JSON 맵으로 변환
@@ -31,6 +31,6 @@ class DriverSignupRequest {
     'userType': userType,
     'isPushEnabled': isPushEnabled,
     'businessNumber': businessNumber,
-    'certNumber': certNumber
+    'certNumber': certNumber,
   };
 }

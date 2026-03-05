@@ -62,8 +62,7 @@ class _TosspaymentsSampleHomeState extends State<TosspaymentsSampleHome> {
     return GetMaterialApp(
       initialRoute: '/',
       theme: ThemeData(primaryColor: primaryColor),
-      getPages: [
-      ],
+      getPages: [],
     );
   }
 }

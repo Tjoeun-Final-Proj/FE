@@ -10,7 +10,7 @@ import '../models/token_model.dart';
 // flutter_secure_storage 쓰는 이유 보안상의 이유
 class TokenService extends GetxService {
   final _storage = const FlutterSecureStorage();
-  
+
   // 고정 키 이름입니다.
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
@@ -48,7 +48,11 @@ class TokenService extends GetxService {
   }
 
   // 토큰 저장 하는 컨트롤러입니다.
-  Future<void> saveToken(String accessToken, String refreshToken, String userType) async {
+  Future<void> saveToken(
+    String accessToken,
+    String refreshToken,
+    String userType,
+  ) async {
     _currentAccessToken = accessToken; // 🔥 추가
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
@@ -109,13 +113,12 @@ class TokenService extends GetxService {
     }
   }
 
-// 미들웨어로 분리할 로드 driver 함수입니다.
-    Future<bool> loadIsDriver() async {
+  // 미들웨어로 분리할 로드 driver 함수입니다.
+  Future<bool> loadIsDriver() async {
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString(_userTypeKey) == "DRIVER" ? true : false;
-    }
-    else {
+    } else {
       String? userType = await _storage.read(key: _userTypeKey);
       return userType == "DRIVER" ? true : false;
     }
@@ -126,6 +129,6 @@ class TokenService extends GetxService {
     _currentAccessToken = null; // 갱신 시 기존 토큰 초기화
     Token? token = await loadToken();
     if (token == null) return false;
-      return false;
-    }
+    return false;
   }
+}

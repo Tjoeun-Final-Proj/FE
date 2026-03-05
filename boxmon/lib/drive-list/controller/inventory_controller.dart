@@ -3,7 +3,6 @@ import 'package:boxmon/drive-list/services/inventory_service.dart';
 import 'package:get/get.dart';
 
 class InventoryController extends GetxController {
-
   final InventoryService _inventoryService = Get.find<InventoryService>();
 
   // 🎯 1. 타입을 InventoryModel로 변경

@@ -15,7 +15,6 @@ import 'package:get/get.dart';
 class AuthBinding extends Bindings {
   @override
   void dependencies() {
-
     Get.put(
       Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/api/')),
       permanent: true,
@@ -31,7 +30,7 @@ class AuthBinding extends Bindings {
     Get.lazyPut<OwnerWalletServcie>(() => OwnerWalletServcie());
     Get.lazyPut<InventoryService>(() => InventoryService());
     Get.lazyPut<OrderShipmentServices>(() => OrderShipmentServices());
-    Get.lazyPut<VehicleRegisterController>(()=>VehicleRegisterController());
-    Get.lazyPut<InqueryController>(()=>InqueryController());
+    Get.lazyPut<VehicleRegisterController>(() => VehicleRegisterController());
+    Get.lazyPut<InqueryController>(() => InqueryController());
   }
 }

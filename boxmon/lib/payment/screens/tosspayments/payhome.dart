@@ -20,13 +20,13 @@ class _PayHomeState extends State<PayHome> {
   late String customerName = "황덕배";
   late String customerEmail = "test@example.com";
 
- @override
+  @override
   void initState() {
     super.initState();
-    
+
     // 2. 이전 화면에서 보낸 arguments를 안전하게 꺼냅니다.
     final dynamic args = Get.arguments;
-    
+
     if (args != null && args is Map) {
       // 전달받은 배송 ID와 금액을 변수에 할당
       final String shipmentId = args['shipmentId'] ?? 0;
@@ -37,10 +37,10 @@ class _PayHomeState extends State<PayHome> {
     } else {
       // 데이터가 없을 경우를 대비한 예외 처리
       orderId = '${DateTime.now().millisecondsSinceEpoch}';
-      amount = "50000"; 
+      amount = "50000";
     }
     orderName = '일반 용달 운송';
-    
+
     print("🎯 [PayHome] 데이터 로드 완료: ID=$orderId, Price=$amount");
   }
 
@@ -50,7 +50,10 @@ class _PayHomeState extends State<PayHome> {
       // 1. 전체 배경색을 연한 그레이로 깔아 대비를 줍니다.
       backgroundColor: const Color(0xFFF5F7F9),
       appBar: AppBar(
-        title: const Text('결제 하기', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text(
+          '결제 하기',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -83,17 +86,30 @@ class _PayHomeState extends State<PayHome> {
 
               // --- 섹션 2: 주문 정보 ---
               _buildCardSection(
-        title: "주문 정보",
-        child: Column(
-          children: [
-            _buildStyledField('주문번호', initial: orderId, onSaved: (v) => orderId = v!), // 하드코딩 제거
-            const Divider(),
-            _buildStyledField('주문명', initial: orderName, onSaved: (v) => orderName = v!),
-            const Divider(),
-            _buildStyledField('결제금액', initial: amount, isNumber: true, onSaved: (v) => amount = v!), // 하드코딩 제거
-          ],
-        ),
-      ),
+                title: "주문 정보",
+                child: Column(
+                  children: [
+                    _buildStyledField(
+                      '주문번호',
+                      initial: orderId,
+                      onSaved: (v) => orderId = v!,
+                    ), // 하드코딩 제거
+                    const Divider(),
+                    _buildStyledField(
+                      '주문명',
+                      initial: orderName,
+                      onSaved: (v) => orderName = v!,
+                    ),
+                    const Divider(),
+                    _buildStyledField(
+                      '결제금액',
+                      initial: amount,
+                      isNumber: true,
+                      onSaved: (v) => amount = v!,
+                    ), // 하드코딩 제거
+                  ],
+                ),
+              ),
 
               const SizedBox(height: 16),
 
@@ -102,9 +118,17 @@ class _PayHomeState extends State<PayHome> {
                 title: "고객 정보",
                 child: Column(
                   children: [
-                    _buildStyledField('이름', initial: customerName, onSaved: (v) => customerName = v!),
+                    _buildStyledField(
+                      '이름',
+                      initial: customerName,
+                      onSaved: (v) => customerName = v!,
+                    ),
                     const Divider(),
-                    _buildStyledField('이메일', initial: customerEmail, onSaved: (v) => customerEmail = v!),
+                    _buildStyledField(
+                      '이메일',
+                      initial: customerEmail,
+                      onSaved: (v) => customerEmail = v!,
+                    ),
                   ],
                 ),
               ),
@@ -125,21 +149,33 @@ class _PayHomeState extends State<PayHome> {
                     successUrl: "https://success.url", // 실제 Constants 값으로 변경 가능
                     failUrl: "https://fail.url",
                   );
-                  
-                  var result = await Get.toNamed(AppRoutes.tossPaymentsResult, arguments: data);
+
+                  var result = await Get.toNamed(
+                    AppRoutes.tossPaymentsResult,
+                    arguments: data,
+                  );
                   if (result != null) {
-                    Get.toNamed(AppRoutes.tossPaymentsResult, arguments: result);
+                    Get.toNamed(
+                      AppRoutes.tossPaymentsResult,
+                      arguments: result,
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0047AB),
                   minimumSize: const Size(double.infinity, 60),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 0,
                 ),
                 child: const Text(
                   '결제하기',
-                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -158,13 +194,24 @@ class _PayHomeState extends State<PayHome> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.grey,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 10),
           child,
         ],
@@ -172,7 +219,12 @@ class _PayHomeState extends State<PayHome> {
     );
   }
 
-  Widget _buildStyledField(String label, {required String initial, bool isNumber = false, required FormFieldSetter<String> onSaved}) {
+  Widget _buildStyledField(
+    String label, {
+    required String initial,
+    bool isNumber = false,
+    required FormFieldSetter<String> onSaved,
+  }) {
     return TextFormField(
       initialValue: initial,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,

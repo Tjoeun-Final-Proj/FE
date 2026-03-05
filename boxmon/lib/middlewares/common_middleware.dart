@@ -8,6 +8,8 @@ class AuthMiddleware extends GetMiddleware {
   @override
   RouteSettings? redirect(String? route) {
     final authController = Get.find<AuthController>();
-    return authController.isAuthenticated.value ? null : const RouteSettings(name: AppRoutes.splash);
+    return authController.isAuthenticated.value
+        ? null
+        : const RouteSettings(name: AppRoutes.splash);
   }
 }

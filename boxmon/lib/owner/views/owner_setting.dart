@@ -4,6 +4,7 @@ import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/owner/controllers/vehicle_register_controller.dart';
 import 'package:boxmon/owner/views/inquery_view.dart';
+import 'package:boxmon/owner/views/my_inquery_view.dart';
 import 'package:boxmon/owner/views/vehicle_register_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -127,27 +128,34 @@ class OwnerSettingView extends StatelessWidget {
 
             // --- 운송목적 선택 섹션 ---
             Text(
-  "차량 등록하기",
-  style: TextStyle(color: Colors.grey[600], fontSize: 13),
-),
-const SizedBox(height: 12),
-Container(
-  decoration: BoxDecoration(
-    border: Border.all(color: Colors.grey[200]!),
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: ListTile(
-    // 🎯 다이얼로그 대신 새 페이지로 이동!
-    onTap: () => Get.to(() => const VehicleRegisterView()), 
-    leading: const Icon(Icons.car_crash_rounded, color: Colors.black),
-    title: const Text(
-      "차량 등록",
-      style: TextStyle(fontWeight: FontWeight.w500),
-    ),
-    trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-  ),
-),
-  
+              "차량 등록하기",
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[200]!),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                // 🎯 다이얼로그 대신 새 페이지로 이동!
+                onTap: () => Get.to(() => const VehicleRegisterView()),
+                leading: const Icon(
+                  Icons.car_crash_rounded,
+                  color: Colors.black,
+                ),
+                title: const Text(
+                  "차량 등록",
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+
             const SizedBox(height: 32),
             // --- 운송목적 선택 섹션 ---
             Text(
@@ -161,14 +169,18 @@ Container(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
-  onTap: () => _showAccountDialog(), // 다이얼로그 호출
-  leading: const Icon(Icons.money, color: Colors.black),
-  title: const Text(
-    "계좌 등록",
-    style: TextStyle(fontWeight: FontWeight.w500),
-  ),
-  trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-),
+                onTap: () => _showAccountDialog(), // 다이얼로그 호출
+                leading: const Icon(Icons.money, color: Colors.black),
+                title: const Text(
+                  "계좌 등록",
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: Colors.grey,
+                ),
+              ),
             ),
             const SizedBox(height: 32),
 
@@ -178,13 +190,14 @@ Container(
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
             const SizedBox(height: 12),
-            ...["공지사항", "문의하기", "시스템 설정"].map((title) {
+            ...["공지사항", "문의하기", "내 문의 목록 보기", "시스템 설정"].map((title) {
               IconData icon;
               if (title == "공지사항")
                 icon = Icons.check_circle_outline;
               else if (title == "문의하기")
-              
                 icon = Icons.headset_mic_outlined;
+              else if (title == "내 문의 목록 보기")
+                icon = Icons.chat_bubble_outline_rounded; // 💬 말풍선 아이콘
               else
                 icon = Icons.settings_outlined;
 
@@ -206,18 +219,21 @@ Container(
                     color: Colors.grey,
                   ),
                   onTap: () {
-  if (title == "문의하기") {
-    Get.to(() => const InqueryView());
-  } else {
-    // 공지사항, 시스템 설정 등 아직 안 만든 메뉴들
-    Get.snackbar(
-      "알림", 
-      "$title 기능은 현재 준비 중입니다.",
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 1),
-    );
-  }
-},
+                    if (title == "문의하기") {
+                      Get.to(() => const InqueryView());
+                    } else if (title == "내 문의 목록 보기") {
+                      Get.to(() => const MyInqueryView());
+                    }
+                    {
+                      // 공지사항, 시스템 설정 등 아직 안 만든 메뉴들
+                      Get.snackbar(
+                        "알림",
+                        "$title 기능은 현재 준비 중입니다.",
+                        snackPosition: SnackPosition.BOTTOM,
+                        duration: const Duration(seconds: 1),
+                      );
+                    }
+                  },
                 ),
               );
             }),
@@ -247,6 +263,7 @@ Container(
     );
   }
 }
+
 void _showAccountDialog() {
   final controller = Get.find<VehicleRegisterController>();
 
@@ -269,7 +286,11 @@ void _showAccountDialog() {
               children: [
                 const Text(
                   "계좌 등록",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
                 IconButton(
                   onPressed: () => Get.back(),
@@ -312,20 +333,38 @@ void _showAccountDialog() {
             const SizedBox(height: 32),
 
             // 3. 버튼 영역
-            Obx(() => ElevatedButton(
-              onPressed: controller.isLoading.value 
-                ? null 
-                : () => controller.checkAccount(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A2F4B), // 다크 블루 톤
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
+            Obx(
+              () => ElevatedButton(
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () => controller.checkAccount(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A2F4B), // 다크 블루 톤
+                  minimumSize: const Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: controller.isLoading.value
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        "등록 완료",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
-              child: controller.isLoading.value
-                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text("등록 완료", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            )),
+            ),
           ],
         ),
       ),
@@ -344,7 +383,14 @@ Widget _buildDialogInput({
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black54)),
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Colors.black54,
+        ),
+      ),
       const SizedBox(height: 8),
       TextField(
         controller: controller,
