@@ -48,7 +48,7 @@ class OwnerHomeView extends StatelessWidget {
               children: [
                 /// 배차 요청
                 InkWell(
-                  onTap: () => Get.toNamed('/common/start/package'),
+                  onTap: () => Get.offAllNamed('/owner/order'),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     width: 94,
