@@ -501,36 +501,22 @@ Widget _buildThirdStep() {
     ],
   ));
 }
+
 Widget _buildFourthStep() {
   final MapViewModel viewModel = Get.find<MapViewModel>();
 
   return Obx(() {
-    // 1. 현재 주소 타입 상태값들을 Obx 내부에서 정의
-    final currentType = viewModel.activeType.value;
-    final bool isStart = currentType == AddressType.start;
-    final bool isEnd = currentType == AddressType.end;
+    final bool isStart = viewModel.activeType.value == AddressType.start;
 
-    String contactTitle = "";
-    switch (viewModel.activeType.value) {
-      case AddressType.start:
-        contactTitle = "출발지 연락처 정보";
-        break;
-      case AddressType.stopover1:
-        contactTitle = "경유지 1 연락처 정보";
-        break;
-      case AddressType.stopover2:
-        contactTitle = "경유지 2 연락처 정보";
-        break;
-      case AddressType.end:
-        contactTitle = "도착지 연락처 정보";
-        break;
-    }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. 주소 조회 및 수정 버튼
+          const Text("목적지 주소", style: TextStyle(color: Colors.grey, fontSize: 14)),
+          const SizedBox(height: 8),
+          
+          // 1. 주소 및 수정 버튼
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -540,14 +526,10 @@ Widget _buildFourthStep() {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    viewModel.currentAddress.value,
-                    style: const TextStyle(fontSize: 15),
-                  ),
+                  child: Text(viewModel.currentAddress.value, style: const TextStyle(fontSize: 15)),
                 ),
                 TextButton(
-                  onPressed: () => pageController.animateToPage(1,
-                      duration: 300.milliseconds, curve: Curves.ease),
+                  onPressed: () => pageController.animateToPage(1, duration: 300.milliseconds, curve: Curves.ease),
                   child: const Text("수정", style: TextStyle(color: Colors.grey)),
                 ),
               ],
@@ -555,7 +537,7 @@ Widget _buildFourthStep() {
           ),
           const SizedBox(height: 12),
 
-          // 2. 상세 주소 입력 (동, 호수 등)
+          // 2. 상세 주소 입력
           TextField(
             controller: viewModel.detailAddressController,
             decoration: InputDecoration(
@@ -564,120 +546,87 @@ Widget _buildFourthStep() {
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
             ),
           ),
-          const SizedBox(height: 12),
 
-          // 🔥 3. 중량 입력 (출발지일 때만 표시)
+          // 🔥 3. 출발지 정보 (회사명 + 중량 + 규격) - 여기서부터 묶어서 보여줌
           if (isStart) ...[
+            const Divider(height: 40),
+            
+            // 3-1. 회사 이름
+            const Text("회사 이름", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: viewModel.companyNameController, // 뷰모델 연결 확인!
+              decoration: InputDecoration(
+                hintText: "회사 이름을 입력해주세요",
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 3-2. 화물 중량
+            const Text("화물 중량", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  flex: 3,
                   child: TextField(
+                    controller: viewModel.weightController, // 뷰모델 연결 확인!
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      hintText: "중량을 입력해주세요...",
+                      hintText: "중량 입력",
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: DropdownButton<String>(
-                    value: "톤",
-                    underline: const SizedBox(),
-                    items: ["톤", "kg"]
-                        .map((value) => DropdownMenuItem(value: value, child: Text(value)))
-                        .toList(),
-                    onChanged: (_) {},
-                  ),
-                ),
+                const SizedBox(width: 12),
+                const Text("톤", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
+            const SizedBox(height: 20),
+
+            // 3-3. 물품 규격 (ㅁ x ㅁ x ㅁ)
+            const Text("물품 규격 (가로 x 세로 x 높이)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildSizeField(viewModel.widthController, "가로"),
+                _buildSizeSeparator(),
+                _buildSizeField(viewModel.lengthController, "세로"),
+                _buildSizeSeparator(),
+                _buildSizeField(viewModel.heightController, "높이"),
+                const SizedBox(width: 8),
+                const Text("cm", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+              ],
+            ),
           ],
-
-          // 5. 엘리베이터 유무 토글
-          Row(
-            children: [
-              _buildElevatorButton(viewModel, true, "엘리베이터 있음"),
-              const SizedBox(width: 8),
-              _buildElevatorButton(viewModel, false, "계단만 있음"),
-            ],
-          ),
-
-          const Divider(height: 40),
-
-          // 🔥 6. 연락처 정보 (문구 동적 변경)
-          Text(
-            isStart ? "출발지 연락처 정보" : "도착지 연락처 정보",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.person_outline),
-              hintText: "이름",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.phone_android_outlined),
-              hintText: "휴대전화번호",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-          const SizedBox(height: 30),
-
-          // 7. 최종 완료 버튼
-          SizedBox(
-            width: double.infinity,
-            height: 55,
-            child: ElevatedButton(
-              onPressed: () => viewModel.confirmAddressSelection(pageController),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0047AB),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text("주소 입력 완료",
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-          ),
         ],
       ),
     );
   });
-  }
-
 }
 
-// 엘리베이터 버튼 중복 코드 방지를 위한 헬퍼 위젯
-Widget _buildElevatorButton(MapViewModel viewModel, bool value, String label) {
-  final bool isSelected = viewModel.hasElevator.value == value;
+// 규격 입력창 헬퍼 함수 (코드 깔끔하게 하려고 뺌)
+Widget _buildSizeField(TextEditingController controller, String hint) {
   return Expanded(
-    child: GestureDetector(
-      onTap: () => viewModel.hasElevator.value = value,
-      child: Container(
-        height: 50,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0047AB) : Colors.white,
-          border: Border.all(color: const Color(0xFF0047AB)),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFF0047AB),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+    child: TextField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.center,
+      decoration: InputDecoration(
+        hintText: hint,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 12),
       ),
     ),
   );
+}
+
+Widget _buildSizeSeparator() {
+  return const Padding(
+    padding: EdgeInsets.symmetric(horizontal: 5),
+    child: Text("✕", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+  );
+}
 }

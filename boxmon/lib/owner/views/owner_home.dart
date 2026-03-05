@@ -1,5 +1,6 @@
 import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/owner_bottom_navigation.dart';
+import 'package:boxmon/owner/controllers/owner_home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,9 @@ class OwnerHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 컨트롤러 주입
+    final controller = Get.put(OwnerHomeController());
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppNavBar(),
@@ -44,26 +48,26 @@ class OwnerHomeView extends StatelessWidget {
               children: [
                 /// 배차 요청
                 InkWell(
-                  onTap: () => Get.toNamed('/common/start/package'),
+                  onTap: () => Get.offAllNamed('/owner/order'),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     width: 94,
                     height: 94,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1F5AA6),
+                      color: const Color(0xFF434343),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         HugeIcon(
-                          icon: HugeIcons.strokeRoundedInvoice01,
+                          icon: HugeIcons.strokeRoundedPackageSearch,
                           color: Colors.white,
                           size: 49,
                         ),
                         SizedBox(height: 6),
                         Text(
-                          "배차 요청",
+                          "배차 검색",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -155,7 +159,26 @@ class OwnerHomeView extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: const NaverMap(),
+                  child: NaverMap(
+  options: const NaverMapViewOptions(
+    locationButtonEnable: true,    // 내 위치 버튼 활성화
+    indoorEnable: true,           // 실내지도 활성화
+    consumeSymbolTapEvents: false,
+    initialCameraPosition: NCameraPosition(
+      target: NLatLng(37.5665, 126.9780),
+      zoom: 15,
+    ),
+  ),
+  onMapReady: (location) {
+    print("🗺️ [View] 네이버 지도가 준비되었습니다.");
+    // 컨트롤러의 함수 호출
+    controller.onMapReady(location);
+  },
+  
+  onMapTapped: (point, latLng) {
+    print("📍 [View] 지도 클릭됨: ${latLng.latitude}, ${latLng.longitude}");
+  },
+),
                 ),
               ),
             ),

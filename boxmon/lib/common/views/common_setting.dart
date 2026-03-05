@@ -2,6 +2,7 @@ import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/common_bottom_navigation.dart';
 import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/owner/views/inquery_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -100,7 +101,6 @@ class CommonSettingView extends StatelessWidget {
             const SizedBox(height: 24),
 
             // --- 이벤트 배너 ---
-            // --- 이벤트 배너 ---
             Center(
               // 센터 정렬
               child: Container(
@@ -157,11 +157,11 @@ class CommonSettingView extends StatelessWidget {
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
             const SizedBox(height: 12),
-            ...["공지사항", "고객센터", "시스템 설정"].map((title) {
+            ...["공지사항", "문의하기", "시스템 설정"].map((title) {
               IconData icon;
               if (title == "공지사항")
                 icon = Icons.check_circle_outline;
-              else if (title == "고객센터")
+              else if (title == "문의하기")
                 icon = Icons.headset_mic_outlined;
               else
                 icon = Icons.settings_outlined;
@@ -184,8 +184,18 @@ class CommonSettingView extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   onTap: () {
-                    // 메뉴 클릭 로직
-                  },
+  if (title == "문의하기") {
+    Get.to(() => const InqueryView());
+  } else {
+    // 공지사항, 시스템 설정 등 아직 안 만든 메뉴들
+    Get.snackbar(
+      "알림", 
+      "$title 기능은 현재 준비 중입니다.",
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 1),
+    );
+  }
+},
                 ),
               );
             }),

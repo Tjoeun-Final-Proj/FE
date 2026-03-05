@@ -299,21 +299,28 @@ Widget _buildBottomButton() {
                     // 기타 운송 정보
                     price: finalPrice,
                     vehicleType: viewModel.selectedVehicleType.value.name, // Enum의 이름을 문자열로 전송
-                    cargoType: "GENERAL", // 필요 시 뷰모델 변수 연결
-                    cargoWeight: 1.0,    // 필요 시 뷰모델 변수 연결
-                    cargoVolume: "기본",  // 필요 시 뷰모델 변수 연결
                     
                     // 온도 관리 옵션
                     needRefrigerate: viewModel.selectedTempType.value == TempType.refrigerated,
                     needFreeze: viewModel.selectedTempType.value == TempType.frozen,
 
-                    description: viewModel.detailAddressController.text, // 상세 요청사항
-                    cargoPhotoUrl: "https://example.com/photo.png", // 사진 연동 시 수정
-                    companyName: "TV형원(주)",
+                    // 🔥 [중요] 서버 에러 해결을 위한 필수값 매핑
+            cargoType: "GENERAL", // 서버 Enum에 있는 값인지 확인 필요!
+            cargoWeight: double.tryParse(viewModel.weightController.text) ?? 1.0, // null 방지
+            cargoVolume: viewModel.widthController.text,
+            
+            description: viewModel.cargoDescription.value, // 상세 요청사항
+            companyName: viewModel.companyNameController.text.isNotEmpty ? viewModel.companyNameController.text : "개인",
+            
+            // 🔥 진짜 사진 파일 전달
+            files: viewModel.selectedCargoImage.value,
+
                   );
 
                   // 5. 컨트롤러 호출 (서버 전송 실행)
-                  await shipmentController.submitShipment(requestModel);
+                  await shipmentController.submitShipment(
+                    requestModel,
+                  files: viewModel.selectedCargoImage.value);
 
                 } catch (e) {
                   print("❌ [UI Error] 데이터 조립 중 에러: $e");

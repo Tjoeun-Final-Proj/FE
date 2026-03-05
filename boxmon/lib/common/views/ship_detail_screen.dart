@@ -93,137 +93,16 @@ class ShipDetailScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-             // 4. 하단 버튼// 4. 하단 버튼 영역 (Obx 내부)
-// 4. 하단 버튼 영역 (Obx 내부)
-              Builder(
-                builder: (context) {
-                  final tokenService = Get.find<TokenService>();
-                  final isShipper = tokenService.userType == "SHIPPER";
-                  final hasDriver = data.driverId != null && data.driverId != 0;
-
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // --- 1층: 메인 버튼 (화주: 배차 취소 / 차주: 취소하기 or 배차 수락) ---
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (isShipper) {
-                              // 🛑 화주 계정일 때 배차 취소 다이얼로그 즉시 실행
-                              Get.defaultDialog(
-                                title: "배차 취소",
-                                titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                                middleText: "정말로 이 배차를 취소하시겠습니까?\n취소 후에는 되돌릴 수 없습니다.",
-                                middleTextStyle: const TextStyle(color: Colors.grey),
-                                textConfirm: "확인",
-                                textCancel: "닫기",
-                                confirmTextColor: Colors.white,
-                                buttonColor: Colors.red[400],
-                                onConfirm: () {
-                                  Get.back();
-                                  shipmentController.requestCancel(data.shipmentId!);
-                                },
-                              );
-                            } else {
-                              // ✅ 차주 로직
-                              if (hasDriver) {
-                                shipmentController.requestWithdrawCancel(data.shipmentId!);
-                              } else {
-                                shipmentController.acceptShipment(data.shipmentId!);
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: (isShipper || hasDriver) ? Colors.red[400] : const Color(0xFF333333),
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          child: Text(
-                            isShipper ? "배차 취소" : (hasDriver ? "취소하기" : "배차 수락"),
-                            style: const TextStyle(fontSize: 18, color: Colors.white),
-                          ),
-                        ),
-                      ),
-
-                     // --- 🔥 2층: 차주용 운송 시작/완료 버튼 ---
-if (!isShipper && hasDriver) ...[
-  const SizedBox(height: 10),
-  SizedBox(
-    width: double.infinity,
-    child: ElevatedButton(
-      onPressed: () {
-        // [상태값 체크] 서버에서 내려오는 값이 "ACCEPTED"가 맞는지 로그로 확인해보세요!
-        print("현재 배차 상태: ${data.shipmentStatus}");
-
-        if (data.shipmentStatus == "ASSIGNED") {
-          // 1. 운송 시작 전 -> 시작하기 호출
-          Get.defaultDialog(
-            title: "운송 시작",
-            middleText: "지금부터 운송을 시작하시겠습니까?",
-            textConfirm: "확인",
-            textCancel: "취소",
-            onConfirm: () {
-              Get.back();
-              // ✅ 컨트롤러의 운송 시작 함수 호출
-              shipmentController.requestStartShipment(data.shipmentId!);
-            },
-          );
-        } else if (data.shipmentStatus == "IN_TRANSIT") {
-          // 2. 운송 중 -> 완료하기(사진촬영) 호출
-          Get.defaultDialog(
-            title: "운송 완료",
-            middleText: "목적지에 도착하셨습니까?\n증빙 사진을 촬영합니다.",
-            textConfirm: "카메라 열기",
-            textCancel: "취소",
-            onConfirm: () {
-              Get.back();
-              // ✅ 컨트롤러의 사진촬영 및 완료 함수 호출
-              shipmentController.completeShipmentProcess(data.shipmentId!);
-            },
-          );
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        // 상태가 IN_TRANSIT이면 초록색, 아니면(ACCEPTED 등) 파란색
-        backgroundColor: data.shipmentStatus == "IN_TRANSIT" ? Colors.green[700] : Colors.blue[700],
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Text(
-        data.shipmentStatus == "IN_TRANSIT" ? "운송 완료하기" : "운송 시작하기",
-        style: const TextStyle(fontSize: 18, color: Colors.white),
-      ),
-    ),
-  ),
-],
-                      const SizedBox(height: 10),
-
-                      // --- 3층: 돌아가기 버튼 (맨 아래 고정) ---
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () => Get.back(),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            side: const BorderSide(color: Colors.grey),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          child: const Text("돌아가기", style: TextStyle(fontSize: 18, color: Colors.black)),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+              Obx(() => _buildBottomButtons(shipmentController)),
+                      
 const SizedBox(height: 30,),
               // 5. 주의사항
               const Text("• 적재중량은 화주와 통화하여 정확히 확인하시기 바랍니다.", 
                   style: TextStyle(fontSize: 12, color: Colors.grey)),
               const Text("• 상/하차기간 거리는 최단거리이므로 실제 도로거리와 다를 수 있습니다.", 
                   style: TextStyle(fontSize: 12, color: Colors.grey)),
-            ],
-          ),
+          ])
+
         );
       }),
     );
@@ -260,6 +139,132 @@ const SizedBox(height: 30,),
       ),
     );
   }
+
+Widget _buildBottomButtons(ShipmentController controller) {
+  final data = controller.detail.value;
+  if (data == null) return const SizedBox.shrink();
+
+  final tokenService = Get.find<TokenService>();
+  final isShipper = tokenService.userType == "SHIPPER";
+  final status = data.shipmentStatus; // 서버에서 내려오는 상태값
+
+  // 1. 화주(SHIPPER)인 경우
+  if (isShipper) {
+    switch(status){
+      case "CANCELED":
+    return _buildSingleButton(
+      text: "운송 취소됨 (돌아가기)",
+        color: const Color.fromARGB(255, 255, 107, 107),
+        onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+    );
+
+    case "ASSIGNED": 
+    return _buildSingleButton(
+      text: "배차 취소",
+      color: Colors.red[400]!,
+      onPressed: () => controller.requestWithdrawCancel(data.shipmentId!),
+    );
+    case "DONE":
+      return _buildSingleButton(
+        text: "운송 완료됨 (돌아가기)",
+        color: Colors.grey[600]!,
+        onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+      );
+
+case "IN_TRANSIT": // 현재 운송 중
+      return _buildSingleButton(
+        text: "기사님이 안전하게 배송중이에요",
+        color: Colors.green[700]!,
+        onPressed: (){},
+      );
+    }
+
+    
+  }
+
+  // 2. 차주(DRIVER)인 경우 - 상태별(status) 분기 처리
+  switch (status) {
+    // 🔥 배차 수락이 필요한 상태들 (서버마다 이름이 다를 수 있음)
+    // 🏁 운송이 완전히 끝난 상태
+    case "DONE":
+      return _buildSingleButton(
+        text: "운송 완료됨 (돌아가기)",
+        color: Colors.grey[600]!,
+        onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+      );
+
+      case "CANCELED":
+      return _buildSingleButton(
+        text: "운송 취소됨 (돌아가기)",
+        color: const Color.fromARGB(255, 255, 107, 107),
+        onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+      );
+
+    // ✅ 내가 이미 수락해서 배정된 상태
+    case "ASSIGNED": 
+      return Column(
+        children: [
+          _buildSingleButton(
+            text: "운송 시작하기",
+            color: Colors.blue[700]!,
+            onPressed: () => _showConfirmDialog("운송 시작", "운송을 시작하시겠습니까?", () => controller.requestStartShipment(data.shipmentId!)),
+          ),
+          const SizedBox(height: 10),
+          _buildSingleButton(
+            text: "배차 포기(취소)",
+            color: Colors.red[300]!,
+            onPressed: () => controller.requestWithdrawCancel(data.shipmentId!),
+          ),
+        ],
+      );
+
+    case "IN_TRANSIT": // 현재 운송 중
+      return _buildSingleButton(
+        text: "운송 완료하기 (사진촬영)",
+        color: Colors.green[700]!,
+        onPressed: () => controller.completeShipmentProcess(data.shipmentId!),
+      );
+
+    // 그 외 예상치 못한 상태일 때 기본으로 수락 버튼을 보여줌
+    default:
+      return _buildSingleButton(
+        text: "배차 수락",
+        color: const Color(0xFF333333),
+        onPressed: () => controller.acceptShipment(data.shipmentId!),
+      );
+  }
+}
+
+// 공통 버튼 위젯 (코드 중복 방지)
+Widget _buildSingleButton({required String text, required Color color, VoidCallback? onPressed}) {
+  return SizedBox(
+    width: double.infinity,
+    child: ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        disabledBackgroundColor: Colors.grey[300], // 비활성화 색상
+      ),
+      child: Text(text, style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+    ),
+  );
+}
+
+// 다이얼로그 헬퍼
+void _showConfirmDialog(String title, String content, VoidCallback onConfirm) {
+  Get.defaultDialog(
+    title: title,
+    middleText: content,
+    textConfirm: "확인",
+    textCancel: "취소",
+    onConfirm: () {
+      Get.back();
+      onConfirm();
+    },
+  );
+}
 
   Widget _buildDataItem(String label, String value, {Color? color}) {
     if (label.isEmpty) return const Expanded(child: SizedBox());
