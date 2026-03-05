@@ -23,6 +23,7 @@ class ShipmentModel {
   final String? cargoPhotoUrl;
   final String? companyName;
   final File? files;
+  final String? dropoffPhotoUrl;
 
   ShipmentModel({
     this.pickupPoint,
@@ -45,7 +46,8 @@ class ShipmentModel {
     this.description,
     this.cargoPhotoUrl,
     this.companyName,
-    this.files
+    this.files,
+    this.dropoffPhotoUrl    
   });
 
   // 2. 서버로 보낼 때 사용하는 변환 함수 (핵심!)
@@ -72,6 +74,7 @@ class ShipmentModel {
       "description": description,
       "cargoPhotoUrl": cargoPhotoUrl,
       "companyName": companyName,
+      "dropoffPhotoUrl" : dropoffPhotoUrl
     };
   }
 
@@ -87,7 +90,10 @@ class ShipmentModel {
       // ... 나머지도 동일한 방식으로 null 체크하며 파싱 ...
       price: json['price'],
       companyName: json['companyName'],
+      cargoPhotoUrl: json['cargoPhotoUrl'], 
+      dropoffPhotoUrl: json['dropoffPhotoUrl'],
       files: null, // 파일은 별도로 처리 
+
     );
   }
 }

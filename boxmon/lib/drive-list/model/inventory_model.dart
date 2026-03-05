@@ -11,6 +11,8 @@ class InventoryModel {
   final String? description;
   final double? estimatedDistance;
   final String? vehicleType;
+  final String? waypoint1Address;
+  final String? waypoint2Address;
 
   InventoryModel({
     this.shipmentId,
@@ -25,6 +27,8 @@ class InventoryModel {
     this.description,
     this.estimatedDistance,
     this.vehicleType,
+    this.waypoint1Address,
+    this.waypoint2Address
   });
 
   // JSON Map을 단일 객체로 변환
@@ -37,7 +41,10 @@ class InventoryModel {
       pickupAddress: json['pickupAddress'] as String?,
       dropoffAddress: json['dropoffAddress'] as String?,
       
-      // 날짜 파싱
+      // 🔥 경유지 데이터 파싱 추가 (이게 빠지면 리스트에 안 나와요!)
+      waypoint1Address: json['waypoint1Address'] as String?,
+      waypoint2Address: json['waypoint2Address'] as String?,
+
       pickupDesiredAt: json['pickupDesiredAt'] != null 
           ? DateTime.parse(json['pickupDesiredAt']) 
           : null,
@@ -45,8 +52,6 @@ class InventoryModel {
           ? DateTime.parse(json['dropoffDesiredAt']) 
           : null,
 
-      // 🔥 새로 추가된 필드 파싱
-      // cargoWeight와 estimatedDistance는 num으로 받아서 toDouble() 처리 (에러 방지 꿀팁)
       cargoWeight: json['cargoWeight'] != null 
           ? (json['cargoWeight'] as num).toDouble() 
           : null,
@@ -57,7 +62,6 @@ class InventoryModel {
       vehicleType: json['vehicleType'] as String?,
     );
   }
-
   // JSON 리스트를 객체 리스트로 변환하는 정적 메서드
   static List<InventoryModel> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => InventoryModel.fromJson(json)).toList();

@@ -100,30 +100,93 @@ Widget _buildOrderItem(InventoryModel item) {
           ),
           const SizedBox(height: 16),
 
-          // 2. 출발지 & 도착지 (세로 정렬로 가독성 강화)
+          // 2. 위치 정보 (출발지 - 경유지 - 도착지)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start, // 상단 정렬
             children: [
+              // 왼쪽 커스텀 인디케이터 (점-선-점)
               Column(
                 children: [
                   Icon(Icons.circle, size: 8, color: Colors.blue.shade400),
-                  Container(width: 1, height: 20, color: Colors.grey.shade300),
+                  // 경유지 개수에 따라 선의 길이를 조절하거나 추가합니다.
+                  Container(
+                    width: 1, 
+                    height: (item.waypoint1Address?.isNotEmpty == true && item.waypoint2Address?.isNotEmpty == true) 
+                      ? 80 : (item.waypoint1Address?.isNotEmpty == true) ? 45 : 20, 
+                    color: Colors.grey.shade300
+                  ),
                   Icon(Icons.location_on, size: 14, color: Colors.red.shade400),
                 ],
               ),
               const SizedBox(width: 12),
+              
+              // 오른쪽 주소 텍스트 영역
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // --- 출발지 ---
                     Text(
                       item.pickupAddress ?? "출발지 미정",
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
+
+                    // --- 🔥 경유지 1 (있을 때만 표시) ---
+                    if (item.waypoint1Address != null && item.waypoint1Address!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text("경유1", style: TextStyle(color: Colors.orange.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              item.waypoint1Address!,
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    // --- 🔥 경유지 2 (있을 때만 표시) ---
+                    if (item.waypoint2Address != null && item.waypoint2Address!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text("경유2", style: TextStyle(color: Colors.orange.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              item.waypoint2Address!,
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+
                     const SizedBox(height: 8),
+                    // --- 도착지 ---
                     Text(
                       item.dropoffAddress ?? "도착지 미정",
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],

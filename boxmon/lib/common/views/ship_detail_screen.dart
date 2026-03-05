@@ -90,6 +90,10 @@ class ShipDetailScreen extends StatelessWidget {
                   ],
                 ),
               ),
+if (data.shipmentStatus == "DONE") _buildPhotoSection(
+  data.cargoPhotoUrl ?? "https://picsum.photos/seed/cargo/400/300",  // 여기 바꿔야되요 지금 네이버 모름
+  data.dropoffPhotoUrl ?? "https://picsum.photos/seed/drop/400/300"
+),
 
               const SizedBox(height: 30),
 
@@ -177,6 +181,13 @@ case "IN_TRANSIT": // 현재 운송 중
         color: Colors.green[700]!,
         onPressed: (){},
       );
+      
+       case "REQUESTED":
+      return _buildSingleButton(
+        text: "기사님 매칭 중",
+        color: const Color.fromARGB(255, 94, 91, 177),
+        onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+      );
     }
 
     
@@ -192,6 +203,7 @@ case "IN_TRANSIT": // 현재 운송 중
         color: Colors.grey[600]!,
         onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
       );
+
 
       case "CANCELED":
       return _buildSingleButton(
@@ -265,7 +277,66 @@ void _showConfirmDialog(String title, String content, VoidCallback onConfirm) {
     },
   );
 }
+// 1. 사진 섹션 위젯 정의
+Widget _buildPhotoSection(String? cargoUrl, String? dropoffUrl) {
+  // 둘 다 없으면 섹션 자체를 숨김
+  if (cargoUrl == null && dropoffUrl == null) return const SizedBox.shrink();
 
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Divider(height: 40, thickness: 1),
+      const Text("운송 증빙 사진", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      const SizedBox(height: 15),
+      Row(
+        children: [
+          // 상차 사진
+          if (cargoUrl != null) 
+            Expanded(child: _buildPhotoItem("상차 사진", cargoUrl)),
+          if (cargoUrl != null && dropoffUrl != null) const SizedBox(width: 12),
+          // 하차 사진
+          if (dropoffUrl != null) 
+            Expanded(child: _buildPhotoItem("하차 사진", dropoffUrl)),
+        ],
+      ),
+    ],
+  );
+}
+
+// 2. 개별 사진 아이템 (클릭 시 확대 기능을 넣으면 더 좋습니다)
+Widget _buildPhotoItem(String label, String url) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+      const SizedBox(height: 8),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          url,
+          height: 150,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          // 로딩 중 표시
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              height: 150,
+              color: Colors.grey[100],
+              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            );
+          },
+          // 에러 시 대체 이미지
+          errorBuilder: (context, error, stackTrace) => Container(
+            height: 150,
+            color: Colors.grey[200],
+            child: const Icon(Icons.image_not_supported, color: Colors.grey),
+          ),
+        ),
+      ),
+    ],
+  );
+}
   Widget _buildDataItem(String label, String value, {Color? color}) {
     if (label.isEmpty) return const Expanded(child: SizedBox());
     return Expanded(
