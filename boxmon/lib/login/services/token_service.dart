@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 import '../models/token_model.dart';
 
@@ -58,24 +59,24 @@ class TokenService extends GetxService {
     int? userId,
   }) async {
     _currentAccessToken = accessToken; // 🔥 추가
-    _userType = userType;
-    _userId = userId;
+    _userType = userType.isNotEmpty ? userType : (_extractUserRoleFromJwt(accessToken) ?? '');
+    _userId = userId ?? _extractUserIdFromJwt(accessToken);
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_accessTokenKey, accessToken);
       await prefs.setString(_refreshTokenKey, refreshToken);
-      await prefs.setString(_userTypeKey, userType);
-      if (userId != null) {
-        await prefs.setInt(_userIdKey, userId);
+      await prefs.setString(_userTypeKey, _userType ?? '');
+      if (_userId != null) {
+        await prefs.setInt(_userIdKey, _userId!);
       } else {
         await prefs.remove(_userIdKey);
       }
     } else {
       await _storage.write(key: _accessTokenKey, value: accessToken);
       await _storage.write(key: _refreshTokenKey, value: refreshToken);
-      await _storage.write(key: _userTypeKey, value: userType);
-      if (userId != null) {
-        await _storage.write(key: _userIdKey, value: userId.toString());
+      await _storage.write(key: _userTypeKey, value: _userType ?? '');
+      if (_userId != null) {
+        await _storage.write(key: _userIdKey, value: _userId.toString());
       } else {
         await _storage.delete(key: _userIdKey);
       }
@@ -106,14 +107,16 @@ class TokenService extends GetxService {
     // 💡 여기서 값을 확인하고 Token 객체를 반환해야 함!
     if (accessToken != null && accessToken.isNotEmpty) {
       _currentAccessToken = accessToken; // 🔥 추가
-      _userType = userType; // 비교 들어갈 예정
-      _userId = userId;
+      _userType = (userType != null && userType.isNotEmpty)
+          ? userType
+          : (_extractUserRoleFromJwt(accessToken) ?? '');
+      _userId = userId ?? _extractUserIdFromJwt(accessToken);
       print("✅ [TokenService] 토큰 로드 성공!");
       return Token(
         accessToken: accessToken,
         refreshToken: refreshToken ?? '',
-        userType: userType ?? '',
-        userId: userId,
+        userType: _userType ?? '',
+        userId: _userId,
       );
     }
 
@@ -160,4 +163,56 @@ class TokenService extends GetxService {
     if (token == null) return false;
       return false;
     }
+
+  int? _extractUserIdFromJwt(String? token) {
+    if (token == null || token.isEmpty) return null;
+    final parts = token.split('.');
+    if (parts.length < 2) return null;
+
+    try {
+      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final map = jsonDecode(payload);
+      if (map is! Map<String, dynamic>) return null;
+
+      final dynamic candidates = map['userId'] ?? map['id'] ?? map['sub'];
+      if (candidates is int) return candidates;
+      if (candidates is num) return candidates.toInt();
+      return int.tryParse('$candidates');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? _extractUserRoleFromJwt(String? token) {
+    final payload = _decodeJwtPayload(token);
+    if (payload == null) return null;
+
+    final dynamic roleCandidate =
+        payload['userType'] ?? payload['role'] ?? payload['authorities'];
+    if (roleCandidate is String) {
+      if (roleCandidate.toUpperCase().contains('DRIVER')) return 'DRIVER';
+      if (roleCandidate.toUpperCase().contains('SHIPPER')) return 'SHIPPER';
+      return roleCandidate.toUpperCase();
+    }
+    if (roleCandidate is List && roleCandidate.isNotEmpty) {
+      final first = '${roleCandidate.first}'.toUpperCase();
+      if (first.contains('DRIVER')) return 'DRIVER';
+      if (first.contains('SHIPPER')) return 'SHIPPER';
+      return first;
+    }
+    return null;
+  }
+
+  Map<String, dynamic>? _decodeJwtPayload(String? token) {
+    if (token == null || token.isEmpty) return null;
+    final parts = token.split('.');
+    if (parts.length < 2) return null;
+    try {
+      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final map = jsonDecode(payload);
+      return map is Map<String, dynamic> ? map : null;
+    } catch (_) {
+      return null;
+    }
+  }
   }

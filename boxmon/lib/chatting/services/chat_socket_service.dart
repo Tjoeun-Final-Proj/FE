@@ -23,18 +23,27 @@ class ChatSocketService extends GetxService {
 
     final int? userId = _tokenService.userId;
     final String? role = _tokenService.userType;
+    final String? token = _tokenService.accessToken;
     if (userId == null || role == null) {
       throw Exception('채팅 소켓 연결에 필요한 사용자 정보가 없습니다.');
     }
+
+    final normalizedRole = role.toUpperCase().trim();
 
     _connectCompleter = Completer<void>();
 
     _client = StompClient(
       config: StompConfig.sockJS(
         url: _resolveSockJsUrl(),
-        stompConnectHeaders: {
+        webSocketConnectHeaders: {
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
           'X-USER-ID': '$userId',
-          'X-USER-ROLE': role,
+          'X-USER-ROLE': normalizedRole,
+        },
+        stompConnectHeaders: {
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+          'X-USER-ID': '$userId',
+          'X-USER-ROLE': normalizedRole,
         },
         onConnect: (_) {
           _connected = true;

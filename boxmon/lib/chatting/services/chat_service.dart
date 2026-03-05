@@ -15,13 +15,13 @@ class ChatService extends GetxService {
 
     final String normalizedRole = (role ?? '').toUpperCase().trim();
     final List<String> candidatePaths = normalizedRole.contains('DRIVER')
-        ? <String>[
-            'shipment/my/inventory/driver',
-            'shipment/my/inventory/shipper',
-          ]
+        ? <String>['shipment/my/inventory/driver']
+        : normalizedRole.contains('SHIPPER')
+        ? <String>['shipment/my/inventory/shipper']
         : <String>[
-            'shipment/my/inventory/shipper',
+            // role을 알 수 없을 때만 폴백
             'shipment/my/inventory/driver',
+            'shipment/my/inventory/shipper',
           ];
 
     final List<ChatRoomItemModel> merged = <ChatRoomItemModel>[];

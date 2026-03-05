@@ -59,8 +59,8 @@ class ChatRoomController extends GetxController {
           });
         },
       );
-    } catch (_) {
-      error.value = '채팅 연결에 실패했습니다.';
+    } catch (e) {
+      error.value = '채팅 연결에 실패했습니다. ($e)';
     }
   }
 
