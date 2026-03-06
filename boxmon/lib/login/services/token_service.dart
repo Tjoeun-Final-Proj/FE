@@ -17,17 +17,22 @@ class TokenService extends GetxService {
   static const String _refreshTokenKey = 'refresh_token';
   static const String _userTypeKey = 'user_type';
   static const String _userIdKey = 'user_id';
+
   // 디바이스 토큰을 저장하는 장소
   String? _deviceToken;
+
   // 메모리에 들고있을 엑세스 토큰
   String? _currentAccessToken;
   String? _userType;
   int? _userId;
+
   String? get accessToken => _currentAccessToken;
 
   String? get deviceToken => _deviceToken;
+
   String? get userType => _userType; // << 외부내부 DRIVER / SHIPPER 비교
   int? get userId => _userId;
+
   // 로그인하자마자 디바이스 토큰을 가져옵니다.
   Future<TokenService> init() async {
     try {
@@ -59,7 +64,9 @@ class TokenService extends GetxService {
     int? userId,
   }) async {
     _currentAccessToken = accessToken; // 🔥 추가
-    _userType = userType.isNotEmpty ? userType : (_extractUserRoleFromJwt(accessToken) ?? '');
+    _userType = userType.isNotEmpty
+        ? userType
+        : (_extractUserRoleFromJwt(accessToken) ?? '');
     _userId = userId ?? _extractUserIdFromJwt(accessToken);
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
@@ -160,8 +167,8 @@ class TokenService extends GetxService {
     _currentAccessToken = null; // 갱신 시 기존 토큰 초기화
     Token? token = await loadToken();
     if (token == null) return false;
-      return false;
-    }
+    return false;
+  }
 
   int? _extractUserIdFromJwt(String? token) {
     if (token == null || token.isEmpty) return null;
@@ -169,7 +176,9 @@ class TokenService extends GetxService {
     if (parts.length < 2) return null;
 
     try {
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
       final map = jsonDecode(payload);
       if (map is! Map<String, dynamic>) return null;
 
@@ -207,12 +216,13 @@ class TokenService extends GetxService {
     final parts = token.split('.');
     if (parts.length < 2) return null;
     try {
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
       final map = jsonDecode(payload);
       return map is Map<String, dynamic> ? map : null;
     } catch (_) {
       return null;
     }
-  }
   }
 }
