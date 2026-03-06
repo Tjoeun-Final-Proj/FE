@@ -8,7 +8,7 @@ class CommonWalletController extends GetxController {
 
   var isLoading = false.obs;
   var summaryData = <String, dynamic>{}.obs;
-  
+
   // 🎯 정산 리스트를 담을 RxList
   var settlementList = <CommonWalletMonthModel>[].obs;
 
@@ -16,16 +16,21 @@ class CommonWalletController extends GetxController {
   var selectedYear = DateTime.now().year.obs;
   var selectedMonth = DateTime.now().month.obs;
 
-// 2. UI에서 바로 쓸 포맷팅된 getter (오타 방지 및 편의성)
-  String get thisMonthTotal => NumberFormat('#,###').format(summaryData['thisMonthTotalAmount'] ?? 0);
-  String get lastMonthTotal => NumberFormat('#,###').format(summaryData['lastMonthTotalAmount'] ?? 0);
-  String get differenceAmount => NumberFormat('#,###').format((summaryData['difference'] ?? 0).abs());
+  // 2. UI에서 바로 쓸 포맷팅된 getter (오타 방지 및 편의성)
+  String get thisMonthTotal =>
+      NumberFormat('#,###').format(summaryData['thisMonthTotalAmount'] ?? 0);
+  String get lastMonthTotal =>
+      NumberFormat('#,###').format(summaryData['lastMonthTotalAmount'] ?? 0);
+  String get differenceAmount =>
+      NumberFormat('#,###').format((summaryData['difference'] ?? 0).abs());
   // 절약했는지 더 썼는지 판별
   bool get isSaved => (summaryData['difference'] ?? 0) >= 0;
   @override
   void onInit() {
     super.onInit();
-    print("🚀 [WalletController] onInit 호출됨 - 기본값: ${selectedYear.value}년 ${selectedMonth.value}월");
+    print(
+      "🚀 [WalletController] onInit 호출됨 - 기본값: ${selectedYear.value}년 ${selectedMonth.value}월",
+    );
     refreshAll(); // 페이지 진입 시 요약과 리스트 모두 로드
   }
 
@@ -33,10 +38,7 @@ class CommonWalletController extends GetxController {
   Future<void> refreshAll() async {
     print("🔄 [WalletController] 전체 데이터(요약 & 월별 리스트) 동기화 시작...");
     // 두 API가 끝날 때까지 대기
-    await Future.wait([
-      fetchSummary(),
-      fetchSettlementList(),
-    ]);
+    await Future.wait([fetchSummary(), fetchSettlementList()]);
     print("✅ [WalletController] 전체 데이터 동기화 완료");
   }
 
@@ -50,7 +52,9 @@ class CommonWalletController extends GetxController {
 
       if (result != null) {
         summaryData.assignAll(result);
-        print("✅ [WalletController-Summary] 로드 성공! 이번 달 총액: ${summaryData['thisMonthTotalAmount']}, 차액: ${summaryData['difference']}");
+        print(
+          "✅ [WalletController-Summary] 로드 성공! 이번 달 총액: ${summaryData['thisMonthTotalAmount']}, 차액: ${summaryData['difference']}",
+        );
       } else {
         print("⚠️ [WalletController-Summary] 응답은 성공했으나 데이터가 null입니다.");
       }
@@ -74,10 +78,14 @@ class CommonWalletController extends GetxController {
 
       if (result != null) {
         settlementList.assignAll(result);
-        print("✅ [WalletController-List] 로드 성공! 총 ${settlementList.length}건의 정산 내역이 있습니다. (대상: $year년 $month월)");
+        print(
+          "✅ [WalletController-List] 로드 성공! 총 ${settlementList.length}건의 정산 내역이 있습니다. (대상: $year년 $month월)",
+        );
       } else {
         settlementList.clear(); // null일 경우 기존 리스트 비우기
-        print("⚠️ [WalletController-List] 결과가 null입니다. 빈 리스트로 초기화합니다. (대상: $year년 $month월)");
+        print(
+          "⚠️ [WalletController-List] 결과가 null입니다. 빈 리스트로 초기화합니다. (대상: $year년 $month월)",
+        );
       }
     } catch (e) {
       print("❌ [WalletController-List] 리스트 데이터 로드 실패: $e");
@@ -90,9 +98,9 @@ class CommonWalletController extends GetxController {
   void changeMonth(int delta) {
     int oldYear = selectedYear.value;
     int oldMonth = selectedMonth.value;
-    
+
     int nextMonth = oldMonth + delta;
-    
+
     if (nextMonth > 12) {
       selectedYear.value++;
       selectedMonth.value = 1;
@@ -103,8 +111,10 @@ class CommonWalletController extends GetxController {
       selectedMonth.value = nextMonth;
     }
 
-    print("🗓️ [WalletController-Date] 월 변경됨: $oldYear년 $oldMonth월 ➡️ ${selectedYear.value}년 ${selectedMonth.value}월");
-    
+    print(
+      "🗓️ [WalletController-Date] 월 변경됨: $oldYear년 $oldMonth월 ➡️ ${selectedYear.value}년 ${selectedMonth.value}월",
+    );
+
     fetchSettlementList(); // 월 변경 후 리스트 다시 불러오기
   }
 }

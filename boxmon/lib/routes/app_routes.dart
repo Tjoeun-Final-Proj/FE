@@ -71,11 +71,12 @@ class AppRoutes {
       binding: AuthBinding(),
     ),
 
-    GetPage(name: ownerWallet,
+    GetPage(
+      name: ownerWallet,
       page: () => OwnerWalletView(),
       binding: AuthBinding(),
     ),
-    
+
     GetPage(
       name: register,
       page: () => RegistrationView(),
@@ -88,9 +89,9 @@ class AppRoutes {
       binding: AuthBinding(),
       transition: Transition.noTransition, // 이 페이지만 줌 효과 제거
       middlewares: [
-        // 여기에 미들웨어 추가! 
+        // 여기에 미들웨어 추가!
         // 이 수문장이 "DRIVER"인지 "SHIPPER"인지 체크해서 리다이렉트 시킵니다.
-        DriverMiddleware(), 
+        DriverMiddleware(),
       ],
     ),
     GetPage(
@@ -99,9 +100,9 @@ class AppRoutes {
       transition: Transition.noTransition,
       binding: AuthBinding(),
       middlewares: [
-        // 여기에 미들웨어 추가! 
+        // 여기에 미들웨어 추가!
         // 이 수문장이 "DRIVER"인지 "SHIPPER"인지 체크해서 리다이렉트 시킵니다.
-        DriverMiddleware(), 
+        DriverMiddleware(),
       ],
     ),
     GetPage(
@@ -110,9 +111,9 @@ class AppRoutes {
       transition: Transition.noTransition,
       binding: AuthBinding(),
       middlewares: [
-        // 여기에 미들웨어 추가! 
+        // 여기에 미들웨어 추가!
         // 이 수문장이 "DRIVER"인지 "SHIPPER"인지 체크해서 리다이렉트 시킵니다.
-        DriverMiddleware(), 
+        DriverMiddleware(),
       ],
     ),
     GetPage(
@@ -178,22 +179,32 @@ class AppRoutes {
     GetPage(
       name: shipperInventory,
       page: () => CommonInvetoryView(),
-      binding : AuthBinding(),
-      transition: Transition.noTransition
+      binding: AuthBinding(),
+      transition: Transition.noTransition,
     ),
 
     GetPage(
       name: driverInventory,
       page: () => DriverInvetoryView(),
-      binding : AuthBinding(),
-      transition: Transition.noTransition
+      binding: AuthBinding(),
+      transition: Transition.noTransition,
     ),
 
-    GetPage(name: cargoDetail, page: () => CargoDetailView(), binding: MapBinding()),
-    GetPage(name: tossPayments, page: () => PayHome(), binding: PaymentBinding()),
+    GetPage(
+      name: cargoDetail,
+      page: () => CargoDetailView(),
+      binding: MapBinding(),
+    ),
+    GetPage(
+      name: tossPayments,
+      page: () => PayHome(),
+      binding: PaymentBinding(),
+    ),
     GetPage(name: tossPaymentsResult, page: () => Payment()),
     GetPage(name: resultPage, page: () => ResultPage()),
-    GetPage(name: dispatchSummary, page: () => DispatchSummaryView(),
+    GetPage(
+      name: dispatchSummary,
+      page: () => DispatchSummaryView(),
       binding: MapBinding(),
     ),
     // 로그인 이후

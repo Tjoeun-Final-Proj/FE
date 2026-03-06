@@ -1,9 +1,9 @@
 /// 디자인 시스템 통합 export 파일
-/// 
+///
 /// 사용 예시:
 /// ```dart
 /// import 'package:honbop_mate/core/design/app_design.dart';
-/// 
+///
 /// Container(
 ///   color: AppColors.primary,
 ///   padding: AppSpacing.paddingLG,

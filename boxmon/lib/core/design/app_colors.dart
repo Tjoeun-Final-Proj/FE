@@ -39,7 +39,9 @@ class AppColors {
   static const Color grey800 = Color(0xFF424242);
 
   // Special Colors
-  static const Color amber = Color(0xFF6366F1); // FloatingActionButton용 (primary와 동일)
+  static const Color amber = Color(
+    0xFF6366F1,
+  ); // FloatingActionButton용 (primary와 동일)
   static const Color yellow400 = Color(0xFFFFEB3B);
   static const Color black54 = Colors.black54;
 }

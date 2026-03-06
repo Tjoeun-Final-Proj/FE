@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:boxmon/map/model/map_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -51,19 +49,26 @@ class CargoDetailView extends StatelessWidget {
             const SizedBox(height: 40),
 
             // 완료 버튼
-            ElevatedButton(
-              onPressed: () {
-                // 텍스트 내용 저장
-                viewModel.cargoDescription.value = textController.text;
-                Get.back(); // 메인 화면으로 복귀
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A2F4B),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text("입력 완료", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
+            // 완료 버튼 수정
+ElevatedButton(
+  onPressed: () {
+    // 1. 텍스트 내용 저장
+    viewModel.cargoDescription.value = textController.text;
+    
+    // 🔍 [로그] 제대로 담겼는지 확인용
+    print("✅ 상세내용 저장됨: ${viewModel.cargoDescription.value}");
+    print("📸 사진 저장됨: ${viewModel.selectedCargoImage.value?.path ?? '없음'}");
+    
+    // 2. 메인 화면으로 복귀 (이제 메인 화면의 '전송' 버튼에서 이 값을 꺼내 쓰면 됩니다!)
+    Get.back(); 
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF1A2F4B),
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ),
+  child: const Text("입력 완료", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+),
           ],
         ),
       ),
@@ -75,74 +80,63 @@ class CargoDetailView extends StatelessWidget {
     return Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
   }
 
-  // 사진 첨부 영역 위젯
+  // 사진 첨부 영역 위젯 (CargoDetailView 내부 교체)
   Widget _buildPhotoArea(MapViewModel viewModel) {
-    return Obx(() => SizedBox(
-      height: 100, // 사진 영역 높이 고정
-      child: Row(
-        children: [
-          // 사진 추가 버튼
-          InkWell(
-            onTap: viewModel.pickCargoImages,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 80,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.camera_alt_outlined, color: Colors.grey),
-                  const SizedBox(height: 4),
-                  Text("${viewModel.cargoImages.length}/5", style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // 선택된 사진 리스트 (가로 스크롤)
-          Expanded(
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: viewModel.cargoImages.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                return Stack(
-                  clipBehavior: Clip.none,
+    return Obx(() {
+      final imageFile = viewModel.selectedCargoImage.value;
+      
+      return SizedBox(
+        height: 100,
+        child: imageFile == null 
+          // 1. 사진이 없을 때: 카메라 버튼 하나만 보여줌
+          ? InkWell(
+              onTap: viewModel.pickSingleCargoImage,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(
-                        File(viewModel.cargoImages[index].path),
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    // 삭제 버튼 (X 표시)
-                    Positioned(
-                      top: -8,
-                      right: -8,
-                      child: GestureDetector(
-                        onTap: () => viewModel.removeImage(index),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                          child: const Icon(Icons.close, size: 16, color: Colors.white),
-                        ),
-                      ),
-                    ),
+                    Icon(Icons.camera_alt_outlined, color: Colors.grey),
+                    SizedBox(height: 4),
+                    Text("사진 첨부", style: TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
-                );
-              },
+                ),
+              ),
+            )
+          // 2. 사진이 있을 때: 고른 사진과 삭제(X) 버튼만 보여줌
+          : Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    imageFile,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Positioned(
+                  top: -8,
+                  right: -8,
+                  child: GestureDetector(
+                    onTap: viewModel.removeImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                      child: const Icon(Icons.close, size: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-    ));
+      );
+    });
   }
-}
+  }

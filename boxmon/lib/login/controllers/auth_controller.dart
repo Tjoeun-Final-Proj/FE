@@ -102,18 +102,19 @@ class AuthController extends GetxController {
       // 4. 결과에 따른 분기 처리
       if (success == true) {
         print("로그인 성공 → 유저 타입별 홈 이동");
-        
+
         final tokenService = Get.find<TokenService>();
-        await tokenService.loadToken(); // 저장소에서 데이터를 읽어와 _userType에 "DRIVER" 등을 할당함
+        await tokenService
+            .loadToken(); // 저장소에서 데이터를 읽어와 _userType에 "DRIVER" 등을 할당함
 
         print("✅ 로드된 유저 타입: ${tokenService.userType}");
-        
+
         isLoading.value = false;
 
         // 🔥 유저 타입에 따라 목적지 분기
         if (tokenService.userType == "DRIVER") {
           // 차주라면 차주 전용 홈으로
-          Get.offAllNamed(AppRoutes.ownerHome); 
+          Get.offAllNamed(AppRoutes.ownerHome);
         } else if (tokenService.userType == "SHIPPER") {
           // 화주라면 화주 전용 홈으로
           Get.offAllNamed(AppRoutes.commonHome);
@@ -121,7 +122,6 @@ class AuthController extends GetxController {
           // 그 외 기본 페이지
           Get.offAllNamed(AppRoutes.commonHome);
         }
-        
       } else {
         print("로그인 실패 → 스낵바 표시");
         isLoading.value = false;

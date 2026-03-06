@@ -10,9 +10,8 @@ class OwnerWalletView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(OwnerWalletController());
 
-// 🔥 실제로 메모리에 올라간 컨트롤러의 진짜 이름을 출력해봅니다.
-  print("🕵️ 현재 화면에 잡힌 컨트롤러 타입: ${controller.runtimeType}");
-
+    // 🔥 실제로 메모리에 올라간 컨트롤러의 진짜 이름을 출력해봅니다.
+    print("🕵️ 현재 화면에 잡힌 컨트롤러 타입: ${controller.runtimeType}");
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -44,15 +43,18 @@ class OwnerWalletView extends StatelessWidget {
 
                 // 3. 리스트 영역 (이 부분만 Obx로 감싸서 리스트 변화에만 반응하게 함)
                 Obx(() {
-                  if (controller.isLoading.value && controller.settlementList.isEmpty) {
+                  if (controller.isLoading.value &&
+                      controller.settlementList.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
                   if (controller.settlementList.isEmpty) {
-                    return const Center(child: Padding(
-                      padding: EdgeInsets.all(40.0),
-                      child: Text("내역이 없습니다."),
-                    ));
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(40.0),
+                        child: Text("내역이 없습니다."),
+                      ),
+                    );
                   }
 
                   return Column(
@@ -61,10 +63,11 @@ class OwnerWalletView extends StatelessWidget {
                       return _buildWalletItem(
                         date: DateFormat('MM/dd').format(item.createdAt!),
                         status: item.shipmentStatus ?? "상태미정",
-                        profit: "${NumberFormat('#,###').format(item.profit ?? 0)}원",
+                        profit:
+                            "${NumberFormat('#,###').format(item.profit ?? 0)}원",
                         pickup: item.pickupAddress ?? "",
                         time: DateFormat('HH:mm').format(item.createdAt!),
-                        dropoffAddress : item.dropoffAddress ?? ""
+                        dropoffAddress: item.dropoffAddress ?? "",
                       );
                     }).toList(),
                   );
@@ -78,135 +81,171 @@ class OwnerWalletView extends StatelessWidget {
   }
 }
 
-  // --- 위젯 함수들 ---
+// --- 위젯 함수들 ---
 
-  Widget _buildSummaryCard(OwnerWalletController controller) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text("이번달 정산 금액", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(width: 20),
-              Text("${controller.thisMonthTotal}원", 
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ],
+Widget _buildSummaryCard(OwnerWalletController controller) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text(
+              "이번달 정산 금액",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 20),
+            Text(
+              "${controller.thisMonthTotal}원",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            const Text(
+              "저번달 보다",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 20),
+            Text(
+              "${controller.differenceAmount}원 ${controller.isSaved ? '더 지출했습니다.' : '절약했습니다.'}",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: controller.isSaved ? Colors.red : Colors.blue,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildMonthSelector(OwnerWalletController controller) {
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(30),
+      border: Border.all(color: Colors.grey[300]!),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          onPressed: () => controller.changeMonth(-1), // 이전 달
+        ),
+        Obx(
+          () => Text(
+            "${controller.selectedYear.value}년 ${controller.selectedMonth.value}월",
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
-          Row(
+        ),
+        IconButton(
+          icon: const Icon(Icons.arrow_forward_ios, size: 18),
+          onPressed: () => controller.changeMonth(1), // 다음 달
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildWalletItem({
+  required String date,
+  required String status,
+  required String profit,
+  required String pickup,
+  required String time,
+  required String dropoffAddress,
+}) {
+  // 상태별 색상 로직 (간단 예시)
+  Color statusColor = status == "운송완료" ? Colors.blue[900]! : Colors.green;
+  if (status == "미배차") statusColor = Colors.red;
+
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 50,
+          child: Column(
             children: [
-              const Text("저번달 보다", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(width: 20),
               Text(
-                "${controller.differenceAmount}원 ${controller.isSaved ? '더 지출했습니다.' : '절약했습니다.'}", 
-                style: TextStyle(
-                  fontSize: 16, 
+                date,
+                style: const TextStyle(
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: controller.isSaved ? Colors.red :  Colors.blue
                 ),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMonthSelector(OwnerWalletController controller) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-            onPressed: () => controller.changeMonth(-1), // 이전 달
-          ),
-          Obx(() => Text(
-              "${controller.selectedYear.value}년 ${controller.selectedMonth.value}월", 
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios, size: 18),
-            onPressed: () => controller.changeMonth(1), // 다음 달
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWalletItem({
-    required String date, 
-    required String status, 
-    required String profit, 
-    required String pickup,
-    required String time,
-    required String dropoffAddress
-  }) {
-    // 상태별 색상 로직 (간단 예시)
-    Color statusColor = status == "운송완료" ? Colors.blue[900]! : Colors.green;
-    if (status == "미배차") statusColor = Colors.red;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 50,
-            child: Column(
-              children: [
-                Text(date, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(pickup, 
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 4),
-                Text("$time | $dropoffAddress", style: const TextStyle(fontSize: 12, color: Colors.grey), overflow: TextOverflow.ellipsis),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(profit, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  borderRadius: BorderRadius.circular(12),
+              Text(
+                pickup,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
-                child: Text(status, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "$time | $dropoffAddress",
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              profit,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: statusColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                status,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}

@@ -31,13 +31,13 @@ class ShipmentUnassignedResponseModel {
         cargoWeight: (json["cargoWeight"] as num?)?.toDouble(),
         description: json["description"] ?? "",
         dropoffAddress: json["dropoffAddress"],
-        dropoffDesiredAt: json["dropoffDesiredAt"] != null 
-            ? DateTime.parse(json["dropoffDesiredAt"]) 
+        dropoffDesiredAt: json["dropoffDesiredAt"] != null
+            ? DateTime.parse(json["dropoffDesiredAt"])
             : null,
         estimatedDistance: (json["estimatedDistance"] as num?)?.toDouble(),
         pickupAddress: json["pickupAddress"],
-        pickupDesiredAt: json["pickupDesiredAt"] != null 
-            ? DateTime.parse(json["pickupDesiredAt"]) 
+        pickupDesiredAt: json["pickupDesiredAt"] != null
+            ? DateTime.parse(json["pickupDesiredAt"])
             : null,
         profit: json["profit"],
         shipmentId: json["shipmentId"],

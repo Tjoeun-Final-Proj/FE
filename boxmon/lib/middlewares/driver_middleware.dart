@@ -18,7 +18,7 @@ class DriverMiddleware extends GetMiddleware {
     // 오너 페이지(ownerOrder)에 접근하려고 할 때
     if (route == AppRoutes.ownerOrder) {
       // 만약 유저 타입이 DRIVER라면 (오너가 아니라면)
-      if (tokenService.userType == "DRIVER") { 
+      if (tokenService.userType == "DRIVER") {
         if (kIsWeb) {
           print("당신은 드라이버군요! 오너 페이지 접근을 제한합니다.");
           // 참고: redirect 내부에서 snackbar를 띄우면 화면 전환과 겹쳐서 제대로 안 보일 수 있습니다.

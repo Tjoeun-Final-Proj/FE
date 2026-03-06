@@ -4,10 +4,9 @@ import 'package:boxmon/map/model/search_result._model.dart';
 import 'package:boxmon/map/services/map_service.dart';
 import 'package:dio/dio.dart' as dio_lib; // 중복 방지를 위해 별칭 변경 추천
 
-
 class NaverGeocodingRepository implements GeocodingRepository {
   // 1. 타입을 임포트 별칭에 맞게 dio_lib.Dio로 수정
-  final dio_lib.Dio _dio; 
+  final dio_lib.Dio _dio;
   final MapService _mapService;
   NaverGeocodingRepository(this._dio, this._mapService);
 
@@ -26,31 +25,30 @@ class NaverGeocodingRepository implements GeocodingRepository {
         'sourcecrs': 'epsg:4326',
         'output': 'json',
         'orders': 'admcode,legalcode,addr,roadaddr',
-        'resulttype' : 'aroundbase'
+        'resulttype': 'aroundbase',
       },
       options: dio_lib.Options(
-        headers: {
-          'X-NCP-APIGW-API-KEY-ID': id,
-          'X-NCP-APIGW-API-KEY': secret,
-        },
+        headers: {'X-NCP-APIGW-API-KEY-ID': id, 'X-NCP-APIGW-API-KEY': secret},
       ),
     );
 
     return NaverAddressModel.fromJson(response.data);
   }
 
-Future<List<SearchResult>> fetchSearchResults(String query) async {
-  final data = await _mapService.fetchPlaceSearch(query);
+  @override
+  Future<List<SearchResult>> fetchSearchResults(String query) async {
+    final data = await _mapService.fetchPlaceSearch(query);
 
-  if (data['status'] == 'OK' && data['addresses'] != null) {
-    List items = data['addresses'];
-    
-    // JSON 리스트를 SearchResult 객체 리스트로 매핑
-    return items.map((e) => SearchResult.fromJson(e)).toList();
+    if (data['status'] == 'OK' && data['addresses'] != null) {
+      List items = data['addresses'];
+
+      // JSON 리스트를 SearchResult 객체 리스트로 매핑
+      return items.map((e) => SearchResult.fromJson(e)).toList();
+    }
+
+    return []; // 결과가 없으면 빈 리스트 반환
   }
-  
-  return []; // 결과가 없으면 빈 리스트 반환
-}
+
   @override
   Future<NaverAddressModel> fetchAddress(double lat, double lng) async {
     final response = await _dio.get(
@@ -60,7 +58,7 @@ Future<List<SearchResult>> fetchSearchResults(String query) async {
         'sourcecrs': 'epsg:4326',
         'output': 'json',
         'orders': 'admcode,legalcode,addr,roadaddr',
-        'resulttype' : 'aroundbase'
+        'resulttype': 'aroundbase',
       },
     );
     return NaverAddressModel.fromJson(response.data);

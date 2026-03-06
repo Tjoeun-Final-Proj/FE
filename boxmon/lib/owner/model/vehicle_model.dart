@@ -1,9 +1,9 @@
 class VehicleModel {
-  final String? vehicleNumber;    // "12가 3457"
-  final String? vehicleType;      // "CARGO", "VAN", "WINGBODY" 등
-  final bool canRefrigerate;      // 냉장 가능 여부
-  final bool canFreeze;           // 냉동 가능 여부
-  final double weightCapacity;    // 1.0 (톤)
+  final String? vehicleNumber; // "12가 3457"
+  final String? vehicleType; // "CARGO", "VAN", "WINGBODY" 등
+  final bool canRefrigerate; // 냉장 가능 여부
+  final bool canFreeze; // 냉동 가능 여부
+  final double weightCapacity; // 1.0 (톤)
 
   VehicleModel({
     this.vehicleNumber,

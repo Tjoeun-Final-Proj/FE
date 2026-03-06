@@ -25,36 +25,82 @@ class AppSpacing {
   static const EdgeInsets paddingHuge = EdgeInsets.all(huge);
 
   // Horizontal Padding
-  static const EdgeInsets paddingHorizontalSM = EdgeInsets.symmetric(horizontal: sm);
-  static const EdgeInsets paddingHorizontalMD = EdgeInsets.symmetric(horizontal: md);
-  static const EdgeInsets paddingHorizontalLG = EdgeInsets.symmetric(horizontal: lg);
-  static const EdgeInsets paddingHorizontalXL = EdgeInsets.symmetric(horizontal: xl);
-  static const EdgeInsets paddingHorizontalXXL = EdgeInsets.symmetric(horizontal: xxl);
-  static const EdgeInsets paddingHorizontalXXXL = EdgeInsets.symmetric(horizontal: xxxl);
-  static const EdgeInsets paddingHorizontalHuge = EdgeInsets.symmetric(horizontal: huge);
+  static const EdgeInsets paddingHorizontalSM = EdgeInsets.symmetric(
+    horizontal: sm,
+  );
+  static const EdgeInsets paddingHorizontalMD = EdgeInsets.symmetric(
+    horizontal: md,
+  );
+  static const EdgeInsets paddingHorizontalLG = EdgeInsets.symmetric(
+    horizontal: lg,
+  );
+  static const EdgeInsets paddingHorizontalXL = EdgeInsets.symmetric(
+    horizontal: xl,
+  );
+  static const EdgeInsets paddingHorizontalXXL = EdgeInsets.symmetric(
+    horizontal: xxl,
+  );
+  static const EdgeInsets paddingHorizontalXXXL = EdgeInsets.symmetric(
+    horizontal: xxxl,
+  );
+  static const EdgeInsets paddingHorizontalHuge = EdgeInsets.symmetric(
+    horizontal: huge,
+  );
 
   // Vertical Padding
-  static const EdgeInsets paddingVerticalSM = EdgeInsets.symmetric(vertical: sm);
-  static const EdgeInsets paddingVerticalMD = EdgeInsets.symmetric(vertical: md);
-  static const EdgeInsets paddingVerticalLG = EdgeInsets.symmetric(vertical: lg);
-  static const EdgeInsets paddingVerticalXL = EdgeInsets.symmetric(vertical: xl);
+  static const EdgeInsets paddingVerticalSM = EdgeInsets.symmetric(
+    vertical: sm,
+  );
+  static const EdgeInsets paddingVerticalMD = EdgeInsets.symmetric(
+    vertical: md,
+  );
+  static const EdgeInsets paddingVerticalLG = EdgeInsets.symmetric(
+    vertical: lg,
+  );
+  static const EdgeInsets paddingVerticalXL = EdgeInsets.symmetric(
+    vertical: xl,
+  );
 
   // Symmetric Padding
-  static const EdgeInsets paddingSymmetricSM = EdgeInsets.symmetric(horizontal: sm, vertical: sm);
-  static const EdgeInsets paddingSymmetricMD = EdgeInsets.symmetric(horizontal: md, vertical: md);
-  static const EdgeInsets paddingSymmetricLG = EdgeInsets.symmetric(horizontal: lg, vertical: lg);
+  static const EdgeInsets paddingSymmetricSM = EdgeInsets.symmetric(
+    horizontal: sm,
+    vertical: sm,
+  );
+  static const EdgeInsets paddingSymmetricMD = EdgeInsets.symmetric(
+    horizontal: md,
+    vertical: md,
+  );
+  static const EdgeInsets paddingSymmetricLG = EdgeInsets.symmetric(
+    horizontal: lg,
+    vertical: lg,
+  );
 
   // List Padding (ListView 등에서 사용)
-  static const EdgeInsets listPadding = EdgeInsets.only(left: lg, right: lg, top: lg, bottom: 100);
-  static const EdgeInsets listPaddingHorizontal = EdgeInsets.symmetric(horizontal: lg);
+  static const EdgeInsets listPadding = EdgeInsets.only(
+    left: lg,
+    right: lg,
+    top: lg,
+    bottom: 100,
+  );
+  static const EdgeInsets listPaddingHorizontal = EdgeInsets.symmetric(
+    horizontal: lg,
+  );
 
   // Screen Padding
   static const EdgeInsets screenPadding = EdgeInsets.symmetric(horizontal: xl);
-  static const EdgeInsets screenPaddingHorizontal = EdgeInsets.symmetric(horizontal: xl);
+  static const EdgeInsets screenPaddingHorizontal = EdgeInsets.symmetric(
+    horizontal: xl,
+  );
 
   // Card Padding
-  static const EdgeInsets cardPadding = EdgeInsets.symmetric(horizontal: lg, vertical: sm);
-  static const EdgeInsets cardPaddingHorizontal = EdgeInsets.symmetric(horizontal: 10, vertical: 4);
+  static const EdgeInsets cardPadding = EdgeInsets.symmetric(
+    horizontal: lg,
+    vertical: sm,
+  );
+  static const EdgeInsets cardPaddingHorizontal = EdgeInsets.symmetric(
+    horizontal: 10,
+    vertical: 4,
+  );
 
   // Common Margin
   static const EdgeInsets marginSM = EdgeInsets.all(sm);

@@ -7,7 +7,7 @@ class PaymentResultController extends GetxController {
   final PaymentService _paymentService = Get.find<PaymentService>();
 
   var isConfirming = true.obs; // 로딩 중 상태
-  var isSuccess = false.obs;   // 승인 성공 여부
+  var isSuccess = false.obs; // 승인 성공 여부
 
   @override
   void onInit() {
@@ -18,13 +18,13 @@ class PaymentResultController extends GetxController {
   Future<void> _handlePaymentConfirm() async {
     try {
       isConfirming.value = true;
-      
+
       // 💡 여기서 작성하신 API 함수를 호출합니다!
       // 토스에서 받은 paymentKey, orderId, amount를 그대로 넘겨줍니다.
       await Get.find<PaymentService>().createPayment(
-        res.paymentKey, 
-        res.orderId, 
-        res.amount
+        res.paymentKey,
+        res.orderId,
+        res.amount,
       );
 
       // API 내부에서 200 OK가 떨어지면 성공으로 간주

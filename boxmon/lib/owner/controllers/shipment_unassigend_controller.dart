@@ -3,7 +3,8 @@ import 'package:boxmon/owner/services/order_shipment_services.dart';
 import 'package:get/get.dart';
 
 class ShipmentUnassigedController extends GetxController {
-  final OrderShipmentServices _shipmentService = OrderShipmentServices(); // 작성하신 서비스
+  final OrderShipmentServices _shipmentService =
+      OrderShipmentServices(); // 작성하신 서비스
 
   // 1. 상태 관리 변수들
   var unassignedShipments = <ShipmentUnassignedResponseModel>[].obs; // 미배차 리스트
@@ -20,7 +21,7 @@ class ShipmentUnassigedController extends GetxController {
   Future<void> fetchUnassignedShipments() async {
     try {
       isLoading.value = true;
-      
+
       // 서비스 호출
       final result = await _shipmentService.UnassignedShipments();
 
