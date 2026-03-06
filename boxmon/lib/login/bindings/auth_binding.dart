@@ -1,3 +1,6 @@
+import 'package:boxmon/chatting/controllers/chat_room_list_controller.dart';
+import 'package:boxmon/chatting/services/chat_service.dart';
+import 'package:boxmon/chatting/services/chat_socket_service.dart';
 import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/common/services/shipment_service.dart';
 import 'package:boxmon/drive-list/services/inventory_service.dart';
@@ -30,6 +33,12 @@ class AuthBinding extends Bindings {
     Get.lazyPut<OwnerWalletServcie>(() => OwnerWalletServcie());
     Get.lazyPut<InventoryService>(() => InventoryService());
     Get.lazyPut<OrderShipmentServices>(() => OrderShipmentServices());
+    Get.lazyPut<ChatSocketService>(() => ChatSocketService(), fenix: true);
+    Get.lazyPut<ChatService>(() => ChatService(), fenix: true);
+    Get.lazyPut<ChatRoomListController>(
+      () => ChatRoomListController(),
+      fenix: true,
+    );
     Get.lazyPut<VehicleRegisterController>(() => VehicleRegisterController());
     Get.lazyPut<InqueryController>(() => InqueryController());
   }

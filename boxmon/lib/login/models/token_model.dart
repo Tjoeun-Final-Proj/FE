@@ -2,11 +2,13 @@ class Token {
   final String accessToken;
   final String refreshToken;
   final String userType;
+  final int? userId;
 
   Token({
     required this.accessToken,
     required this.refreshToken,
     required this.userType,
+    this.userId,
   });
 
   factory Token.fromJson(Map<String, dynamic> json) {
@@ -14,6 +16,7 @@ class Token {
       accessToken: json['accessToken'],
       refreshToken: json['refreshToken'],
       userType: json['userType'],
+      userId: json['userId'] as int?,
     );
   }
 
@@ -22,6 +25,7 @@ class Token {
       'accesstoken': accessToken,
       'refreshtoken': refreshToken,
       'usertype': userType,
+      'userId': userId,
     };
   }
 }

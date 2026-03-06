@@ -1,3 +1,4 @@
+import 'package:boxmon/chatting/controllers/chat_room_list_controller.dart';
 import 'dart:io';
 
 import 'package:boxmon/common/model/detail_shipment_model.dart';
@@ -148,22 +149,22 @@ class ShipmentController extends GetxController {
     }
   }
 
-  /// 배차 수락 실행 (POST /shipment/{id}/accept)
-  Future<void> acceptShipment(int shipmentId) async {
-    try {
-      isLoading.value = true;
-      bool success = await _shipmentService.acceptShipment(shipmentId);
-
-      if (success) {
-        Get.snackbar("성공", "배차를 수락했습니다.",
-            backgroundColor: Colors.blue, colorText: Colors.white);
-        // 수락 후 상태 갱신을 위해 상세 정보를 다시 불러옵니다.
-        await loadDetail(shipmentId);
-      } else {
-        Get.snackbar("알림", "배차 수락에 실패했습니다.");
-      }
-    } finally {
-      isLoading.value = false;
+ /// 배차 수락 실행 (POST /shipment/{id}/accept)
+Future<void> acceptShipment(int shipmentId) async {
+  try {
+    isLoading.value = true;
+    bool success = await _shipmentService.acceptShipment(shipmentId);
+    
+    if (success) {
+      Get.snackbar("성공", "배차를 수락했습니다.", 
+          backgroundColor: Colors.blue, colorText: Colors.white);
+      try {
+        Get.find<ChatRoomListController>().onShipmentAccepted(shipmentId);
+      } catch (_) {}
+      // 수락 후 상태 갱신을 위해 상세 정보를 다시 불러옵니다.
+      await loadDetail(shipmentId);
+    } else {
+      Get.snackbar("알림", "배차 수락에 실패했습니다.");
     }
   }
 

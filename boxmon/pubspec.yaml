@@ -37,6 +37,7 @@ dependencies:
   get:
   hugeicons:
   dio:
+  stomp_dart_client:
   get_storage:
   geolocator: ^10.1.0
 

@@ -165,6 +165,8 @@ class OwnerRegistrationView extends GetView<AuthController> {
                 padding: AppSpacing.paddingHorizontalHuge,
                 child: TextField(
                   controller: controller.birthController,
+                  inputFormatters: [controller.birthFormatter],
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     hintText: "생년월일 8자리",
                     hintStyle: AppTextStyles.hintbuttonText,
