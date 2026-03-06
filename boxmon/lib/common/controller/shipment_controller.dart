@@ -48,7 +48,8 @@ class ShipmentController extends GetxController {
       print("🎮 [Controller] 배송 생성 프로세스 시작...");
 
       // 3. 서비스 호출 (ShipmentID를 받아옴)
-      String? shipmentId = await _shipmentService.createShipment(request, files: files);
+      String? shipmentId = await _shipmentService.createShipment(
+          request, files: files);
 
       // 4. 결과값(ID)에 따른 분기 처리
       if (shipmentId != null) {
@@ -100,7 +101,8 @@ class ShipmentController extends GetxController {
 
         // 첫 번째 아이템 데이터 샘플 로그
         if (unassignedList.isNotEmpty) {
-          print("📝 [샘플 데이터] 첫 번째 ID: ${unassignedList[0].shipmentId}, 출발지: ${unassignedList[0].pickupAddress}");
+          print("📝 [샘플 데이터] 첫 번째 ID: ${unassignedList[0]
+              .shipmentId}, 출발지: ${unassignedList[0].pickupAddress}");
         }
       } else {
         print("⚠️ [Controller] 서비스로부터 null을 반환받음");
@@ -149,22 +151,27 @@ class ShipmentController extends GetxController {
     }
   }
 
- /// 배차 수락 실행 (POST /shipment/{id}/accept)
-Future<void> acceptShipment(int shipmentId) async {
-  try {
-    isLoading.value = true;
-    bool success = await _shipmentService.acceptShipment(shipmentId);
-    
-    if (success) {
-      Get.snackbar("성공", "배차를 수락했습니다.", 
-          backgroundColor: Colors.blue, colorText: Colors.white);
-      try {
-        Get.find<ChatRoomListController>().onShipmentAccepted(shipmentId);
-      } catch (_) {}
-      // 수락 후 상태 갱신을 위해 상세 정보를 다시 불러옵니다.
-      await loadDetail(shipmentId);
-    } else {
-      Get.snackbar("알림", "배차 수락에 실패했습니다.");
+  /// 배차 수락 실행 (POST /shipment/{id}/accept)
+  Future<void> acceptShipment(int shipmentId) async {
+    try {
+      isLoading.value = true;
+      bool success = await _shipmentService.acceptShipment(shipmentId);
+
+      if (success) {
+        Get.snackbar("성공", "배차를 수락했습니다.",
+            backgroundColor: Colors.blue, colorText: Colors.white);
+        try {
+          Get.find<ChatRoomListController>().onShipmentAccepted(shipmentId);
+        } catch (_) {}
+        // 수락 후 상태 갱신을 위해 상세 정보를 다시 불러옵니다.
+        await loadDetail(shipmentId);
+      } else {
+        Get.snackbar("알림", "배차 수락에 실패했습니다.");
+      }
+    } catch (e) {
+      Get.snackbar("에러", "수락 처리 중 오류 발생: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -175,12 +182,15 @@ Future<void> acceptShipment(int shipmentId) async {
       bool success = await _shipmentService.startShipment(shipmentId);
 
       if (success) {
-        Get.snackbar("성공", "운송을 시작합니다.", backgroundColor: Colors.blue, colorText: Colors.white);
+        Get.snackbar("성공", "운송을 시작합니다.",
+            backgroundColor: Colors.blue, colorText: Colors.white);
         // 🔥 중요: 상태가 IN_TRANSIT으로 바뀐 데이터를 다시 불러와야 버튼이 "운송 완료하기"로 바뀝니다!
         await loadDetail(shipmentId);
       } else {
         Get.snackbar("오류", "운송 시작 처리에 실패했습니다.");
       }
+    } catch (e) {
+      Get.snackbar("에러", "운송 시작 처리 중 오류 발생: $e");
     } finally {
       isLoading.value = false;
     }
@@ -203,7 +213,8 @@ Future<void> acceptShipment(int shipmentId) async {
       print("📸 촬영 완료: ${photo.path}");
 
       // 3. 서버에 업로드
-      bool success = await _shipmentService.finalShipment(shipmentId, photo.path);
+      bool success = await _shipmentService.finalShipment(
+          shipmentId, photo.path);
 
       if (success) {
         Get.snackbar("성공", "운송 완료 처리가 되었습니다.",
