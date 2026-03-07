@@ -296,8 +296,13 @@ class ShipDetailScreen extends StatelessWidget {
             _buildSingleButton(
               text: "배차 포기(취소)",
               color: Colors.red[300]!,
-              onPressed: () =>
-                  controller.requestWithdrawCancel(data.shipmentId!),
+              onPressed: () => _showConfirmDialog(
+                "배차 취소 요청 전 확인",
+                "화주와 합의되지 않은 일방적인 취소는 분쟁의 원인이 될 수 있습니다. 화주측 수락이 있어야 최종 취소됩니다.",
+                () => controller.requestWithdrawCancel(data.shipmentId!),
+                cancelText: "돌아가기",
+                confirmText: "화주에게 취소 요청",
+              ),
             ),
           ],
         );
