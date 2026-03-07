@@ -1,4 +1,4 @@
-import 'package:boxmon/chatting/controllers/chat_room_controller.dart';
+﻿import 'package:boxmon/chatting/controllers/chat_room_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,7 +16,6 @@ class ChatRoomView extends StatelessWidget {
         foregroundColor: Colors.black,
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
         title: Obx(
           () => Text(
             controller.roomTitle.value,
@@ -119,3 +118,4 @@ class ChatRoomView extends StatelessWidget {
 
   bool _isMine(int senderId) => tokenService.userId == senderId;
 }
+

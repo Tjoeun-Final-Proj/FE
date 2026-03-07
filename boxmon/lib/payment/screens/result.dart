@@ -1,4 +1,4 @@
-import 'package:boxmon/payment/controllers/payment_result_controller.dart';
+﻿import 'package:boxmon/payment/controllers/payment_result_controller.dart';
 import 'package:boxmon/routes/app_routes.dart'; //
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,7 +27,6 @@ class ResultPage extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
         automaticallyImplyLeading: false,
       ),
       // 💡 Obx로 감싸서 컨트롤러의 상태를 지켜봅니다.
@@ -108,7 +107,6 @@ class ResultPage extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        elevation: 0,
                       ),
                       child: const Text(
                         '주문 내역 확인하기',
@@ -162,3 +160,4 @@ class ResultPage extends StatelessWidget {
     );
   }
 }
+

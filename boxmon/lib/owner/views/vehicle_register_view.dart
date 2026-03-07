@@ -1,4 +1,4 @@
-import 'package:boxmon/owner/controllers/vehicle_register_controller.dart';
+﻿import 'package:boxmon/owner/controllers/vehicle_register_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -32,7 +32,6 @@ class VehicleRegisterView extends StatelessWidget {
           ),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -326,3 +325,4 @@ class VehicleRegisterView extends StatelessWidget {
     );
   }
 }
+
