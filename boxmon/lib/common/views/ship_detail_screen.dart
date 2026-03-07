@@ -213,13 +213,26 @@ class ShipDetailScreen extends StatelessWidget {
           );
 
         case "ASSIGNED":
+          if (data.shipperCancelToggle == true) {
+            return _buildSingleButton(
+              text: "취소 철회하기",
+              color: Colors.orange[400]!,
+              onPressed: () => _showConfirmDialog(
+                "취소 요청을 철회하시겠습니까?",
+                "보냈던 취소 요청을 취소하고, 기존 배차 상태를 그대로 유지합니다.",
+                () => controller.requestWithdrawCancel(data.shipmentId!),
+                cancelText: "계속 취소",
+                confirmText: "취소 철회하기",
+              ),
+            );
+          }
           return _buildSingleButton(
             text: "배차 취소",
             color: Colors.red[400]!,
             onPressed: () => _showConfirmDialog(
               "취소 승인이 필요합니다",
               "이미 차주가 배정된 상태입니다. 화주님의 취소 요청을 차주가 확인하고 동의해야 최종 취소가 완료됩니다.",
-              () => controller.requestWithdrawCancel(data.shipmentId!),
+              () => controller.requestCancel(data.shipmentId!), // requestCancel로 수정됨
               cancelText: "돌아가기",
               confirmText: "취소 요청하기",
             ),
@@ -293,17 +306,30 @@ class ShipDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            _buildSingleButton(
-              text: "배차 포기(취소)",
-              color: Colors.red[300]!,
-              onPressed: () => _showConfirmDialog(
-                "배차 취소 요청 전 확인",
-                "화주와 합의되지 않은 일방적인 취소는 분쟁의 원인이 될 수 있습니다. 화주측 수락이 있어야 최종 취소됩니다.",
-                () => controller.requestWithdrawCancel(data.shipmentId!),
-                cancelText: "돌아가기",
-                confirmText: "화주에게 취소 요청",
+            if (data.driverCancelToggle == true)
+              _buildSingleButton(
+                text: "취소 철회하기",
+                color: Colors.orange[400]!,
+                onPressed: () => _showConfirmDialog(
+                  "취소 요청을 철회하시겠습니까?",
+                  "보냈던 취소 요청을 취소하고, 기존 배차 상태를 그대로 유지합니다.",
+                  () => controller.requestWithdrawCancel(data.shipmentId!),
+                  cancelText: "계속 취소",
+                  confirmText: "취소 철회하기",
+                ),
+              )
+            else
+              _buildSingleButton(
+                text: "배차 포기(취소)",
+                color: Colors.red[300]!,
+                onPressed: () => _showConfirmDialog(
+                  "배차 취소 요청 전 확인",
+                  "화주와 합의되지 않은 일방적인 취소는 분쟁의 원인이 될 수 있습니다. 화주측 수락이 있어야 최종 취소됩니다.",
+                  () => controller.requestCancel(data.shipmentId!), // requestCancel로 수정됨
+                  cancelText: "돌아가기",
+                  confirmText: "화주에게 취소 요청",
+                ),
               ),
-            ),
           ],
         );
 

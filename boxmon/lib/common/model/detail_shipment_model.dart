@@ -29,6 +29,8 @@ class ShipDetailResponseModel {
   final String? cargoPhotoUrl;
   final String? companyName;
   final String? dropoffPhotoUrl;
+  final bool? driverCancelToggle;  // 차주 취소 요청 여부
+  final bool? shipperCancelToggle; // 화주 취소 요청 여부
 
   ShipDetailResponseModel({
     this.shipmentId,
@@ -61,6 +63,8 @@ class ShipDetailResponseModel {
     this.cargoPhotoUrl,
     this.companyName,
     this.dropoffPhotoUrl,
+    this.driverCancelToggle,
+    this.shipperCancelToggle,
   });
 
   factory ShipDetailResponseModel.fromJson(Map<String, dynamic> json) {
@@ -107,6 +111,8 @@ class ShipDetailResponseModel {
       cargoPhotoUrl: json['cargoPhotoUrl'] as String?,
       companyName: json['companyName'] as String?,
       dropoffPhotoUrl: json['dropoffPhotoUrl'] as String?,
+      driverCancelToggle: json['driverCancelToggle'] as bool?,
+      shipperCancelToggle: json['shipperCancelToggle'] as bool?,
     );
   }
 }
