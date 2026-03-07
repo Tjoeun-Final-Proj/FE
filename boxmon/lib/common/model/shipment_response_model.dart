@@ -10,7 +10,7 @@ class ShipmentResponseModel {
   final double? cargoWeight;       // Double -> double
   final String? vehicleType;
   final String? description;
-  final double? profit;            // BigDecimal/Double -> double
+  final double? price;            // BigDecimal/Double -> double
 
   ShipmentResponseModel({
     this.shipmentId,
@@ -22,7 +22,7 @@ class ShipmentResponseModel {
     this.cargoWeight,
     this.vehicleType,
     this.description,
-    this.profit,
+    this.price,
   });
 
   // 서버 응답(JSON)을 객체로 변환하는 factory 생성자
@@ -41,7 +41,7 @@ class ShipmentResponseModel {
       cargoWeight: json['cargoWeight']?.toDouble(),
       vehicleType: json['vehicleType'] as String?,
       description: json['description'] as String?,
-      profit: json['profit']?.toDouble(),
+      price: json['price']?.toDouble(),
     );
   }
 }

@@ -191,7 +191,7 @@ class CommonOrderView extends StatelessWidget {
               children: [
                 Row(children: [const SizedBox(width: 6)]),
                 Text(
-                  "${item.profit?.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원",
+                  "${item.price?.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원",
                   style: TextStyle(
                     color: Colors.blue.shade700,
                     fontSize: 20,
