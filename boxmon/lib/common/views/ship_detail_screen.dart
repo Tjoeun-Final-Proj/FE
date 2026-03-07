@@ -10,6 +10,9 @@ class ShipDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shipmentController = Get.find<ShipmentController>();
+    // 새로 추가되는 부분: 사용자 역할 확인
+    final tokenService = Get.find<TokenService>();
+    final isShipper = tokenService.userType == "SHIPPER";
 
     // 화면 진입 시 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -114,7 +117,7 @@ class ShipDetailScreen extends StatelessWidget {
                       "수수료",
                       "${data.platformFee}원",
                       "합계금액",
-                      "${data.profit}원",
+                      "${isShipper ? data.price : data.profit}원", // 역할에 따라 다른 필드 표시
                       valueColor: Colors.blue[800],
                     ),
                   ],
