@@ -48,7 +48,7 @@ Widget build(BuildContext context) {
   try {
     final PaymentData data = args as PaymentData;
     return TossPayments(
-      clientKey: 'test_ck_pP2YxJ4K87aW1W6dpd7vVRGZwXLO',
+      clientKey: 'test_ck_kYG57Eba3G9BpGx2aqMjrpWDOxmA',
       data: data,
       success: (Success success) {
         // 성공 시 자기 자신(Payment 위젯)을 다시 호출하거나 결과 페이지로 이동

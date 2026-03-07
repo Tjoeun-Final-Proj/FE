@@ -2,6 +2,7 @@ import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 class ShipDetailScreen extends StatelessWidget {
@@ -245,7 +246,7 @@ class ShipDetailScreen extends StatelessWidget {
                 color: Colors.red[400]!,
                 onPressed: () => _showConfirmDialog(
                   "배차 요청을 취소하시겠습니까?",
-                  "차주가 배정되기 전에는 언제든 취소가 가능합니다.\n취소 후에는 정보를 다시 입력해야 할 수 있습니다.",
+                  "차주가 배정되기 전에는 언제든 취소가 가능하며,\n취소 시 정보를 다시 입력해야 할 수 있습니다.",
                   () => controller.requestCancel(data.shipmentId!),
                 ),
               ),
@@ -346,15 +347,89 @@ class ShipDetailScreen extends StatelessWidget {
     String content,
     VoidCallback onConfirm,
   ) {
-    Get.defaultDialog(
-      title: title,
-      middleText: content,
-      textConfirm: "확인",
-      textCancel: "취소",
-      onConfirm: () {
-        Get.back();
-        onConfirm();
-      },
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 32, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA69996),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        "유지하기",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0055AB),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        "취소하기",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
