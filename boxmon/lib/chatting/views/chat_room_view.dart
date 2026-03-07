@@ -1,4 +1,5 @@
-﻿import 'package:boxmon/chatting/controllers/chat_room_controller.dart';
+import 'package:boxmon/chatting/controllers/chat_room_controller.dart';
+import 'package:boxmon/chatting/models/chat_message_model.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -49,16 +50,19 @@ class ChatRoomView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final message = controller.messages[index];
                   final isMine = _isMine(message.senderId);
+                  final isImage = _isImageMessage(message);
                   return Align(
                     alignment: isMine
                         ? Alignment.centerRight
                         : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
+                      padding: isImage
+                          ? const EdgeInsets.all(4)
+                          : const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                       constraints: const BoxConstraints(maxWidth: 280),
                       decoration: BoxDecoration(
                         color: isMine
@@ -66,12 +70,14 @@ class ChatRoomView extends StatelessWidget {
                             : Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        message.content,
-                        style: TextStyle(
-                          color: isMine ? Colors.white : Colors.black87,
-                        ),
-                      ),
+                      child: isImage
+                          ? _buildImageBubble(message.content)
+                          : Text(
+                              message.content,
+                              style: TextStyle(
+                                color: isMine ? Colors.white : Colors.black87,
+                              ),
+                            ),
                     ),
                   );
                 },
@@ -85,6 +91,20 @@ class ChatRoomView extends StatelessWidget {
               color: Colors.white,
               child: Row(
                 children: [
+                  Obx(
+                    () => IconButton(
+                      onPressed: controller.isUploadingImage.value
+                          ? null
+                          : () => _showImageSourceSheet(context),
+                      icon: controller.isUploadingImage.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.add_photo_alternate_outlined),
+                    ),
+                  ),
                   Expanded(
                     child: TextField(
                       controller: controller.inputController,
@@ -117,5 +137,69 @@ class ChatRoomView extends StatelessWidget {
   }
 
   bool _isMine(int senderId) => tokenService.userId == senderId;
+
+  bool _isImageMessage(ChatMessageModel message) {
+    return message.contentType.toString().toUpperCase().trim() == 'IMG_URL';
+  }
+
+  Widget _buildImageBubble(String imageUrl) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        imageUrl,
+        width: 220,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const SizedBox(
+            width: 220,
+            height: 160,
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return const SizedBox(
+            width: 220,
+            height: 160,
+            child: Center(
+              child: Icon(Icons.broken_image_outlined, color: Colors.grey),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showImageSourceSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('카메라'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  controller.sendImageFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('앨범'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  controller.sendImageFromGallery();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
+
 

@@ -106,10 +106,40 @@ class ChatSocketService extends GetxService {
     required int shipmentId,
     required String content,
   }) {
+    sendMessage(
+      shipmentId: shipmentId,
+      contentType: 'TEXT',
+      content: content,
+    );
+  }
+
+  void sendImageUrl({
+    required int shipmentId,
+    required String imageUrl,
+  }) {
+    sendMessage(
+      shipmentId: shipmentId,
+      contentType: 'IMG_URL',
+      content: imageUrl,
+    );
+  }
+
+  void sendMessage({
+    required int shipmentId,
+    required String contentType,
+    required String content,
+  }) {
     if (!_connected || _client == null) return;
+    final String normalizedType = contentType.trim().toUpperCase();
+    final String normalizedContent = content.trim();
+    if (normalizedType.isEmpty || normalizedContent.isEmpty) return;
+
     _client!.send(
       destination: '/pub/chat.send.$shipmentId',
-      body: jsonEncode({'contentType': 'TEXT', 'content': content}),
+      body: jsonEncode({
+        'contentType': normalizedType,
+        'content': normalizedContent,
+      }),
     );
   }
 

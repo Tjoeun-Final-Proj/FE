@@ -2,15 +2,19 @@ import 'package:boxmon/chatting/models/chat_message_model.dart';
 import 'package:boxmon/chatting/services/chat_service.dart';
 import 'package:boxmon/chatting/services/chat_socket_service.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatRoomController extends GetxController {
   final ChatService _chatService = Get.find<ChatService>();
   final ChatSocketService _socketService = Get.find<ChatSocketService>();
+  final ImagePicker _imagePicker = ImagePicker();
 
   final TextEditingController inputController = TextEditingController();
   final RxList<ChatMessageModel> messages = <ChatMessageModel>[].obs;
   final RxBool isLoading = false.obs;
+  final RxBool isUploadingImage = false.obs;
   final RxString error = ''.obs;
 
   int shipmentId = 0;
@@ -70,6 +74,42 @@ class ChatRoomController extends GetxController {
 
     _socketService.sendText(shipmentId: shipmentId, content: text);
     inputController.clear();
+  }
+
+  Future<void> sendImageFromCamera() async {
+    await _pickAndSendImage(ImageSource.camera);
+  }
+
+  Future<void> sendImageFromGallery() async {
+    await _pickAndSendImage(ImageSource.gallery);
+  }
+
+  Future<void> _pickAndSendImage(ImageSource source) async {
+    if (isUploadingImage.value) return;
+
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+      if (image == null) return;
+
+      isUploadingImage.value = true;
+      final imageUrl = await _chatService.uploadChatImage(
+        shipmentId: shipmentId,
+        image: image,
+      );
+
+      _socketService.sendImageUrl(shipmentId: shipmentId, imageUrl: imageUrl);
+    } catch (_) {
+      Fluttertoast.showToast(
+        msg: '이미지 업로드에 실패했습니다. 다시 시도해주세요.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      isUploadingImage.value = false;
+    }
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:boxmon/chatting/models/chat_room_item_model.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatService extends GetxService {
   final dio.Dio _dio = Get.find<dio.Dio>();
@@ -76,6 +77,51 @@ class ChatService extends GetxService {
         .map((row) => Map<String, dynamic>.from(row))
         .map(ChatMessageModel.fromJson)
         .toList();
+  }
+
+  Future<String> uploadChatImage({
+    required int shipmentId,
+    required XFile image,
+  }) async {
+    final headers = _buildChatHeaders();
+    final fileName = image.path.split(RegExp(r'[\\/]')).last;
+
+    final formData = dio.FormData.fromMap({
+      'image': await dio.MultipartFile.fromFile(
+        image.path,
+        filename: fileName,
+      ),
+    });
+
+    final response = await _dio.post(
+      'chat/$shipmentId/images',
+      data: formData,
+      options: dio.Options(
+        headers: {
+          ...headers,
+          'Content-Type': 'multipart/form-data',
+        },
+      ),
+    );
+
+    if (response.statusCode == null ||
+        response.statusCode! < 200 ||
+        response.statusCode! >= 300) {
+      throw Exception('이미지 업로드에 실패했습니다.');
+    }
+
+    final data = response.data;
+    if (data is! Map) {
+      throw Exception('이미지 업로드 응답 형식이 올바르지 않습니다.');
+    }
+
+    final payload = Map<String, dynamic>.from(data);
+    final String imageUrl = '${payload['imageUrl'] ?? ''}'.trim();
+    if (imageUrl.isEmpty) {
+      throw Exception('이미지 URL을 받지 못했습니다.');
+    }
+
+    return imageUrl;
   }
 
   Map<String, String> _buildChatHeaders() {
