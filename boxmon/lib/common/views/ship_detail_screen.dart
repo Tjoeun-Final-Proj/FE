@@ -1,4 +1,4 @@
-import 'package:boxmon/common/controller/shipment_controller.dart';
+﻿import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,7 +25,6 @@ class ShipDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         title: const Text(
@@ -426,7 +425,6 @@ class ShipDetailScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 0,
                       ),
                       child: Text(
                         cancelText,
@@ -451,7 +449,6 @@ class ShipDetailScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 0,
                       ),
                       child: Text(
                         confirmText,
@@ -564,3 +561,4 @@ class ShipDetailScreen extends StatelessWidget {
     );
   }
 }
+

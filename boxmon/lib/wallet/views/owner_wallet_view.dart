@@ -1,4 +1,4 @@
-import 'package:boxmon/wallet/controller/owner_wallet_controller.dart';
+﻿import 'package:boxmon/wallet/controller/owner_wallet_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +21,6 @@ class OwnerWalletView extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
       ),
       body: RefreshIndicator(
@@ -249,3 +248,4 @@ Widget _buildWalletItem({
     ),
   );
 }
+

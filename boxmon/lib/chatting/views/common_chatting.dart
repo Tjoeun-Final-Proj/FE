@@ -1,4 +1,4 @@
-import 'package:boxmon/chatting/controllers/chat_room_list_controller.dart';
+﻿import 'package:boxmon/chatting/controllers/chat_room_list_controller.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,7 +15,6 @@ class CommonChatting extends StatelessWidget {
         foregroundColor: Colors.black,
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
         title: const Text('채팅방', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Obx(() {

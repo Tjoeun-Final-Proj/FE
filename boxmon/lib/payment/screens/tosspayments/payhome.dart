@@ -1,4 +1,4 @@
-import 'package:boxmon/routes/app_routes.dart';
+﻿import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -56,7 +56,6 @@ class _PayHomeState extends State<PayHome> {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
@@ -167,7 +166,6 @@ class _PayHomeState extends State<PayHome> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  elevation: 0,
                 ),
                 child: const Text(
                   '결제하기',
@@ -238,3 +236,4 @@ class _PayHomeState extends State<PayHome> {
     );
   }
 }
+

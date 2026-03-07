@@ -1,4 +1,4 @@
-import 'package:boxmon/common/controller/shipment_controller.dart';
+﻿import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/common/model/shipment_model.dart';
 import 'package:boxmon/common/views/cargo_detail_view.dart';
 import 'package:boxmon/common/views/vehicle_select_view.dart';
@@ -23,7 +23,6 @@ class DispatchSummaryView extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Get.back(),
@@ -455,7 +454,6 @@ class DispatchSummaryView extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            elevation: 0,
           ),
           child: shipmentController.isLoading.value
               ? const SizedBox(
@@ -550,3 +548,4 @@ Widget _buildTempButton(MapViewModel viewModel, TempType type, String label) {
     ),
   );
 }
+

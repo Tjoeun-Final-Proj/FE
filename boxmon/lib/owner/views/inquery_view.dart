@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:boxmon/owner/controllers/inquery_controller.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,6 @@ class InqueryView extends StatelessWidget {
       appBar: AppBar(
         title: const Text("1:1 문의하기"),
         centerTitle: true,
-        elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
@@ -186,3 +185,4 @@ class InqueryView extends StatelessWidget {
     });
   }
 }
+

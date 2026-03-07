@@ -70,6 +70,17 @@ class MyApp extends StatelessWidget {
       locale: const Locale('ko', 'KR'), // 기본 언어를 한국어로 설정
       theme: ThemeData(
         fontFamily: 'Pretendard', // Pretendard 폰트를 기본 폰트로 설정
+        scaffoldBackgroundColor: Colors.white,
+        canvasColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 4,
+          shadowColor: Color.fromRGBO(0, 0, 0, 0.10),
+          shape: Border(
+            bottom: BorderSide(color: Color(0xFFEDEDED), width: 1),
+          ),
+        ),
       ),
     );
   }
