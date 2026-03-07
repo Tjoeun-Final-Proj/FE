@@ -15,8 +15,14 @@ class AppNavBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: Colors.white,
-      elevation: 0, // 앱바 경계선 제거 (디자인에 따라 조절)
+      surfaceTintColor: Colors.white,
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.10),
       centerTitle: false, // 로고를 왼쪽에 붙이기 위해 false
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1),
+        child: Container(height: 1, color: const Color(0xFFEDEDED)),
+      ),
       // 1. 왼쪽 로고 설정
       title: Image.asset(
         'assets/img/logo.png', // 로고 이미지 경로
