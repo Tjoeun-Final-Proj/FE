@@ -1,4 +1,5 @@
 import 'package:boxmon/chatting/controllers/chat_room_list_controller.dart';
+import 'package:boxmon/owner/controllers/location_tracking_controller.dart';
 import 'dart:io';
 
 import 'package:boxmon/common/model/detail_shipment_model.dart';
@@ -184,6 +185,14 @@ class ShipmentController extends GetxController {
       if (success) {
         Get.snackbar("성공", "운송을 시작합니다.",
             backgroundColor: Colors.blue, colorText: Colors.white);
+
+        // 🛰️ 위치 추적 시작
+        try {
+          Get.find<LocationTrackingController>().startTracking(shipmentId);
+        } catch (e) {
+          print("⚠️ 위치 추적 컨트롤러를 찾을 수 없습니다: $e");
+        }
+
         // 🔥 중요: 상태가 IN_TRANSIT으로 바뀐 데이터를 다시 불러와야 버튼이 "운송 완료하기"로 바뀝니다!
         await loadDetail(shipmentId);
       } else {
@@ -217,6 +226,13 @@ class ShipmentController extends GetxController {
           shipmentId, photo.path);
 
       if (success) {
+        // 🛰️ 위치 추적 중지
+        try {
+          Get.find<LocationTrackingController>().stopTracking();
+        } catch (e) {
+          print("⚠️ 위치 추적 컨트롤러 중지 실패: $e");
+        }
+
         Get.snackbar("성공", "운송 완료 처리가 되었습니다.",
             backgroundColor: Colors.green, colorText: Colors.white);
 
@@ -234,3 +250,4 @@ class ShipmentController extends GetxController {
     }
   }
 }
+

@@ -2,6 +2,7 @@ import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 class ShipDetailScreen extends StatelessWidget {
@@ -10,6 +11,9 @@ class ShipDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shipmentController = Get.find<ShipmentController>();
+    // 새로 추가되는 부분: 사용자 역할 확인
+    final tokenService = Get.find<TokenService>();
+    final isShipper = tokenService.userType == "SHIPPER";
 
     // 화면 진입 시 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -114,7 +118,7 @@ class ShipDetailScreen extends StatelessWidget {
                       "수수료",
                       "${data.platformFee}원",
                       "합계금액",
-                      "${data.profit}원",
+                      "${isShipper ? data.price : data.profit}원", // 역할에 따라 다른 필드 표시
                       valueColor: Colors.blue[800],
                     ),
                   ],
@@ -209,10 +213,29 @@ class ShipDetailScreen extends StatelessWidget {
           );
 
         case "ASSIGNED":
+          if (data.shipperCancelToggle == true) {
+            return _buildSingleButton(
+              text: "취소 철회하기",
+              color: Colors.orange[400]!,
+              onPressed: () => _showConfirmDialog(
+                "취소 요청을 철회하시겠습니까?",
+                "보냈던 취소 요청을 취소하고, 기존 배차 상태를 그대로 유지합니다.",
+                () => controller.requestWithdrawCancel(data.shipmentId!),
+                cancelText: "계속 취소",
+                confirmText: "취소 철회하기",
+              ),
+            );
+          }
           return _buildSingleButton(
             text: "배차 취소",
             color: Colors.red[400]!,
-            onPressed: () => controller.requestWithdrawCancel(data.shipmentId!),
+            onPressed: () => _showConfirmDialog(
+              "취소 승인이 필요합니다",
+              "이미 차주가 배정된 상태입니다. 화주님의 취소 요청을 차주가 확인하고 동의해야 최종 취소가 완료됩니다.",
+              () => controller.requestCancel(data.shipmentId!), // requestCancel로 수정됨
+              cancelText: "돌아가기",
+              confirmText: "취소 요청하기",
+            ),
           );
         case "DONE":
           return _buildSingleButton(
@@ -229,10 +252,24 @@ class ShipDetailScreen extends StatelessWidget {
           );
 
         case "REQUESTED":
-          return _buildSingleButton(
-            text: "기사님 매칭 중",
-            color: const Color.fromARGB(255, 94, 91, 177),
-            onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+          return Column(
+            children: [
+              _buildSingleButton(
+                text: "기사님 매칭 중",
+                color: const Color.fromARGB(255, 94, 91, 177),
+                onPressed: () => Get.back(),
+              ),
+              const SizedBox(height: 10),
+              _buildSingleButton(
+                text: "배차 요청 취소",
+                color: Colors.red[400]!,
+                onPressed: () => _showConfirmDialog(
+                  "배차 요청을 취소하시겠습니까?",
+                  "차주가 배정되기 전에는 언제든 취소가 가능하며,\n취소 시 정보를 다시 입력해야 할 수 있습니다.",
+                  () => controller.requestCancel(data.shipmentId!),
+                ),
+              ),
+            ],
           );
       }
     }
@@ -269,12 +306,30 @@ class ShipDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            _buildSingleButton(
-              text: "배차 포기(취소)",
-              color: Colors.red[300]!,
-              onPressed: () =>
-                  controller.requestWithdrawCancel(data.shipmentId!),
-            ),
+            if (data.driverCancelToggle == true)
+              _buildSingleButton(
+                text: "취소 철회하기",
+                color: Colors.orange[400]!,
+                onPressed: () => _showConfirmDialog(
+                  "취소 요청을 철회하시겠습니까?",
+                  "보냈던 취소 요청을 취소하고, 기존 배차 상태를 그대로 유지합니다.",
+                  () => controller.requestWithdrawCancel(data.shipmentId!),
+                  cancelText: "계속 취소",
+                  confirmText: "취소 철회하기",
+                ),
+              )
+            else
+              _buildSingleButton(
+                text: "배차 포기(취소)",
+                color: Colors.red[300]!,
+                onPressed: () => _showConfirmDialog(
+                  "배차 취소 요청 전 확인",
+                  "화주와 합의되지 않은 일방적인 취소는 분쟁의 원인이 될 수 있습니다. 화주측 수락이 있어야 최종 취소됩니다.",
+                  () => controller.requestCancel(data.shipmentId!), // requestCancel로 수정됨
+                  cancelText: "돌아가기",
+                  confirmText: "화주에게 취소 요청",
+                ),
+              ),
           ],
         );
 
@@ -327,17 +382,93 @@ class ShipDetailScreen extends StatelessWidget {
   void _showConfirmDialog(
     String title,
     String content,
-    VoidCallback onConfirm,
-  ) {
-    Get.defaultDialog(
-      title: title,
-      middleText: content,
-      textConfirm: "확인",
-      textCancel: "취소",
-      onConfirm: () {
-        Get.back();
-        onConfirm();
-      },
+    VoidCallback onConfirm, {
+    String cancelText = "유지하기",
+    String confirmText = "취소하기",
+  }) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 32, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA69996),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        cancelText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0055AB),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        confirmText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
