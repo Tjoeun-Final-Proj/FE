@@ -216,7 +216,13 @@ class ShipDetailScreen extends StatelessWidget {
           return _buildSingleButton(
             text: "배차 취소",
             color: Colors.red[400]!,
-            onPressed: () => controller.requestWithdrawCancel(data.shipmentId!),
+            onPressed: () => _showConfirmDialog(
+              "취소 승인이 필요합니다",
+              "이미 차주가 배정된 상태입니다. 화주님의 취소 요청을 차주가 확인하고 동의해야 최종 취소가 완료됩니다.",
+              () => controller.requestWithdrawCancel(data.shipmentId!),
+              cancelText: "돌아가기",
+              confirmText: "취소 요청하기",
+            ),
           );
         case "DONE":
           return _buildSingleButton(
@@ -345,8 +351,10 @@ class ShipDetailScreen extends StatelessWidget {
   void _showConfirmDialog(
     String title,
     String content,
-    VoidCallback onConfirm,
-  ) {
+    VoidCallback onConfirm, {
+    String cancelText = "유지하기",
+    String confirmText = "취소하기",
+  }) {
     Get.dialog(
       Dialog(
         backgroundColor: Colors.white,
@@ -389,9 +397,9 @@ class ShipDetailScreen extends StatelessWidget {
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        "유지하기",
-                        style: TextStyle(
+                      child: Text(
+                        cancelText,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -414,9 +422,9 @@ class ShipDetailScreen extends StatelessWidget {
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        "취소하기",
-                        style: TextStyle(
+                      child: Text(
+                        confirmText,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
