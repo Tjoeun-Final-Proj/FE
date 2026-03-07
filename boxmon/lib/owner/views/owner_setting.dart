@@ -2,6 +2,7 @@ import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/owner_bottom_navigation.dart';
 import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/owner/controllers/vehicle_register_controller.dart';
 import 'package:boxmon/owner/views/inquery_view.dart';
 import 'package:boxmon/owner/views/my_inquery_view.dart';
@@ -13,10 +14,16 @@ class OwnerSettingView extends StatelessWidget {
   OwnerSettingView({super.key});
 
   final AuthController authController = Get.find<AuthController>();
+  final TokenService tokenService = Get.find<TokenService>();
 
   @override
   Widget build(BuildContext context) {
     final vehicleController = Get.put(VehicleRegisterController());
+    final displayName =
+        (tokenService.userName != null && tokenService.userName!.isNotEmpty)
+        ? tokenService.userName!
+        : '사용자';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppNavBar(), // 상단 로고 및 아이콘
@@ -34,7 +41,7 @@ class OwnerSettingView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "관리자님",
+                      "$displayName님",
                       style: AppTextStyles.bodyLargeBold.copyWith(fontSize: 20),
                     ),
                     const SizedBox(height: 4),
