@@ -232,10 +232,24 @@ class ShipDetailScreen extends StatelessWidget {
           );
 
         case "REQUESTED":
-          return _buildSingleButton(
-            text: "기사님 매칭 중",
-            color: const Color.fromARGB(255, 94, 91, 177),
-            onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+          return Column(
+            children: [
+              _buildSingleButton(
+                text: "기사님 매칭 중",
+                color: const Color.fromARGB(255, 94, 91, 177),
+                onPressed: () => Get.back(),
+              ),
+              const SizedBox(height: 10),
+              _buildSingleButton(
+                text: "배차 요청 취소",
+                color: Colors.red[400]!,
+                onPressed: () => _showConfirmDialog(
+                  "배차 요청을 취소하시겠습니까?",
+                  "차주가 배정되기 전에는 언제든 취소가 가능합니다.\n취소 후에는 정보를 다시 입력해야 할 수 있습니다.",
+                  () => controller.requestCancel(data.shipmentId!),
+                ),
+              ),
+            ],
           );
       }
     }
