@@ -1,6 +1,7 @@
-﻿import 'package:boxmon/common/controller/shipment_controller.dart';
+import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
@@ -46,6 +47,14 @@ class ShipDetailScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _DriverMiniMap(
+                shipmentId: data.shipmentId,
+                driverPointX: data.currentDriverPoint?.x,
+                driverPointY: data.currentDriverPoint?.y,
+                dropoffPointX: data.dropoffPoint?.x,
+                dropoffPointY: data.dropoffPoint?.y,
+              ),
+              const SizedBox(height: 20),
               // 1. 헤더 (회사명 및 등록시간/날짜)
               Text(
                 data.companyName ?? "상호미표기",
@@ -573,4 +582,195 @@ class ShipDetailScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+class _DriverMiniMap extends StatefulWidget {
+  const _DriverMiniMap({
+    required this.shipmentId,
+    required this.driverPointX,
+    required this.driverPointY,
+    required this.dropoffPointX,
+    required this.dropoffPointY,
+  });
+
+  final int? shipmentId;
+  final double? driverPointX;
+  final double? driverPointY;
+  final double? dropoffPointX;
+  final double? dropoffPointY;
+
+  @override
+  State<_DriverMiniMap> createState() => _DriverMiniMapState();
+}
+
+class _DriverMiniMapState extends State<_DriverMiniMap> {
+  NaverMapController? _mapController;
+  NOverlayImage? _carMarkerIcon;
+  bool _isMarkerIconBuilding = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _prepareCarMarkerIcon();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DriverMiniMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final pointChanged =
+        oldWidget.driverPointX != widget.driverPointX ||
+        oldWidget.driverPointY != widget.driverPointY ||
+        oldWidget.dropoffPointX != widget.dropoffPointX ||
+        oldWidget.dropoffPointY != widget.dropoffPointY;
+
+    if (pointChanged) {
+      _syncMap();
+    }
+  }
+
+  Future<void> _prepareCarMarkerIcon() async {
+    if (_carMarkerIcon != null || _isMarkerIconBuilding) return;
+
+    _isMarkerIconBuilding = true;
+    try {
+      final icon = await NOverlayImage.fromWidget(
+        context: context,
+        size: const Size(44, 44),
+        widget: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.20),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.directions_car_filled_rounded,
+            color: Color(0xFF0055AB),
+            size: 24,
+          ),
+        ),
+      );
+      _carMarkerIcon = icon;
+      debugPrint("✅ [성공] [운송상세지도] 차량 마커 아이콘 생성 완료");
+      _syncMap();
+    } catch (e) {
+      debugPrint("❌ [실패] [운송상세지도] 차량 마커 아이콘 생성 실패: $e");
+    } finally {
+      _isMarkerIconBuilding = false;
+    }
+  }
+
+  NLatLng? _toLatLng(double? x, double? y) {
+    if (x == null || y == null) return null;
+    return NLatLng(y, x); // BE Point(x=lng, y=lat)
+  }
+
+  Future<void> _syncMap() async {
+    final controller = _mapController;
+    if (controller == null) return;
+
+    final driverLatLng = _toLatLng(widget.driverPointX, widget.driverPointY);
+    final dropoffLatLng = _toLatLng(widget.dropoffPointX, widget.dropoffPointY);
+    final target = driverLatLng ?? dropoffLatLng ?? const NLatLng(37.5665, 126.9780);
+
+    await controller.clearOverlays(type: NOverlayType.marker);
+
+    if (driverLatLng != null) {
+      final marker = NMarker(
+        id: "driver_${widget.shipmentId ?? 0}",
+        position: driverLatLng,
+        caption: const NOverlayCaption(text: "기사 위치"),
+      );
+
+      if (_carMarkerIcon != null) {
+        marker.setIcon(_carMarkerIcon);
+      }
+
+      await controller.addOverlay(marker);
+    }
+
+    await controller.updateCamera(
+      NCameraUpdate.withParams(
+        target: target,
+        zoom: driverLatLng != null ? 14 : 13,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initialTarget =
+        _toLatLng(widget.driverPointX, widget.driverPointY) ??
+        _toLatLng(widget.dropoffPointX, widget.dropoffPointY) ??
+        const NLatLng(37.5665, 126.9780);
+
+    final hasDriverPoint =
+        widget.driverPointX != null && widget.driverPointY != null;
+
+    return Container(
+      height: 210,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEAEAEA)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            NaverMap(
+              options: NaverMapViewOptions(
+                locationButtonEnable: false,
+                indoorEnable: false,
+                initialCameraPosition: NCameraPosition(
+                  target: initialTarget,
+                  zoom: hasDriverPoint ? 14 : 13,
+                ),
+              ),
+              onMapReady: (controller) {
+                debugPrint("🚀 [시작] [운송상세지도] 지도 준비 완료");
+                _mapController = controller;
+                _syncMap();
+              },
+            ),
+            if (!hasDriverPoint)
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xCCFFFFFF),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "기사 위치 수신 대기중",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
 
