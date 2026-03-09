@@ -102,6 +102,18 @@ class ShipDetailScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _buildDataRow(
+                      "예상거리",
+                      data.distanceToDestination != null
+                          ? "${data.distanceToDestination!.toStringAsFixed(1)}KM"
+                          : "-",
+                      "예상도착시간",
+                      data.estimatedArrivalTime != null
+                          ? DateFormat(
+                              'MM/dd HH:mm',
+                            ).format(data.estimatedArrivalTime!)
+                          : "-",
+                    ),
+                    _buildDataRow(
                       "화물종류",
                       data.cargoType ?? "일반화물",
                       "차종",
