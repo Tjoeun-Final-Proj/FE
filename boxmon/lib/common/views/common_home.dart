@@ -209,10 +209,11 @@ class CommonHomeView extends StatelessWidget {
                 final int assignedCount = summary?.assignedCount ?? 0;
                 final int inTransitCount = summary?.inTransitCount ?? 0;
                 final int doneCount = summary?.doneCount ?? 0;
+                final recent = controller.recentShipment.value;
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 20),
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -232,7 +233,7 @@ class CommonHomeView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            "실시간 배송 현황",
+                            "배송 요약",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -306,6 +307,12 @@ class CommonHomeView extends StatelessWidget {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 14),
+                      _buildRecentShipmentCard(
+                        routeText: recent?.routeText,
+                        shipmentStatus: recent?.shipmentStatus,
+                        lastUpdatedLabel: recent?.lastUpdatedLabel,
                       ),
                     ],
                   ),
@@ -398,6 +405,76 @@ class CommonHomeView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRecentShipmentCard({
+    required String? routeText,
+    required String? shipmentStatus,
+    required String? lastUpdatedLabel,
+  }) {
+    final bool hasRecentData =
+        (routeText != null && routeText.isNotEmpty) &&
+        (shipmentStatus != null && shipmentStatus.isNotEmpty) &&
+        (lastUpdatedLabel != null && lastUpdatedLabel.isNotEmpty);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: hasRecentData
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "최근 운송 내역",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  routeText,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  shipmentStatus,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1D4ED8),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  lastUpdatedLabel,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            )
+          : const Text(
+              "최근 운송 내역이 없습니다",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+              ),
+            ),
     );
   }
 }

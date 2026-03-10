@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:boxmon/common/model/detail_shipment_model.dart';
+import 'package:boxmon/common/model/shipper_recent_shipment_model.dart';
 import 'package:boxmon/common/model/shipper_shipment_summary_model.dart';
 import 'package:boxmon/common/model/shipment_model.dart';
 import 'package:boxmon/common/model/shipment_response_model.dart';
@@ -50,6 +51,41 @@ class ShipmentService extends GetxService {
       );
     } catch (e) {
       print("❌ [실패] [화주홈요약] 알 수 없는 오류: $e");
+    }
+    return null;
+  }
+
+  Future<ShipperRecentShipmentModel?> getShipperRecentShipment() async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      print("🚀 [시작] [화주최근운송] GET shipment/my/recent/shipper");
+
+      final response = await _dio.get(
+        'shipment/my/recent/shipper',
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final recent = ShipperRecentShipmentModel.fromJson(
+          Map<String, dynamic>.from(response.data as Map),
+        );
+        print(
+          "✅ [성공] [화주최근운송] route=${recent.routeText}, status=${recent.shipmentStatus}, updated=${recent.lastUpdatedLabel}",
+        );
+        return recent;
+      }
+
+      print(
+        "❌ [실패] [화주최근운송] 상태코드=${response.statusCode}, 데이터=${response.data}",
+      );
+    } on dio.DioException catch (e) {
+      print(
+        "❌ [실패] [화주최근운송] 상태코드=${e.response?.statusCode}, 데이터=${e.response?.data}",
+      );
+    } catch (e) {
+      print("❌ [실패] [화주최근운송] 알 수 없는 오류: $e");
     }
     return null;
   }
