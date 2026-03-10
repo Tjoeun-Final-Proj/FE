@@ -1,6 +1,7 @@
 import 'package:boxmon/login/models/token_model.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/map/model/location_log_request.dart';
+import 'package:boxmon/map/model/location_route_response.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
@@ -72,5 +73,44 @@ class LocationService {
       print("🚨 [Location Service Critical] 예상치 못한 오류: $e");
     }
     return false;
+  }
+
+  // 운송 경로 조회 함수
+  Future<LocationRouteResponse?> getShipmentRoute(
+    int shipmentId, {
+    DateTime? from,
+    DateTime? to,
+    int? maxPoints,
+  }) async {
+    try {
+      final currentToken = _tokenService.accessToken;
+
+      final queryParameters = <String, dynamic>{};
+      if (from != null) queryParameters['from'] = from.toIso8601String();
+      if (to != null) queryParameters['to'] = to.toIso8601String();
+      if (maxPoints != null) queryParameters['maxPoints'] = maxPoints;
+
+      print("🌐 [API 요청] GET: /location-log/$shipmentId/route");
+
+      final response = await _dio.get(
+        'location-log/$shipmentId/route',
+        queryParameters: queryParameters.isEmpty ? null : queryParameters,
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return LocationRouteResponse.fromJson(
+          Map<String, dynamic>.from(response.data as Map),
+        );
+      }
+    } on dio.DioException catch (e) {
+      print("❌ [실패] [경로조회] 상태 코드: ${e.response?.statusCode}");
+      print("❌ [실패] [경로조회] 응답 데이터: ${e.response?.data}");
+    } catch (e) {
+      print("❌ [실패] [경로조회] 알 수 없는 오류: $e");
+    }
+    return null;
   }
 }

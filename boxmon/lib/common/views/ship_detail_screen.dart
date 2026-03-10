@@ -1,5 +1,6 @@
 import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
+import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
@@ -724,55 +725,95 @@ class _DriverMiniMapState extends State<_DriverMiniMap> {
     final hasDriverPoint =
         widget.driverPointX != null && widget.driverPointY != null;
 
-    return Container(
-      height: 210,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEAEAEA)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          children: [
-            NaverMap(
-              options: NaverMapViewOptions(
-                locationButtonEnable: false,
-                indoorEnable: false,
-                initialCameraPosition: NCameraPosition(
-                  target: initialTarget,
-                  zoom: hasDriverPoint ? 14 : 13,
+    return GestureDetector(
+      onTap: widget.shipmentId == null
+          ? null
+          : () {
+              Get.toNamed(
+                AppRoutes.shipmentRouteMap,
+                arguments: {
+                  'shipmentId': widget.shipmentId,
+                  'driverPointX': widget.driverPointX,
+                  'driverPointY': widget.driverPointY,
+                  'dropoffPointX': widget.dropoffPointX,
+                  'dropoffPointY': widget.dropoffPointY,
+                },
+              );
+            },
+      child: Container(
+        height: 210,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEAEAEA)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              NaverMap(
+                options: NaverMapViewOptions(
+                  locationButtonEnable: false,
+                  indoorEnable: false,
+                  initialCameraPosition: NCameraPosition(
+                    target: initialTarget,
+                    zoom: hasDriverPoint ? 14 : 13,
+                  ),
                 ),
+                onMapReady: (controller) {
+                  debugPrint("🚀 [시작] [운송상세지도] 지도 준비 완료");
+                  _mapController = controller;
+                  _syncMap();
+                },
               ),
-              onMapReady: (controller) {
-                debugPrint("🚀 [시작] [운송상세지도] 지도 준비 완료");
-                _mapController = controller;
-                _syncMap();
-              },
-            ),
-            if (!hasDriverPoint)
+              // 미니지도는 미리보기 성격이라 터치는 상위 GestureDetector가 처리하도록 고정
+              const Positioned.fill(child: AbsorbPointer()),
+              if (!hasDriverPoint)
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xCCFFFFFF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "기사 위치 수신 대기중",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF666666),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               Positioned(
-                top: 10,
-                left: 10,
+                right: 10,
+                bottom: 10,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
+                    horizontal: 8,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xCCFFFFFF),
+                    color: const Color(0xCC000000),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    "기사 위치 수신 대기중",
+                    "탭하여 경로 보기",
                     style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF666666),
+                      color: Colors.white,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
