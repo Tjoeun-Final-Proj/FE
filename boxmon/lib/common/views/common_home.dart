@@ -1,5 +1,6 @@
 import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/common_bottom_navigation.dart';
+import 'package:boxmon/login/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,12 @@ class CommonHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokenService = Get.find<TokenService>();
+    final displayName =
+        (tokenService.userName != null && tokenService.userName!.isNotEmpty)
+        ? tokenService.userName!
+        : '사용자';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppNavBar(),
@@ -22,8 +29,8 @@ class CommonHomeView extends StatelessWidget {
           children: [
             const SizedBox(height: 12),
 
-            const Text(
-              "은섭님",
+            Text(
+              "$displayName님",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 

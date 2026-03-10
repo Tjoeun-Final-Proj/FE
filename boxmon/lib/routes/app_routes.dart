@@ -1,4 +1,5 @@
 import 'package:boxmon/alarm/views/common_alarm.dart';
+import 'package:boxmon/chatting/views/chat_room_view.dart';
 import 'package:boxmon/chatting/views/common_chatting.dart';
 import 'package:boxmon/common/views/cargo_detail_view.dart';
 import 'package:boxmon/common/views/common_home.dart';
@@ -7,6 +8,7 @@ import 'package:boxmon/common/views/common_setting.dart';
 import 'package:boxmon/common/views/common_start_package.dart';
 import 'package:boxmon/common/views/dispatch_summary_view.dart';
 import 'package:boxmon/common/views/ship_detail_screen.dart';
+import 'package:boxmon/common/views/shipment_route_map_view.dart';
 import 'package:boxmon/drive-list/views/common_inventory_view.dart';
 import 'package:boxmon/drive-list/views/driver_invetory_view.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
@@ -48,9 +50,11 @@ class AppRoutes {
   static const resultPage = '/result';
   static const commonAlarm = '/common/alarm';
   static const commonChatting = '/common/chatting';
+  static const chatRoom = '/chat/room';
   static const dispatchSummary = '/dispatch/summary';
   static const cargoDetail = '/cargo/detail';
   static const shipmentDetail = '/shipment-detail/:shipmentId'; // 자세히 보기
+  static const shipmentRouteMap = '/shipment-route-map';
   static const commonWallet = '/common/wallet';
   static const ownerWallet = '/owner/wallet';
   static const shipperInventory = '/shipper/inventory';
@@ -145,6 +149,11 @@ class AppRoutes {
       transition: Transition.noTransition,
     ),
     GetPage(
+      name: chatRoom,
+      page: () => ChatRoomView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
       name: ownerLogin,
       page: () => OwnerLoginView(),
       binding: AuthBinding(),
@@ -165,6 +174,12 @@ class AppRoutes {
     GetPage(
       name: shipmentDetail,
       page: () => ShipDetailScreen(),
+      binding: AuthBinding(),
+      transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: shipmentRouteMap,
+      page: () => ShipmentRouteMapView(),
       binding: AuthBinding(),
       transition: Transition.noTransition,
     ),

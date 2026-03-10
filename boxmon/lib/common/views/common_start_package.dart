@@ -1,4 +1,4 @@
-import 'package:boxmon/core/design/app_design.dart';
+﻿import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/map/model/map_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -25,7 +25,6 @@ class CommonStartPackageView extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
       ),
       body: Column(
@@ -770,3 +769,4 @@ class CommonStartPackageView extends StatelessWidget {
     );
   }
 }
+

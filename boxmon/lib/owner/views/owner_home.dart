@@ -1,5 +1,6 @@
 import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/owner_bottom_navigation.dart';
+import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/owner/controllers/owner_home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -13,6 +14,11 @@ class OwnerHomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     // 컨트롤러 주입
     final controller = Get.put(OwnerHomeController());
+    final tokenService = Get.find<TokenService>();
+    final displayName =
+        (tokenService.userName != null && tokenService.userName!.isNotEmpty)
+        ? tokenService.userName!
+        : '사용자';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -26,8 +32,8 @@ class OwnerHomeView extends StatelessWidget {
           children: [
             const SizedBox(height: 12),
 
-            const Text(
-              "관리자님",
+            Text(
+              "$displayName님",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 

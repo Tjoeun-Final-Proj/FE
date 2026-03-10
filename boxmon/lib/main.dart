@@ -1,6 +1,7 @@
 import 'package:boxmon/firebase_options.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/login/services/push_notification_service.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:dio/dio.dart';
@@ -36,6 +37,7 @@ void main() async {
 
   // 5. 서비스 및 컨트롤러 등록 (순서 중요: TokenService가 먼저!)
   await Get.putAsync(() => TokenService().init());
+  await Get.putAsync(() => PushNotificationService().init());
   Get.put(AuthController(), permanent: true);
   // 1. 서비스 등록
   final tokenService = Get.put(TokenService());
@@ -70,6 +72,17 @@ class MyApp extends StatelessWidget {
       locale: const Locale('ko', 'KR'), // 기본 언어를 한국어로 설정
       theme: ThemeData(
         fontFamily: 'Pretendard', // Pretendard 폰트를 기본 폰트로 설정
+        scaffoldBackgroundColor: Colors.white,
+        canvasColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 4,
+          shadowColor: Color.fromRGBO(0, 0, 0, 0.10),
+          shape: Border(
+            bottom: BorderSide(color: Color(0xFFEDEDED), width: 1),
+          ),
+        ),
       ),
     );
   }

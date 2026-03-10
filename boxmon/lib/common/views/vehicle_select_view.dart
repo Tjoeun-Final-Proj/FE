@@ -1,4 +1,4 @@
-import 'package:boxmon/map/model/map_view_model.dart';
+﻿import 'package:boxmon/map/model/map_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -56,7 +56,6 @@ class VehicleSelectView extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(20),
@@ -137,3 +136,4 @@ class VehicleSelectView extends StatelessWidget {
     );
   }
 }
+

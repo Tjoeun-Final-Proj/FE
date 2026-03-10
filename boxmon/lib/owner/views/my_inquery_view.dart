@@ -1,4 +1,4 @@
-import 'package:boxmon/owner/controllers/inquery_controller.dart';
+﻿import 'package:boxmon/owner/controllers/inquery_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +19,6 @@ class MyInqueryView extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
@@ -204,3 +203,4 @@ class MyInqueryView extends StatelessWidget {
     );
   }
 }
+

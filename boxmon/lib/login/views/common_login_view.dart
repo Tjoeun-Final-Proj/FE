@@ -1,4 +1,4 @@
-import 'package:boxmon/core/design/app_design.dart';
+﻿import 'package:boxmon/core/design/app_design.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,6 @@ class LoginView extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
         title: const Text(""),
       ),
       body: Center(
@@ -208,3 +207,4 @@ class LoginView extends StatelessWidget {
     );
   }
 }
+

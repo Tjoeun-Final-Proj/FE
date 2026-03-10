@@ -1,4 +1,4 @@
-import 'package:boxmon/map/model/map_view_model.dart';
+﻿import 'package:boxmon/map/model/map_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,7 +15,6 @@ class CargoDetailView extends StatelessWidget {
       appBar: AppBar(
         title: const Text("짐 내용 · 요청사항"),
         centerTitle: true,
-        elevation: 0,
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(), // 화면 터치 시 키보드 내림

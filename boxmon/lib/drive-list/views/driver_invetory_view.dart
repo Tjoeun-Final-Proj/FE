@@ -1,4 +1,4 @@
-import 'package:boxmon/drive-list/controller/inventory_controller_driver.dart';
+﻿import 'package:boxmon/drive-list/controller/inventory_controller_driver.dart';
 import 'package:boxmon/drive-list/model/inventory_model.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/routes/app_routes.dart';
@@ -23,7 +23,6 @@ class DriverInvetoryView extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
       ),
       // 2. RefreshIndicator를 넣어 당겨서 새로고침 가능하게 함
@@ -287,3 +286,4 @@ class DriverInvetoryView extends StatelessWidget {
     );
   }
 }
+

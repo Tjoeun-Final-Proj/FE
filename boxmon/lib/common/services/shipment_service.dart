@@ -186,7 +186,7 @@ class ShipmentService extends GetxService {
   Future<bool> requestWithdrawCancel(int shipmentId) async {
     try {
       final currentToken = _tokenService.accessToken;
-      final url = 'shipment/$shipmentId/cancel'; // 엔드포인트 확인 필요
+      final url = 'shipment/$shipmentId/cancel/withdraw';
 
       print("🌐 [API 요청] POST: $url");
 

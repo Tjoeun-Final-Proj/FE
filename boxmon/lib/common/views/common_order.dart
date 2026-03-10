@@ -60,16 +60,19 @@ class CommonOrderView extends StatelessWidget {
 
     return GestureDetector(
       // 🎯 1. 카드 전체를 클릭 가능하게 만듦
-      onTap: () {
+      onTap: () async {
         print("탭 클릭됨! ID: ${item.shipmentId}"); // 디버깅용 로그
 
-        // 🎯 2. 상세 페이지로 이동하며 ID 전달
-        Get.toNamed(
+        // 🎯 2. 상세 페이지로 이동하며 ID 전달 (돌아왔을 때 새로고침 추가)
+        await Get.toNamed(
           AppRoutes.shipmentDetail,
           arguments: {
             'shipmentId': item.shipmentId, // 상세 페이지 컨트롤러가 이 값을 받음
           },
         );
+
+        // 🎯 3. 돌아오는 시점에 목록 새로고침
+        shipmentController.fetchMyUnassigned();
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -191,7 +194,7 @@ class CommonOrderView extends StatelessWidget {
               children: [
                 Row(children: [const SizedBox(width: 6)]),
                 Text(
-                  "${item.profit?.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원",
+                  "${item.price?.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원",
                   style: TextStyle(
                     color: Colors.blue.shade700,
                     fontSize: 20,

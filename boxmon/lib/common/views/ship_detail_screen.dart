@@ -1,7 +1,10 @@
 import 'package:boxmon/common/controller/shipment_controller.dart';
 import 'package:boxmon/login/services/token_service.dart';
+import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 class ShipDetailScreen extends StatelessWidget {
@@ -10,6 +13,9 @@ class ShipDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shipmentController = Get.find<ShipmentController>();
+    // 새로 추가되는 부분: 사용자 역할 확인
+    final tokenService = Get.find<TokenService>();
+    final isShipper = tokenService.userType == "SHIPPER";
 
     // 화면 진입 시 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -21,7 +27,6 @@ class ShipDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         title: const Text(
@@ -43,6 +48,14 @@ class ShipDetailScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _DriverMiniMap(
+                shipmentId: data.shipmentId,
+                driverPointX: data.currentDriverPoint?.x,
+                driverPointY: data.currentDriverPoint?.y,
+                dropoffPointX: data.dropoffPoint?.x,
+                dropoffPointY: data.dropoffPoint?.y,
+              ),
+              const SizedBox(height: 20),
               // 1. 헤더 (회사명 및 등록시간/날짜)
               Text(
                 data.companyName ?? "상호미표기",
@@ -99,6 +112,18 @@ class ShipDetailScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _buildDataRow(
+                      "예상거리",
+                      data.distanceToDestination != null
+                          ? "${data.distanceToDestination!.toStringAsFixed(1)}KM"
+                          : "-",
+                      "예상도착시간",
+                      data.estimatedArrivalTime != null
+                          ? DateFormat(
+                              'MM/dd HH:mm',
+                            ).format(data.estimatedArrivalTime!)
+                          : "-",
+                    ),
+                    _buildDataRow(
                       "화물종류",
                       data.cargoType ?? "일반화물",
                       "차종",
@@ -114,7 +139,7 @@ class ShipDetailScreen extends StatelessWidget {
                       "수수료",
                       "${data.platformFee}원",
                       "합계금액",
-                      "${data.profit}원",
+                      "${isShipper ? data.price : data.profit}원", // 역할에 따라 다른 필드 표시
                       valueColor: Colors.blue[800],
                     ),
                   ],
@@ -209,10 +234,29 @@ class ShipDetailScreen extends StatelessWidget {
           );
 
         case "ASSIGNED":
+          if (data.shipperCancelToggle == true) {
+            return _buildSingleButton(
+              text: "취소 철회하기",
+              color: Colors.orange[400]!,
+              onPressed: () => _showConfirmDialog(
+                "취소 요청을 철회하시겠습니까?",
+                "보냈던 취소 요청을 취소하고, 기존 배차 상태를 그대로 유지합니다.",
+                () => controller.requestWithdrawCancel(data.shipmentId!),
+                cancelText: "계속 취소",
+                confirmText: "취소 철회하기",
+              ),
+            );
+          }
           return _buildSingleButton(
             text: "배차 취소",
             color: Colors.red[400]!,
-            onPressed: () => controller.requestWithdrawCancel(data.shipmentId!),
+            onPressed: () => _showConfirmDialog(
+              "취소 승인이 필요합니다",
+              "이미 차주가 배정된 상태입니다. 화주님의 취소 요청을 차주가 확인하고 동의해야 최종 취소가 완료됩니다.",
+              () => controller.requestCancel(data.shipmentId!), // requestCancel로 수정됨
+              cancelText: "돌아가기",
+              confirmText: "취소 요청하기",
+            ),
           );
         case "DONE":
           return _buildSingleButton(
@@ -229,10 +273,24 @@ class ShipDetailScreen extends StatelessWidget {
           );
 
         case "REQUESTED":
-          return _buildSingleButton(
-            text: "기사님 매칭 중",
-            color: const Color.fromARGB(255, 94, 91, 177),
-            onPressed: () => Get.back(), // 완료 상태에선 그냥 뒤로가기
+          return Column(
+            children: [
+              _buildSingleButton(
+                text: "기사님 매칭 중",
+                color: const Color.fromARGB(255, 94, 91, 177),
+                onPressed: () => Get.back(),
+              ),
+              const SizedBox(height: 10),
+              _buildSingleButton(
+                text: "배차 요청 취소",
+                color: Colors.red[400]!,
+                onPressed: () => _showConfirmDialog(
+                  "배차 요청을 취소하시겠습니까?",
+                  "차주가 배정되기 전에는 언제든 취소가 가능하며,\n취소 시 정보를 다시 입력해야 할 수 있습니다.",
+                  () => controller.requestCancel(data.shipmentId!),
+                ),
+              ),
+            ],
           );
       }
     }
@@ -266,15 +324,35 @@ class ShipDetailScreen extends StatelessWidget {
                 "운송 시작",
                 "운송을 시작하시겠습니까?",
                 () => controller.requestStartShipment(data.shipmentId!),
+                cancelText: "닫기",
+                confirmText: "운송 시작",
               ),
             ),
             const SizedBox(height: 10),
-            _buildSingleButton(
-              text: "배차 포기(취소)",
-              color: Colors.red[300]!,
-              onPressed: () =>
-                  controller.requestWithdrawCancel(data.shipmentId!),
-            ),
+            if (data.driverCancelToggle == true)
+              _buildSingleButton(
+                text: "취소 철회하기",
+                color: Colors.orange[400]!,
+                onPressed: () => _showConfirmDialog(
+                  "취소 요청을 철회하시겠습니까?",
+                  "보냈던 취소 요청을 취소하고, 기존 배차 상태를 그대로 유지합니다.",
+                  () => controller.requestWithdrawCancel(data.shipmentId!),
+                  cancelText: "계속 취소",
+                  confirmText: "취소 철회하기",
+                ),
+              )
+            else
+              _buildSingleButton(
+                text: "배차 포기(취소)",
+                color: Colors.red[300]!,
+                onPressed: () => _showConfirmDialog(
+                  "배차 취소 요청 전 확인",
+                  "화주와 합의되지 않은 일방적인 취소는 분쟁의 원인이 될 수 있습니다. 화주측 수락이 있어야 최종 취소됩니다.",
+                  () => controller.requestCancel(data.shipmentId!), // requestCancel로 수정됨
+                  cancelText: "돌아가기",
+                  confirmText: "화주에게 취소 요청",
+                ),
+              ),
           ],
         );
 
@@ -327,17 +405,97 @@ class ShipDetailScreen extends StatelessWidget {
   void _showConfirmDialog(
     String title,
     String content,
-    VoidCallback onConfirm,
-  ) {
-    Get.defaultDialog(
-      title: title,
-      middleText: content,
-      textConfirm: "확인",
-      textCancel: "취소",
-      onConfirm: () {
-        Get.back();
-        onConfirm();
-      },
+    VoidCallback onConfirm, {
+    String cancelText = "유지하기",
+    String confirmText = "취소하기",
+  }) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 32, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA69996),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        cancelText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // 다음 동작 전에 다이얼로그를 먼저 확실히 닫아 잔존 오버레이를 방지
+                        if (Get.isDialogOpen ?? false) {
+                          Get.back(closeOverlays: true);
+                        }
+                        await Future.delayed(
+                          const Duration(milliseconds: 120),
+                        );
+                        onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0055AB),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        confirmText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -433,3 +591,235 @@ class ShipDetailScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+class _DriverMiniMap extends StatefulWidget {
+  const _DriverMiniMap({
+    required this.shipmentId,
+    required this.driverPointX,
+    required this.driverPointY,
+    required this.dropoffPointX,
+    required this.dropoffPointY,
+  });
+
+  final int? shipmentId;
+  final double? driverPointX;
+  final double? driverPointY;
+  final double? dropoffPointX;
+  final double? dropoffPointY;
+
+  @override
+  State<_DriverMiniMap> createState() => _DriverMiniMapState();
+}
+
+class _DriverMiniMapState extends State<_DriverMiniMap> {
+  NaverMapController? _mapController;
+  NOverlayImage? _carMarkerIcon;
+  bool _isMarkerIconBuilding = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _prepareCarMarkerIcon();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DriverMiniMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final pointChanged =
+        oldWidget.driverPointX != widget.driverPointX ||
+        oldWidget.driverPointY != widget.driverPointY ||
+        oldWidget.dropoffPointX != widget.dropoffPointX ||
+        oldWidget.dropoffPointY != widget.dropoffPointY;
+
+    if (pointChanged) {
+      _syncMap();
+    }
+  }
+
+  Future<void> _prepareCarMarkerIcon() async {
+    if (_carMarkerIcon != null || _isMarkerIconBuilding) return;
+
+    _isMarkerIconBuilding = true;
+    try {
+      final icon = await NOverlayImage.fromWidget(
+        context: context,
+        size: const Size(44, 44),
+        widget: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.20),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.directions_car_filled_rounded,
+            color: Color(0xFF0055AB),
+            size: 24,
+          ),
+        ),
+      );
+      _carMarkerIcon = icon;
+      debugPrint("✅ [성공] [운송상세지도] 차량 마커 아이콘 생성 완료");
+      _syncMap();
+    } catch (e) {
+      debugPrint("❌ [실패] [운송상세지도] 차량 마커 아이콘 생성 실패: $e");
+    } finally {
+      _isMarkerIconBuilding = false;
+    }
+  }
+
+  NLatLng? _toLatLng(double? x, double? y) {
+    if (x == null || y == null) return null;
+    return NLatLng(y, x); // BE Point(x=lng, y=lat)
+  }
+
+  Future<void> _syncMap() async {
+    final controller = _mapController;
+    if (controller == null) return;
+
+    final driverLatLng = _toLatLng(widget.driverPointX, widget.driverPointY);
+    final dropoffLatLng = _toLatLng(widget.dropoffPointX, widget.dropoffPointY);
+    final target = driverLatLng ?? dropoffLatLng ?? const NLatLng(37.5665, 126.9780);
+
+    await controller.clearOverlays(type: NOverlayType.marker);
+
+    if (driverLatLng != null) {
+      final marker = NMarker(
+        id: "driver_${widget.shipmentId ?? 0}",
+        position: driverLatLng,
+        caption: const NOverlayCaption(text: "기사 위치"),
+      );
+
+      if (_carMarkerIcon != null) {
+        marker.setIcon(_carMarkerIcon);
+      }
+
+      await controller.addOverlay(marker);
+    }
+
+    await controller.updateCamera(
+      NCameraUpdate.withParams(
+        target: target,
+        zoom: driverLatLng != null ? 14 : 13,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initialTarget =
+        _toLatLng(widget.driverPointX, widget.driverPointY) ??
+        _toLatLng(widget.dropoffPointX, widget.dropoffPointY) ??
+        const NLatLng(37.5665, 126.9780);
+
+    final hasDriverPoint =
+        widget.driverPointX != null && widget.driverPointY != null;
+
+    return GestureDetector(
+      onTap: widget.shipmentId == null
+          ? null
+          : () {
+              Get.toNamed(
+                AppRoutes.shipmentRouteMap,
+                arguments: {
+                  'shipmentId': widget.shipmentId,
+                  'driverPointX': widget.driverPointX,
+                  'driverPointY': widget.driverPointY,
+                  'dropoffPointX': widget.dropoffPointX,
+                  'dropoffPointY': widget.dropoffPointY,
+                },
+              );
+            },
+      child: Container(
+        height: 210,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEAEAEA)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              NaverMap(
+                options: NaverMapViewOptions(
+                  locationButtonEnable: false,
+                  indoorEnable: false,
+                  initialCameraPosition: NCameraPosition(
+                    target: initialTarget,
+                    zoom: hasDriverPoint ? 14 : 13,
+                  ),
+                ),
+                onMapReady: (controller) {
+                  debugPrint("🚀 [시작] [운송상세지도] 지도 준비 완료");
+                  _mapController = controller;
+                  _syncMap();
+                },
+              ),
+              // 미니지도는 미리보기 성격이라 터치는 상위 GestureDetector가 처리하도록 고정
+              const Positioned.fill(child: AbsorbPointer()),
+              if (!hasDriverPoint)
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xCCFFFFFF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "기사 위치 수신 대기중",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF666666),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              Positioned(
+                right: 10,
+                bottom: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xCC000000),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "탭하여 경로 보기",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+

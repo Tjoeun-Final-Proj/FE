@@ -93,10 +93,19 @@ class AuthService extends GetxService {
         final String accessToken = response.data['accessToken'] ?? '';
         final String refreshToken = response.data['refreshToken'] ?? '';
         final String userType = response.data['userType'] ?? '';
+        final int? userId = response.data['userId'] is int
+            ? response.data['userId'] as int
+            : int.tryParse('${response.data['userId'] ?? ''}');
+        final String? userName = response.data['name']?.toString();
 
         // 2. TokenService를 사용해 기기에 저장 (반드시 await!)
-        final TokenService tokenService = TokenService();
-        await tokenService.saveToken(accessToken, refreshToken, userType);
+        await _tokenService.saveToken(
+          accessToken,
+          refreshToken,
+          userType,
+          userId: userId,
+          userName: userName,
+        );
 
         return true;
       } else {
