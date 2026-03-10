@@ -1,6 +1,7 @@
 import 'package:boxmon/common/model/detail_shipment_model.dart';
 import 'package:boxmon/login/models/token_model.dart';
 import 'package:boxmon/login/services/token_service.dart';
+import 'package:boxmon/owner/model/driver_shipment_summary_model.dart';
 import 'package:boxmon/owner/model/shipment_unassigned_response_model.dart';
 import 'package:boxmon/owner/model/vehicle_model.dart';
 import 'package:dio/dio.dart' as dio;
@@ -13,6 +14,31 @@ class OrderShipmentServices extends GetxService {
   final dio.Dio _dio =
       Get.find<dio.Dio>(); // Base URL이 http://10.0.2.2:8080/api 로 설정된채로 가져와짐
   final TokenService _tokenService = Get.find<TokenService>();
+
+  Future<DriverShipmentSummaryModel?> getDriverTodaySummary() async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      final response = await _dio.get(
+        'shipment/my/summary/driver',
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return DriverShipmentSummaryModel.fromJson(
+          Map<String, dynamic>.from(response.data as Map),
+        );
+      }
+    } on dio.DioException catch (e) {
+      print(
+        "❌ [실패] [차주홈요약] 상태코드=${e.response?.statusCode}, 데이터=${e.response?.data}",
+      );
+    } catch (e) {
+      print("❌ [실패] [차주홈요약] 알 수 없는 오류: $e");
+    }
+    return null;
+  }
 
   Future<List<ShipmentUnassignedResponseModel>?> UnassignedShipments() async {
     try {
