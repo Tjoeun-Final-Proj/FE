@@ -1,6 +1,7 @@
 import 'package:boxmon/firebase_options.dart';
 import 'package:boxmon/login/bindings/auth_binding.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
+import 'package:boxmon/login/services/push_notification_service.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/routes/app_routes.dart';
 import 'package:dio/dio.dart';
@@ -36,6 +37,7 @@ void main() async {
 
   // 5. 서비스 및 컨트롤러 등록 (순서 중요: TokenService가 먼저!)
   await Get.putAsync(() => TokenService().init());
+  await Get.putAsync(() => PushNotificationService().init());
   Get.put(AuthController(), permanent: true);
   // 1. 서비스 등록
   final tokenService = Get.put(TokenService());

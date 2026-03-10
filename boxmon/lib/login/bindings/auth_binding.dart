@@ -7,6 +7,7 @@ import 'package:boxmon/drive-list/services/inventory_service.dart';
 import 'package:boxmon/login/controllers/auth_controller.dart';
 import 'package:boxmon/login/services/auth_service.dart';
 import 'package:boxmon/login/services/token_service.dart';
+import 'package:boxmon/owner/controllers/location_tracking_controller.dart';
 import 'package:boxmon/owner/controllers/inquery_controller.dart';
 import 'package:boxmon/owner/controllers/vehicle_register_controller.dart';
 import 'package:boxmon/owner/services/order_shipment_services.dart';
@@ -30,6 +31,10 @@ class AuthBinding extends Bindings {
     // 6. 컨트롤러들: 화면의 상태를 관리하고 비즈니스 로직을 실행
     Get.lazyPut<AuthController>(() => AuthController()); // 유저 인증 상태 관리
     Get.lazyPut<ShipmentController>(() => ShipmentController());
+    Get.lazyPut<LocationTrackingController>(
+      () => LocationTrackingController(),
+      fenix: true,
+    );
     Get.lazyPut<OwnerWalletServcie>(() => OwnerWalletServcie());
     Get.lazyPut<InventoryService>(() => InventoryService());
     Get.lazyPut<OrderShipmentServices>(() => OrderShipmentServices());

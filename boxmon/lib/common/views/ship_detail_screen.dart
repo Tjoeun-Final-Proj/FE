@@ -323,6 +323,8 @@ class ShipDetailScreen extends StatelessWidget {
                 "운송 시작",
                 "운송을 시작하시겠습니까?",
                 () => controller.requestStartShipment(data.shipmentId!),
+                cancelText: "닫기",
+                confirmText: "운송 시작",
               ),
             ),
             const SizedBox(height: 10),
@@ -460,8 +462,14 @@ class ShipDetailScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
+                      onPressed: () async {
+                        // 다음 동작 전에 다이얼로그를 먼저 확실히 닫아 잔존 오버레이를 방지
+                        if (Get.isDialogOpen ?? false) {
+                          Get.back(closeOverlays: true);
+                        }
+                        await Future.delayed(
+                          const Duration(milliseconds: 120),
+                        );
                         onConfirm();
                       },
                       style: ElevatedButton.styleFrom(

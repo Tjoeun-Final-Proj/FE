@@ -188,7 +188,7 @@ class ShipmentController extends GetxController {
 
         // 🛰️ 위치 추적 시작
         try {
-          Get.find<LocationTrackingController>().startTracking(shipmentId);
+          await Get.find<LocationTrackingController>().startTracking(shipmentId);
         } catch (e) {
           print("⚠️ 위치 추적 컨트롤러를 찾을 수 없습니다: $e");
         }
@@ -228,7 +228,9 @@ class ShipmentController extends GetxController {
       if (success) {
         // 🛰️ 위치 추적 중지
         try {
-          Get.find<LocationTrackingController>().stopTracking();
+          await Get.find<LocationTrackingController>().stopTracking(
+            flushRemaining: true,
+          );
         } catch (e) {
           print("⚠️ 위치 추적 컨트롤러 중지 실패: $e");
         }
