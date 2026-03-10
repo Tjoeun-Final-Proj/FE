@@ -131,3 +131,4 @@ boxmon/firebase.json
 boxmon/android/app/src/main/AndroidManifest.xml
 boxmon/android/settings.gradle.kts
 boxmon/android/app/build.gradle.kts
+boxmon/firebase.json
