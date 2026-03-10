@@ -210,54 +210,122 @@ class OwnerHomeView extends StatelessWidget {
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 20),
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE4E4E4)),
-                    boxShadow: const [
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFF3F4F6)),
+                    boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        blurRadius: 12,
-                        offset: Offset(0, 4),
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        "오늘의 운송 요약",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              HugeIcon(
+                                icon: HugeIcons.strokeRoundedCalendar03,
+                                color: Color(0xFF111827),
+                                size: 24,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "오늘의 운송 요약",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF111827),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEFF6FF),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              "실시간",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF2563EB),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 18),
-                      Text(
-                        "오늘 운행 ${todayCount}건",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildSummaryItem(
+                              label: "오늘 운행",
+                              value: "${todayCount}건",
+                              icon: HugeIcons.strokeRoundedTask01,
+                              color: const Color(0xFF4B5563),
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: const Color(0xFFE5E7EB),
+                          ),
+                          Expanded(
+                            child: _buildSummaryItem(
+                              label: "운송 중",
+                              value: "${inTransitCount}건",
+                              icon: HugeIcons.strokeRoundedTruck,
+                              color: const Color(0xFF2563EB),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        controller.firstPickupText,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF374151),
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "현재 상태 ${inTransitCount}건 운송 중",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF374151),
+                        child: Row(
+                          children: [
+                            const HugeIcon(
+                              icon: HugeIcons.strokeRoundedClock01,
+                              color: Color(0xFF6B7280),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              "첫 상차 시간",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF6B7280),
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              controller.firstPickupText,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF111827),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -270,6 +338,37 @@ class OwnerHomeView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSummaryItem({
+    required String label,
+    required String value,
+    required dynamic icon,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        HugeIcon(icon: icon, color: color, size: 28),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF6B7280),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 }
