@@ -2,6 +2,7 @@ import 'package:boxmon/core/components/app_nav_bar.dart';
 import 'package:boxmon/core/components/owner_bottom_navigation.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/owner/controllers/owner_home_controller.dart';
+import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -328,6 +329,8 @@ class OwnerHomeView extends StatelessWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      _buildNextShipmentCard(controller),
                     ],
                   ),
                 );
@@ -339,6 +342,127 @@ class OwnerHomeView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildNextShipmentCard(OwnerHomeController controller) {
+    final hasNext = controller.hasNextShipment;
+    final statusColor = _statusColor(controller.nextStatusText);
+    final canOpenDetail = controller.nextShipmentId != null;
+
+    return InkWell(
+      onTap: hasNext && canOpenDetail
+          ? () {
+              Get.toNamed(
+                AppRoutes.shipmentDetail,
+                arguments: {'shipmentId': controller.nextShipmentId},
+              );
+            }
+          : null,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: hasNext
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "다음 운송 1건",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    controller.nextRouteText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          controller.nextStatusText,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: statusColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          controller.nextPickupText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ),
+                      if (canOpenDetail)
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: Color(0xFF94A3B8),
+                          size: 20,
+                        ),
+                    ],
+                  ),
+                ],
+              )
+            : const Text(
+                "다음 운송이 없습니다",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+      ),
+    );
+  }
+
+  Color _statusColor(String status) {
+    final normalized = status.trim().toUpperCase();
+    if (normalized == "IN_TRANSIT" || status.contains("운송")) {
+      return const Color(0xFF2563EB);
+    }
+    if (normalized == "ASSIGNED" || status.contains("배차")) {
+      return const Color(0xFF7C3AED);
+    }
+    if (normalized == "DONE" || status.contains("완료")) {
+      return const Color(0xFF059669);
+    }
+    if (normalized == "CANCELED" ||
+        normalized == "CANCELLED" ||
+        status.contains("취소")) {
+      return const Color(0xFFDC2626);
+    }
+    return const Color(0xFF4B5563);
   }
 
   Widget _buildSummaryItem({
