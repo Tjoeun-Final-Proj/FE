@@ -7,7 +7,7 @@ class PaymentBinding extends Bindings {
   @override
   void dependencies() {
     Get.put(
-      Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/api/')),
+      Dio(BaseOptions(baseUrl: 'http://boxmon.p-e.kr:8080/api/')),
       permanent: true,
     );
 
