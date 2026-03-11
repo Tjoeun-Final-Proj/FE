@@ -55,6 +55,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const brandBlue = Color(0xFF0055AB);
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.splash,
@@ -71,9 +73,27 @@ class MyApp extends StatelessWidget {
       ],
       locale: const Locale('ko', 'KR'), // 기본 언어를 한국어로 설정
       theme: ThemeData(
+        useMaterial3: true,
         fontFamily: 'Pretendard', // Pretendard 폰트를 기본 폰트로 설정
         scaffoldBackgroundColor: Colors.white,
         canvasColor: Colors.white,
+        colorScheme: const ColorScheme.light(
+          primary: brandBlue,
+          secondary: brandBlue,
+          surface: Colors.white,
+        ),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: brandBlue,
+          selectionColor: Color(0x4D0055AB),
+          selectionHandleColor: brandBlue,
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          focusColor: Color(0x140055AB),
+          hoverColor: Color(0x0F0055AB),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: brandBlue, width: 1.6),
+          ),
+        ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.white,

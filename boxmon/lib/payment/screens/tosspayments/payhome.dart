@@ -1,4 +1,5 @@
-﻿import 'package:boxmon/routes/app_routes.dart';
+﻿import 'package:boxmon/login/services/token_service.dart';
+import 'package:boxmon/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -10,19 +11,21 @@ class PayHome extends StatefulWidget {
   @override
   State<PayHome> createState() => _PayHomeState();
 }
-
 class _PayHomeState extends State<PayHome> {
+  final TokenService _tokenService = Get.find<TokenService>();
   final _form = GlobalKey<FormState>();
   late String payMethod = '카드';
   late String orderId;
   late String orderName;
   late String amount;
-  late String customerName = "황덕배";
-  late String customerEmail = "test@example.com";
+  late String customerName;
+  late String customerEmail;
 
   @override
   void initState() {
     super.initState();
+    customerName = _tokenService.userName ?? '';
+    customerEmail = _tokenService.userEmail ?? '';
 
     // 2. 이전 화면에서 보낸 arguments를 안전하게 꺼냅니다.
     final dynamic args = Get.arguments;
@@ -149,6 +152,19 @@ class _PayHomeState extends State<PayHome> {
                     failUrl: "https://fail.url",
                   );
 
+                  print("🚀 [Toss SDK 요청 준비] 결제창 호출 직전 데이터");
+                  print(
+                    "📤 [Toss SDK Payload] "
+                    "method=${data.paymentMethod}, "
+                    "orderId=${data.orderId}, "
+                    "orderName=${data.orderName}, "
+                    "amount=${data.amount}, "
+                    "customerName=${data.customerName}, "
+                    "customerEmail=${data.customerEmail}, "
+                    "successUrl=${data.successUrl}, "
+                    "failUrl=${data.failUrl}",
+                  );
+
                   var result = await Get.toNamed(
                     AppRoutes.tossPaymentsResult,
                     arguments: data,
@@ -236,4 +252,5 @@ class _PayHomeState extends State<PayHome> {
     );
   }
 }
+
 

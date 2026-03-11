@@ -16,20 +16,21 @@ class PaymentResultController extends GetxController {
   }
 
   Future<void> _handlePaymentConfirm() async {
+    isConfirming.value = true;
     try {
-      isConfirming.value = true;
-
-      // 💡 여기서 작성하신 API 함수를 호출합니다!
-      // 토스에서 받은 paymentKey, orderId, amount를 그대로 넘겨줍니다.
-      await Get.find<PaymentService>().createPayment(
+      final result = await _paymentService.createPayment(
         res.paymentKey,
         res.orderId,
         res.amount,
       );
 
-      // API 내부에서 200 OK가 떨어지면 성공으로 간주
-      isSuccess.value = true;
-      print("✅ [Controller] 최종 승인 및 DB 저장 완료");
+      if (result != null) {
+        isSuccess.value = true;
+        print("✅ [Controller] 최종 승인 및 DB 저장 완료");
+      } else {
+        isSuccess.value = false;
+        print("❌ [Controller] 승인 실패: 서버 응답이 null 입니다.");
+      }
     } catch (e) {
       isSuccess.value = false;
       print("❌ [Controller] 승인 실패: $e");

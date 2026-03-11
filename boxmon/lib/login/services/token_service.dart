@@ -18,6 +18,7 @@ class TokenService extends GetxService {
   static const String _userTypeKey = 'user_type';
   static const String _userIdKey = 'user_id';
   static const String _userNameKey = 'user_name';
+  static const String _userEmailKey = 'user_email';
 
   // 디바이스 토큰을 저장하는 장소
   String? _deviceToken;
@@ -27,6 +28,7 @@ class TokenService extends GetxService {
   String? _userType;
   int? _userId;
   String? _userName;
+  String? _userEmail;
 
   String? get accessToken => _currentAccessToken;
 
@@ -35,6 +37,7 @@ class TokenService extends GetxService {
   String? get userType => _userType; // << 외부내부 DRIVER / SHIPPER 비교
   int? get userId => _userId;
   String? get userName => _userName;
+  String? get userEmail => _userEmail;
 
   // 로그인하자마자 디바이스 토큰을 가져옵니다.
   Future<TokenService> init() async {
@@ -66,6 +69,7 @@ class TokenService extends GetxService {
     String userType, {
     int? userId,
     String? userName,
+    String? userEmail,
   }) async {
     _currentAccessToken = accessToken; // 🔥 추가
     _userType = userType.isNotEmpty
@@ -74,6 +78,8 @@ class TokenService extends GetxService {
     _userId = userId ?? _extractUserIdFromJwt(accessToken);
     _userName = userName?.trim();
     if (_userName != null && _userName!.isEmpty) _userName = null;
+    _userEmail = userEmail?.trim();
+    if (_userEmail != null && _userEmail!.isEmpty) _userEmail = null;
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_accessTokenKey, accessToken);
@@ -89,6 +95,11 @@ class TokenService extends GetxService {
       } else {
         await prefs.remove(_userNameKey);
       }
+      if (_userEmail != null) {
+        await prefs.setString(_userEmailKey, _userEmail!);
+      } else {
+        await prefs.remove(_userEmailKey);
+      }
     } else {
       await _storage.write(key: _accessTokenKey, value: accessToken);
       await _storage.write(key: _refreshTokenKey, value: refreshToken);
@@ -103,6 +114,11 @@ class TokenService extends GetxService {
       } else {
         await _storage.delete(key: _userNameKey);
       }
+      if (_userEmail != null) {
+        await _storage.write(key: _userEmailKey, value: _userEmail);
+      } else {
+        await _storage.delete(key: _userEmailKey);
+      }
     }
   }
 
@@ -113,6 +129,7 @@ class TokenService extends GetxService {
     String? userType;
     int? userId;
     String? userName;
+    String? userEmail;
 
     if (kIsWeb) {
       final prefs = await SharedPreferences.getInstance();
@@ -121,6 +138,7 @@ class TokenService extends GetxService {
       userType = prefs.getString(_userTypeKey);
       userId = prefs.getInt(_userIdKey);
       userName = prefs.getString(_userNameKey);
+      userEmail = prefs.getString(_userEmailKey);
     } else {
       accessToken = await _storage.read(key: _accessTokenKey);
       refreshToken = await _storage.read(key: _refreshTokenKey);
@@ -128,6 +146,7 @@ class TokenService extends GetxService {
       final String? userIdRaw = await _storage.read(key: _userIdKey);
       userId = int.tryParse(userIdRaw ?? '');
       userName = await _storage.read(key: _userNameKey);
+      userEmail = await _storage.read(key: _userEmailKey);
     }
 
     // 💡 여기서 값을 확인하고 Token 객체를 반환해야 함!
@@ -140,6 +159,9 @@ class TokenService extends GetxService {
       _userName = (userName != null && userName.trim().isNotEmpty)
           ? userName.trim()
           : null;
+      _userEmail = (userEmail != null && userEmail.trim().isNotEmpty)
+          ? userEmail.trim()
+          : null;
       print("✅ [TokenService] 토큰 로드 성공!");
       return Token(
         accessToken: accessToken,
@@ -147,6 +169,7 @@ class TokenService extends GetxService {
         userType: _userType ?? '',
         userId: _userId,
         userName: _userName,
+        userEmail: _userEmail,
       );
     }
 
@@ -163,18 +186,21 @@ class TokenService extends GetxService {
       await prefs.remove(_userTypeKey);
       await prefs.remove(_userIdKey);
       await prefs.remove(_userNameKey);
+      await prefs.remove(_userEmailKey);
     } else {
       await _storage.delete(key: _accessTokenKey);
       await _storage.delete(key: _refreshTokenKey);
       await _storage.delete(key: _userTypeKey);
       await _storage.delete(key: _userIdKey);
       await _storage.delete(key: _userNameKey);
+      await _storage.delete(key: _userEmailKey);
     }
 
     _currentAccessToken = null;
     _userType = null;
     _userId = null;
     _userName = null;
+    _userEmail = null;
   }
 
   // 미들웨어로 분리할 로드 driver 함수입니다.
