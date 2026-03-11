@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:boxmon/common/model/shipment_model.dart';
+import 'package:boxmon/common/model/shipment_price_guide_model.dart';
 import 'package:boxmon/common/services/shipment_service.dart';
 import 'package:boxmon/map/model/geocoding_repository.dart';
 import 'package:boxmon/map/model/naver_address_model.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 // 설문 순서: 1. 지도 준비 -> 2. 현재 위치로 찾기 -> 3. 검색어 입력 -> 4. 장소 선택 -> 5. 지도에 마커 표시 및 주소 변환
 enum AddressType { start, end, stopover1, stopover2 }
@@ -44,6 +46,9 @@ class MapViewModel extends GetxController {
 
   // 요금 입력
   final priceController = TextEditingController(); // 요금 입력 컨트롤러
+  final estimatedDistanceKm = RxnDouble();
+  final recommendedPrice = RxnInt();
+  final isPriceGuideLoading = false.obs;
 
   MapViewModel(this._mapService, this._repository);
   // late 키워드로 선언 (onMapReady에서 초기화)
@@ -313,6 +318,61 @@ class MapViewModel extends GetxController {
   // 최종 5번 페이지로 가기 전 데이터 검증
   bool canRequestDispatch() {
     return startFullAddress.value.isNotEmpty && endFullAddress.value.isNotEmpty;
+  }
+
+  Future<bool> fetchRecommendedPriceGuide() async {
+    if (isPriceGuideLoading.value) return false;
+
+    final pickupPoint = _buildPointOrNull(startLng.value, startLat.value);
+    final dropoffPoint = _buildPointOrNull(endLng.value, endLat.value);
+    if (pickupPoint == null || dropoffPoint == null) {
+      Get.snackbar("알림", "출발지/도착지 좌표가 올바르지 않습니다.");
+      return false;
+    }
+
+    final request = ShipmentPriceGuideRequest(
+      pickupPoint: pickupPoint,
+      dropoffPoint: dropoffPoint,
+      waypoint1Point: stopover1Address.value.isNotEmpty
+          ? _buildPointOrNull(stop1Lng.value, stop1Lat.value)
+          : null,
+      waypoint2Point: stopover2Address.value.isNotEmpty
+          ? _buildPointOrNull(stop2Lng.value, stop2Lat.value)
+          : null,
+    );
+
+    isPriceGuideLoading.value = true;
+    try {
+      final response = await _shipmentService.getShipmentPriceGuide(request);
+      if (response == null) {
+        Get.snackbar(
+          "알림",
+          "추천 운임 조회에 실패했습니다. 희망 운송요금을 직접 입력해주세요.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return false;
+      }
+
+      estimatedDistanceKm.value = response.estimatedDistanceKm;
+      recommendedPrice.value = response.recommendedPrice;
+      priceController.text =
+          NumberFormat('#,###').format(response.recommendedPrice);
+      return true;
+    } finally {
+      isPriceGuideLoading.value = false;
+    }
+  }
+
+  ShipmentPriceGuidePoint? _buildPointOrNull(double x, double y) {
+    if (!_isValidCoordinate(x: x, y: y)) return null;
+    return ShipmentPriceGuidePoint(x: x, y: y);
+  }
+
+  bool _isValidCoordinate({required double x, required double y}) {
+    if (x == 0.0 && y == 0.0) return false;
+    if (x < -180 || x > 180) return false;
+    if (y < -90 || y > 90) return false;
+    return true;
   }
 
   // 마커 업데이트 (기존 마커 제거 후 새로 생성)

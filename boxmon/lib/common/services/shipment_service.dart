@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:boxmon/common/model/detail_shipment_model.dart';
+import 'package:boxmon/common/model/shipment_price_guide_model.dart';
 import 'package:boxmon/common/model/shipper_recent_shipment_model.dart';
 import 'package:boxmon/common/model/shipper_shipment_summary_model.dart';
 import 'package:boxmon/common/model/shipment_model.dart';
@@ -19,6 +20,50 @@ class ShipmentService extends GetxService {
   // Base URL이 http://10.0.2.2:8080/api 로 설정된채로 가져와짐
   final dio.Dio _dio = Get.find<dio.Dio>();
   final TokenService _tokenService = Get.find<TokenService>();
+
+  Future<ShipmentPriceGuideResponse?> getShipmentPriceGuide(
+    ShipmentPriceGuideRequest request,
+  ) async {
+    try {
+      final currentToken = _tokenService.accessToken;
+      const String url = 'shipment/price-guide';
+
+      print("🚀 [시작] [운임가이드] POST $url");
+      print("📦 [운임가이드 요청] ${request.toJson()}");
+
+      final response = await _dio.post(
+        url,
+        data: request.toJson(),
+        options: dio.Options(
+          headers: {
+            'Authorization': 'Bearer $currentToken',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final result = ShipmentPriceGuideResponse.fromJson(
+          Map<String, dynamic>.from(response.data as Map),
+        );
+        print(
+          "✅ [성공] [운임가이드] distance=${result.estimatedDistanceKm}km, recommendedPrice=${result.recommendedPrice}",
+        );
+        return result;
+      }
+
+      print(
+        "❌ [실패] [운임가이드] 상태코드=${response.statusCode}, 데이터=${response.data}",
+      );
+    } on dio.DioException catch (e) {
+      print(
+        "❌ [실패] [운임가이드] 상태코드=${e.response?.statusCode}, 데이터=${e.response?.data}",
+      );
+    } catch (e) {
+      print("❌ [실패] [운임가이드] 알 수 없는 오류: $e");
+    }
+    return null;
+  }
 
   Future<ShipperShipmentSummaryModel?> getShipperShipmentSummary() async {
     try {

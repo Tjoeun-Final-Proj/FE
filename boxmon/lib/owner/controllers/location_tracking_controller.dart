@@ -4,11 +4,15 @@ import 'dart:io';
 import 'package:boxmon/map/model/location_log_request.dart';
 import 'package:boxmon/map/model/location_point.dart';
 import 'package:boxmon/map/services/location_service.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class LocationTrackingController extends GetxController {
   final LocationService _locationService = LocationService();
+  static final Duration _collectInterval =
+      kDebugMode ? const Duration(seconds: 5) : const Duration(seconds: 30);
+  static final int _batchSize = kDebugMode ? 3 : 10;
 
   // 1. 관찰 가능한 상태 변수들
   var isTracking = false.obs;
@@ -55,7 +59,7 @@ class LocationTrackingController extends GetxController {
         ? AndroidSettings(
             accuracy: LocationAccuracy.high,
             distanceFilter: 0,
-            intervalDuration: const Duration(seconds: 30),
+            intervalDuration: _collectInterval,
             foregroundNotificationConfig: const ForegroundNotificationConfig(
               notificationTitle: "BoxMon 위치 추적 중",
               notificationText: "운송 완료 전까지 위치를 기록합니다.",
@@ -93,10 +97,10 @@ class LocationTrackingController extends GetxController {
 
       // 버퍼(리스트)에 추가
       locationBuffer.add(newPoint);
-      print("📍 좌표 추가됨: ${locationBuffer.length}/10");
+      print("📍 좌표 추가됨: ${locationBuffer.length}/$_batchSize");
 
-      // 🎯 10개가 쌓였는지 체크하여 서버 전송
-      if (locationBuffer.length >= 10) {
+      // 🎯 배치 수량이 쌓였는지 체크하여 서버 전송
+      if (locationBuffer.length >= _batchSize) {
         await _dispatchLocationLogs(sessionId: sessionId);
       }
     } catch (e) {
@@ -109,7 +113,7 @@ class LocationTrackingController extends GetxController {
     if (!isTracking.value || _currentShipmentId == null || sessionId != _sessionId) return;
     if (_isDispatching) return;
     if (locationBuffer.isEmpty) return;
-    if (!force && locationBuffer.length < 10) return;
+    if (!force && locationBuffer.length < _batchSize) return;
 
     // 1. 현재 전송할 데이터 스냅샷 찍기
     _isDispatching = true;
