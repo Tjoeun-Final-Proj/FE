@@ -8,11 +8,11 @@ class MyInqueryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 문의하기에서 썼던 컨트롤러 그대로 사용 (목록 로드 함수가 있다고 가정)
+    // 컨트롤러 주입
     final controller = Get.put(InqueryController());
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA), // 연한 회색 배경으로 카드 부각
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text(
           "내 문의 내역",
@@ -21,32 +21,39 @@ class MyInqueryView extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        elevation: 0,
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            return null;
-          },
+        // 데이터가 비었을 때 처리
+        if (controller.inquiryList.isEmpty) {
+          return _buildEmptyState();
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async => controller.fetchInquiries(),
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: controller.inquiryList.length,
+            itemBuilder: (context, index) {
+              // 리스트에서 하나씩 꺼내기
+              final item = controller.inquiryList[index];
+              return _buildInqueryCard(item);
+            },
+          ),
         );
       }),
-      // 우측 하단 플로팅 버튼으로 바로 문의하기 이동 가능하게!
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed('/my-inquery'), // 아까 만든 작성 페이지로 이동
-        backgroundColor: const Color(0xFF1A2F4B),
-        child: const Icon(Icons.edit, color: Colors.white),
-      ),
     );
   }
 
   // --- 문의 내역 카드 위젯 ---
   Widget _buildInqueryCard(dynamic item) {
-    // 답변 여부에 따른 색상 정의
-    bool isReplied = item.replyContent != null;
+    // 모델 구조에 맞게 데이터 추출 (InquiryItem 구조 기반)
+    final detail = item.inquiry;
+    bool isReplied = detail.answerContent != null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -70,7 +77,7 @@ class MyInqueryView extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  item.content ?? "",
+                  detail.contactContent ?? "내용 없음",
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -85,11 +92,12 @@ class MyInqueryView extends StatelessWidget {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4, left: 2),
             child: Text(
-              DateFormat('yyyy.MM.dd HH:mm').format(item.createdAt),
+              detail.createdAt != null
+                  ? DateFormat('yyyy.MM.dd HH:mm').format(detail.createdAt)
+                  : "-",
               style: TextStyle(fontSize: 12, color: Colors.grey[500]),
             ),
           ),
-          // 펼쳤을 때 보여줄 내용
           children: [
             Padding(
               padding: const EdgeInsets.only(
@@ -103,6 +111,25 @@ class MyInqueryView extends StatelessWidget {
                 children: [
                   const Divider(height: 1),
                   const SizedBox(height: 15),
+
+                  // 첨부 이미지가 있는 경우 표시
+                  if (item.contentUrl != null &&
+                      item.contentUrl.startsWith('http'))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          item.contentUrl,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const SizedBox.shrink(),
+                        ),
+                      ),
+                    ),
+
                   const Text(
                     "문의 내용",
                     style: TextStyle(
@@ -113,10 +140,11 @@ class MyInqueryView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    item.content ?? "",
+                    detail.contactContent ?? "",
                     style: const TextStyle(fontSize: 14, height: 1.5),
                   ),
 
+                  // 답변이 있을 경우 표시
                   if (isReplied) ...[
                     const SizedBox(height: 20),
                     Container(
@@ -137,7 +165,7 @@ class MyInqueryView extends StatelessWidget {
                               ),
                               SizedBox(width: 4),
                               Text(
-                                "답변 완료",
+                                "관리자 답변",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blueGrey,
@@ -147,7 +175,7 @@ class MyInqueryView extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            item.replyContent!,
+                            detail.answerContent!,
                             style: const TextStyle(fontSize: 14, height: 1.5),
                           ),
                         ],
@@ -203,4 +231,3 @@ class MyInqueryView extends StatelessWidget {
     );
   }
 }
-
