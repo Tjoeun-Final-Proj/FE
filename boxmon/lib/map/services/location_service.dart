@@ -11,7 +11,7 @@ class LocationService {
   late Token token;
   final dio.Dio _dio = dio.Dio(
     dio.BaseOptions(
-      baseUrl: 'http://10.0.2.2:8080/api/',
+      baseUrl: 'http://boxmon.p-e.kr:8080/api/',
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 3),
     ),

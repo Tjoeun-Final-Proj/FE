@@ -28,7 +28,7 @@ void main() async {
 
   // 3. 🌐 Dio 전역 설정 (이게 없으면 "Dio not found" 에러 발생!)
   Get.put(
-    Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/api/')),
+    Dio(BaseOptions(baseUrl: 'http://boxmon.p-e.kr:8080/api/')),
     permanent: true,
   );
 
@@ -79,9 +79,7 @@ class MyApp extends StatelessWidget {
           surfaceTintColor: Colors.white,
           elevation: 4,
           shadowColor: Color.fromRGBO(0, 0, 0, 0.10),
-          shape: Border(
-            bottom: BorderSide(color: Color(0xFFEDEDED), width: 1),
-          ),
+          shape: Border(bottom: BorderSide(color: Color(0xFFEDEDED), width: 1)),
         ),
       ),
     );
