@@ -152,6 +152,19 @@ class _PayHomeState extends State<PayHome> {
                     failUrl: "https://fail.url",
                   );
 
+                  print("🚀 [Toss SDK 요청 준비] 결제창 호출 직전 데이터");
+                  print(
+                    "📤 [Toss SDK Payload] "
+                    "method=${data.paymentMethod}, "
+                    "orderId=${data.orderId}, "
+                    "orderName=${data.orderName}, "
+                    "amount=${data.amount}, "
+                    "customerName=${data.customerName}, "
+                    "customerEmail=${data.customerEmail}, "
+                    "successUrl=${data.successUrl}, "
+                    "failUrl=${data.failUrl}",
+                  );
+
                   var result = await Get.toNamed(
                     AppRoutes.tossPaymentsResult,
                     arguments: data,

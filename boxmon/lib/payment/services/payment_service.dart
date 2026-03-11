@@ -57,11 +57,26 @@ class PaymentService extends GetxService {
       print("❌ [Payment API Error] ❌");
       if (e.response != null) {
         print("🚩 상태 코드: ${e.response?.statusCode}");
-        // 💡 400 에러 시 서버가 보낸 구체적인 필드 에러 메시지를 확인하세요.
-        print("📦 서버 응답 내용: ${e.response?.data}");
+        print("🚩 상태 메시지: ${e.response?.statusMessage}");
+        print(
+          "🌐 요청 URL: ${e.requestOptions.baseUrl}${e.requestOptions.path}",
+        );
+        print("📌 요청 메서드: ${e.requestOptions.method}");
+        print("📌 요청 헤더: ${e.requestOptions.headers}");
+        print("📌 응답 헤더: ${e.response?.headers.map}");
+
+        final dynamic responseData = e.response?.data;
+        if (responseData is Map || responseData is List) {
+          print(
+            "📦 서버 응답 내용(JSON): ${const JsonEncoder.withIndent('  ').convert(responseData)}",
+          );
+        } else {
+          print("📦 서버 응답 내용(Raw): $responseData");
+        }
       } else {
         print("📝 메시지: ${e.message}");
       }
+      print("📌 DioExceptionType: ${e.type}");
     } catch (e) {
       print("🚨 [CRITICAL ERROR]: $e");
     }

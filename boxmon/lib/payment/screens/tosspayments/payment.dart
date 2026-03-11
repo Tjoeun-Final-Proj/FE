@@ -9,6 +9,7 @@ import 'package:tosspayments_widget_sdk_flutter/pages/tosspayments_sdk_flutter.d
 class Payment extends StatelessWidget {
   /// 기본 생성자입니다.
   const Payment({super.key});
+  static const String _clientKey = 'test_ck_pP2YxJ4K87aW1W6dpd7vVRGZwXLO';
 
   /// 위젯을 빌드합니다.
   ///
@@ -47,8 +48,23 @@ Widget build(BuildContext context) {
   // 2. 결제 전 요청 데이터(PaymentData)가 들어왔을 때 (기존 로직)
   try {
     final PaymentData data = args as PaymentData;
+    print("🚀 [Toss SDK 요청 시작] TossPayments 위젯 생성");
+    print(
+      "📤 [Toss SDK Payload] "
+      "method=${data.paymentMethod}, "
+      "orderId=${data.orderId}, "
+      "orderName=${data.orderName}, "
+      "amount=${data.amount}, "
+      "customerName=${data.customerName}, "
+      "customerEmail=${data.customerEmail}, "
+      "successUrl=${data.successUrl}, "
+      "failUrl=${data.failUrl}",
+    );
+    print(
+      "🔑 [Toss ClientKey] ${_clientKey.substring(0, 12)}... (len=${_clientKey.length})",
+    );
     return TossPayments(
-      clientKey: 'test_ck_kYG57Eba3G9BpGx2aqMjrpWDOxmA',
+      clientKey: _clientKey,
       data: data,
       success: (Success success) {
         // 성공 시 자기 자신(Payment 위젯)을 다시 호출하거나 결과 페이지로 이동

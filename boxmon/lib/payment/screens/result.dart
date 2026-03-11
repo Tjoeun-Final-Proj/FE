@@ -45,7 +45,92 @@ class ResultPage extends StatelessWidget {
           );
         }
 
-        // 3. 통신이 완료되면 사용자님이 짠 UI를 그대로 보여줍니다.
+        // 3. 승인 실패 시 실패 화면
+        if (!controller.isSuccess.value) {
+          return SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
+                const Icon(
+                  Icons.error_outline,
+                  size: 90,
+                  color: Color(0xFFD32F2F),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  "결제 승인에 실패했습니다.",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "잠시 후 다시 시도해주세요.",
+                  style: TextStyle(color: Colors.grey, fontSize: 15),
+                ),
+                const SizedBox(height: 40),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8F9FA),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildSummaryRow("주문 번호", res.orderId),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Divider(color: Color(0xFFE9ECEF), thickness: 1),
+                        ),
+                        _buildSummaryRow("결제 금액", "$formattedAmount원"),
+                      ],
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => Get.offAllNamed(AppRoutes.commonOrder),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0047AB),
+                          minimumSize: const Size(double.infinity, 60),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          '주문 내역으로 이동',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () => Get.offAllNamed(AppRoutes.commonHome),
+                        child: const Text(
+                          '홈으로 돌아가기',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // 4. 승인 성공 화면
         return SafeArea(
           child: Column(
             children: [
