@@ -1,4 +1,5 @@
 ﻿import 'package:boxmon/wallet/controller/common_wallet_controller.dart';
+import 'package:boxmon/wallet/views/wallet_status_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -79,7 +80,6 @@ class CommonWalletView extends StatelessWidget {
     );
   }
 }
-
 // --- 위젯 함수들 ---
 
 Widget _buildSummaryCard(CommonWalletController controller) {
@@ -170,9 +170,7 @@ Widget _buildWalletItem({
   required String time,
   required String dropoffAddress,
 }) {
-  // 상태별 색상 로직 (간단 예시)
-  Color statusColor = status == "운송완료" ? Colors.blue[900]! : Colors.green;
-  if (status == "미배차") statusColor = Colors.red;
+  final statusColor = WalletStatusStyle.chipColor(status);
 
   return Container(
     margin: const EdgeInsets.only(bottom: 12),
@@ -248,4 +246,3 @@ Widget _buildWalletItem({
     ),
   );
 }
-
