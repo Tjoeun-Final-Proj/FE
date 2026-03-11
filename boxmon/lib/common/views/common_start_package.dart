@@ -93,13 +93,14 @@ class CommonStartPackageView extends StatelessWidget {
                 Expanded(
                   child: Obx(
                     () => ElevatedButton(
-                      onPressed: () {
+                      onPressed: viewModel.isPriceGuideLoading.value
+                          ? null
+                          : () async {
                         // 1. 현재가 1번 페이지(메인)인 경우
                         if (currentPage.value == 0) {
                           if (viewModel.canRequestDispatch()) {
-                            // 출발/도착지가 다 있다면 최종 5번 페이지로 이동 (또는 다음 로직)
-                            print("모든 주소 입력 완료! 다음 단계로 이동");
-                            // 만약 5번 페이지를 만드셨다면: pageController.jumpToPage(4);
+                            print("🚀 [시작] [운임가이드] 주소 입력 완료 후 추천 운임 조회");
+                            await viewModel.fetchRecommendedPriceGuide();
                             Get.toNamed('/dispatch/summary');
                           } else {
                             // 주소가 없으면 안내 메시지
@@ -134,13 +135,25 @@ class CommonStartPackageView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
-                        currentPage.value < totalSteps - 1 ? "입력 완료" : "요청 완료",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: viewModel.isPriceGuideLoading.value &&
+                              currentPage.value == 0
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              currentPage.value < totalSteps - 1
+                                  ? "입력 완료"
+                                  : "요청 완료",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ),

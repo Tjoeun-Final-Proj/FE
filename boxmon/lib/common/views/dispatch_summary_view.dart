@@ -192,6 +192,29 @@ class DispatchSummaryView extends StatelessWidget {
                 },
               ),
             ),
+            Obx(() {
+              final recommended = viewModel.recommendedPrice.value;
+              final distance = viewModel.estimatedDistanceKm.value;
+              if (recommended == null) return const SizedBox.shrink();
+
+              final recommendedText =
+                  NumberFormat('#,###').format(recommended);
+              final distanceText = distance != null
+                  ? " · 예상거리 ${distance.toStringAsFixed(1)}km"
+                  : "";
+
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+                child: Text(
+                  "추천 운임 ${recommendedText}원$distanceText",
+                  style: TextStyle(
+                    color: Colors.blue.shade700,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ),
