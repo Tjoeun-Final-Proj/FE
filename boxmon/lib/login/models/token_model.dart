@@ -4,6 +4,7 @@ class Token {
   final String userType;
   final int? userId;
   final String? userName;
+  final String? userEmail;
 
   Token({
     required this.accessToken,
@@ -11,6 +12,7 @@ class Token {
     required this.userType,
     this.userId,
     this.userName,
+    this.userEmail,
   });
 
   factory Token.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Token {
       userType: json['userType'],
       userId: json['userId'] as int?,
       userName: json['userName'] ?? json['name'],
+      userEmail: json['userEmail'] ?? json['email'],
     );
   }
 
@@ -30,6 +33,7 @@ class Token {
       'usertype': userType,
       'userId': userId,
       'userName': userName,
+      'userEmail': userEmail,
     };
   }
 }
