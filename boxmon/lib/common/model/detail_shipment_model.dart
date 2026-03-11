@@ -72,7 +72,7 @@ class ShipDetailResponseModel {
       shipmentId: json['shipmentId'] as int?,
       shipmentNumber: json['shipmentNumber'] as String?,
       shipmentStatus: json['shipmentStatus'] as String?,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      createdAt: _parseDateTime(json['createdAt']),
       shipperId: json['shipperId'] as int?,
       shipperName: json['shipperName'] as String?,
       driverId: json['driverId'] as int?,
@@ -80,23 +80,17 @@ class ShipDetailResponseModel {
       currentDriverPoint: json['currentDriverPoint'] != null 
           ? PointModel.fromJson(json['currentDriverPoint']) 
           : null,
-      distanceToDestination: json['distanceToDestination']?.toDouble(),
-      estimatedArrivalTime: json['estimatedArrivalTime'] != null 
-          ? DateTime.parse(json['estimatedArrivalTime']) 
-          : null,
+      distanceToDestination: _parseDouble(json['distanceToDestination']),
+      estimatedArrivalTime: _parseDateTime(json['estimatedArrivalTime']),
       pickupAddress: json['pickupAddress'] as String?,
       waypoint1Address: json['waypoint1Address'] as String?,
       waypoint2Address: json['waypoint2Address'] as String?,
       dropoffAddress: json['dropoffAddress'] as String?,
-      pickupDesiredAt: json['pickupDesiredAt'] != null 
-          ? DateTime.parse(json['pickupDesiredAt']) 
-          : null,
-      dropoffDesiredAt: json['dropoffDesiredAt'] != null 
-          ? DateTime.parse(json['dropoffDesiredAt']) 
-          : null,
+      pickupDesiredAt: _parseDateTime(json['pickupDesiredAt']),
+      dropoffDesiredAt: _parseDateTime(json['dropoffDesiredAt']),
       cargoType: json['cargoType'] as String?,
       cargoVolume: json['cargoVolume'] as String?,
-      cargoWeight: json['cargoWeight']?.toDouble(),
+      cargoWeight: _parseDouble(json['cargoWeight']),
       vehicleType: json['vehicleType'] as String?,
       description: json['description'] as String?,
       price: json['price'] as int?,
@@ -115,6 +109,20 @@ class ShipDetailResponseModel {
       shipperCancelToggle: json['shipperCancelToggle'] as bool?,
     );
   }
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    return null;
+  }
 }
 
 // 좌표(x, y) 처리를 위한 모델
@@ -126,8 +134,8 @@ class PointModel {
 
   factory PointModel.fromJson(Map<String, dynamic> json) {
     return PointModel(
-      x: json['x']?.toDouble(),
-      y: json['y']?.toDouble(),
+      x: ShipDetailResponseModel._parseDouble(json['x']),
+      y: ShipDetailResponseModel._parseDouble(json['y']),
     );
   }
 }
