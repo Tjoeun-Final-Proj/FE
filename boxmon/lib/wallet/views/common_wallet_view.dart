@@ -118,11 +118,11 @@ Widget _buildSummaryCard(CommonWalletController controller) {
             ),
             const SizedBox(width: 20),
             Text(
-              "${controller.differenceAmount}원 ${controller.isSaved ? '절약했습니다.' : '더 지출했습니다.'}",
+              "${controller.differenceAmount}원 ${controller.isSaved ? '더 지출했습니다.' : '절약했습니다.'}",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: controller.isSaved ? Colors.blue : Colors.red,
+                color: controller.isSaved ? Colors.red : Colors.blue,
               ),
             ),
           ],

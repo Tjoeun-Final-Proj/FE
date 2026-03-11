@@ -1,3 +1,4 @@
+import 'package:boxmon/owner/model/inquiry_model.dart';
 import 'package:boxmon/owner/services/order_shipment_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,6 +17,13 @@ class InqueryController extends GetxController {
   // 2. 이미지 경로 변수 (이미지 한 장 기준)
   var imagePath = <String>[].obs;
   final ImagePicker _picker = ImagePicker();
+
+  var inquiryList = <InquiryItem>[].obs;
+  @override
+  void onInit() {
+    fetchInquiries();
+    super.onInit();
+  }
 
   @override
   void onClose() {
@@ -65,5 +73,14 @@ class InqueryController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> fetchInquiries() async {
+    isLoading(true);
+    final result = await _inqueryService.myInquiry();
+    if (result != null) {
+      inquiryList.assignAll(result);
+    }
+    isLoading(false);
   }
 }

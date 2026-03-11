@@ -2,6 +2,7 @@ import 'package:boxmon/common/model/detail_shipment_model.dart';
 import 'package:boxmon/login/models/token_model.dart';
 import 'package:boxmon/login/services/token_service.dart';
 import 'package:boxmon/owner/model/driver_shipment_summary_model.dart';
+import 'package:boxmon/owner/model/inquiry_model.dart';
 import 'package:boxmon/owner/model/shipment_unassigned_response_model.dart';
 import 'package:boxmon/owner/model/vehicle_model.dart';
 import 'package:dio/dio.dart' as dio;
@@ -186,7 +187,6 @@ class OrderShipmentServices extends GetxService {
   }
 
   // 차주/화주 공통 문의 등록하는 함수입니다.
-
   Future<bool> registerInquiry(String content, List<String> imagePaths) async {
     try {
       final currentToken = _tokenService.accessToken;
@@ -233,5 +233,52 @@ class OrderShipmentServices extends GetxService {
       print("🚨 [Inquiry Service Critical] $e");
     }
     return false;
+  }
+
+  Future<List<InquiryItem>?> myInquiry() async {
+    try {
+      final currentToken = _tokenService.accessToken;
+
+      print("🌐 [API 요청] POST: contact/view");
+
+      final response = await _dio.post(
+        // 요청하신 대로 POST로 변경
+        'contact/view',
+        options: dio.Options(
+          headers: {'Authorization': 'Bearer $currentToken'},
+        ),
+      );
+
+      print("✅ [응답 성공] 상태 코드: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        // 1. 응답 데이터가 Map 형태임 (Key가 "com.tjoeun..." 식)
+        final Map<String, dynamic> rawMap = response.data;
+        final List<InquiryItem> allInquiries = [];
+
+        // 2. Map의 모든 Value(리스트)를 순회하며 하나의 리스트로 통합
+        rawMap.forEach((key, value) {
+          if (value is List) {
+            for (var item in value) {
+              allInquiries.add(InquiryItem.fromJson(item));
+            }
+          }
+        });
+
+        // 3. 최신순 정렬 (필요 시)
+        allInquiries.sort(
+          (a, b) => (b.inquiry.createdAt ?? DateTime.now()).compareTo(
+            a.inquiry.createdAt ?? DateTime.now(),
+          ),
+        );
+
+        return allInquiries;
+      }
+    } on dio.DioException catch (e) {
+      print("❌ [Dio 에러]: ${e.response?.statusCode} - ${e.response?.data}");
+    } catch (e) {
+      print("🚨 [알 수 없는 에러]: $e");
+    }
+    return null;
   }
 }

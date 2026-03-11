@@ -230,8 +230,7 @@ class OwnerSettingView extends StatelessWidget {
                       Get.to(() => const InqueryView());
                     } else if (title == "내 문의 목록 보기") {
                       Get.to(() => const MyInqueryView());
-                    }
-                    {
+                    } else {
                       // 공지사항, 시스템 설정 등 아직 안 만든 메뉴들
                       Get.snackbar(
                         "알림",
